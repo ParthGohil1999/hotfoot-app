@@ -6,7 +6,8 @@ import { Redirect } from 'expo-router';
 const home = () => {
   return (
     <View>
-      < Redirect href={'./onboarding'} />
+      < Redirect href={'/(tabs)/home'} />
+      {/* < Redirect href={'/preferences/travelPreferences'} /> */}
     </View>
   )
 }

@@ -9,11 +9,12 @@ const { width, height } = Dimensions.get('window')
 export default function onboardingScreen() {
   const navigation = useNavigation()
   const handleDone = () => {
-    navigation.navigate('../(tabs)/home')
+    navigation.navigate('auth/index')
   }
   return (
     <View style={styles.container}>
       <Onboarding
+      bottomBarHighlight={false}
       onDone={handleDone}
       onSkip={handleDone}
         containerStyles={{ paddingHorizontal: 15 }}
@@ -25,8 +26,8 @@ export default function onboardingScreen() {
                 <LottieView style={{flex: 1}} source={require('../../assets/images/lottie-onb-1.json')} autoPlay loop />
               </View>
             ),
-            title: 'Onboarding',
-            subtitle: 'Done with React Native Onboarding Swiper',
+            title: 'Intelligent trip planning with Hotfoot AI',
+            subtitle: 'Let our AI plan a detailed trip tailored to you preferences. Easy planning for you unforgettable experience',
           },
           {
             backgroundColor: '#fff',
@@ -35,8 +36,8 @@ export default function onboardingScreen() {
                 <LottieView style={{flex: 1}} source={require('../../assets/images/lottie-onb-2.json')} autoPlay loop />
               </View>
             ),
-            title: 'Onboarding',
-            subtitle: 'Done with React Native Onboarding Swiper',
+            title: 'Stay Up-To-Date',
+            subtitle: 'Planning a getaway? Don’t worry—AI will keep your itinerary fully optimized with every work ping, just in case you miss those sweet Email notifications.',
           },
           {
             backgroundColor: '#fff',
@@ -45,8 +46,8 @@ export default function onboardingScreen() {
                 <LottieView style={{flex: 1}} source={require('../../assets/images/lottie-onb-3.json')} autoPlay loop />
               </View>
             ),
-            title: 'Onboarding',
-            subtitle: 'Done with React Native Onboarding Swiper',
+            title: "What's nearby?",
+            subtitle: "Because nothing screams excitement like AI guiding you to both a concert and a can opener within a 5-mile radius?",
           },
         ]}
       />
