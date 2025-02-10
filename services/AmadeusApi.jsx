@@ -44,11 +44,11 @@ export const TopPicksOnlyForYou = async () => {
         // Recommended locations similar to PAR
         const topPicks = await axios.get(BASE_URL_FOR_TOP_PICK_CITIES, topPicksconfig)
 
-        // console.log('topPicks from A-api:', topPicks)
+        // console.log('topPicks from A-apiii:', topPicks)
 
         return topPicks
     } catch (error) {
-        console.log(error);
+        console.log('Error from TopPicksOnlyForYou (Amadeus): ',error);
     }
 
 }
@@ -61,7 +61,7 @@ export const TopTrendsFromYourCityApi = async () => {
 
         // console.log('access token: ', data.access_token)
 
-        const BASE_URL_FOR_TOP_TRENDS_FROM_YOUR_CITY = 'https://test.api.amadeus.com/v1/travel/analytics/air-traffic/traveled?originCityCode=BOM&period=2017-08&sort=analytics.travelers.score'
+        const BASE_URL_FOR_TOP_TRENDS_FROM_YOUR_CITY = 'https://test.api.amadeus.com/v1/travel/analytics/air-traffic/traveled?originCityCode=LON&period=2017-08&sort=analytics.travelers.score'
 
         const topTrendsFromYourCityconfig = {
             headers: {
@@ -72,11 +72,11 @@ export const TopTrendsFromYourCityApi = async () => {
         // Recommended locations similar to PAR
         const topTrends = await axios.get(BASE_URL_FOR_TOP_TRENDS_FROM_YOUR_CITY, topTrendsFromYourCityconfig)
 
-        // console.log('topPicks from A-api:', topPicks)
+        console.log('topPicks from A-api:')
 
         return topTrends
     } catch (error) {
-        console.log(error);
+        console.log('Error from TopTrendsFromYourCityApi (Amadeus): ',error);
     }
 
 }

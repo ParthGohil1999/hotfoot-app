@@ -1,62 +1,14 @@
 import { View, Text, TextInput, ScrollView } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import TopBar from '../../components/topBar'
 import { MaterialIcons } from '@expo/vector-icons'
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { GetPlaceDetailsByTextSearch } from '../../services/GlobalApi'
-import { TopPicksOnlyForYou, TopTrendsFromYourCityApi } from '../../services/AmadeusApi'
 import { CityList, TopPicksCityList, TopTrendsFromYourCity } from '../../components/citiesFlatList'
-import { cityCodes } from '../../constants/iataCityCodes'
+
 
 const HomeScreen = () => {
-  const [cities, setCities] = useState([]);
-  const [topPicksCities, setTopPicksCities] = useState([]);
-  const [topTrendsCities, setTopTrendsCities] = useState([]);
 
-  useEffect(() => {
-    fetchData();
-    // console.log("topTrendsCities: ", topTrendsCities)
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const [popularDestinations, topPicks, topTrends] = await Promise.all([
-        GetPlaceDetailsByTextSearch().catch(err => {
-          throw new Error("PopularDestinations fetch failed: " + err.message);
-        }),
-        TopPicksOnlyForYou().catch(err => {
-          throw new Error("TopPicks fetch failed: " + err.message);
-        }),
-        TopTrendsFromYourCityApi().catch(err => {
-          throw new Error("topTrends fetch failed: " + err.message);
-        }),
-      ]);
-
-      const enrichDataWithCityNames = (apiResponse) => {
-        return {
-          data: apiResponse.data.map((item) => ({
-            ...item,
-            cityName: cityCodes[item.destination] || "Unknown City",
-          }))
-        };
-      };
-
-      const updatedtopTrends = enrichDataWithCityNames(topTrends.data);
-
-      setCities(popularDestinations);
-      setTopPicksCities(topPicks);
-      setTopTrendsCities(updatedtopTrends);
-    } catch (error) {
-      console.error("Error during fetchData:", error);
-    }
-  };
-
-
-  // useEffect(() => {
-  //   // console.log(cities); // Now logs the updated cities data
-  //   console.log('topTrendsCities:',JSON.stringify(topTrendsCities.data, null, 2)); // Now logs the updated cities data
-  // }, [topTrendsCities]);
 
   return (
     <SafeAreaView style={{ backgroundColor: 'white', flex: 1 }}>
@@ -76,43 +28,51 @@ const HomeScreen = () => {
           />
         </View>
 
-        <ScrollView className="flex container mb-28" showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
-          <View className="mb-5 mx-1 flex-row justify-between">
-            <Text className="subpixel-antialiased text-lg font-bold">
-              Popular Destinations
-            </Text>
-            <View className="flex-row items-center mr-3">
-              <Text>View All</Text>
-              <AntDesign className="ml-3 font-thin" name="arrowright" size={20} color="black" />
+        <ScrollView className="flex container mb-28 h-full " showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
+          <View>
+            <View className="mb-5 mx-1 flex-row justify-between">
+              <Text className="subpixel-antialiased text-lg font-bold">
+                Popular Destinations
+              </Text>
+              <View className="flex-row items-center mr-3">
+                <Text>View All</Text>
+                <AntDesign className="ml-3 font-thin" name="arrowright" size={20} color="black" />
+              </View>
+            </View>
+            <View>
+              {/* <CityList data={cities} /> */}
+              <CityList />
             </View>
           </View>
           <View>
-            <CityList data={cities} />
-          </View>
-          <View className="my-5 mx-1 flex-row justify-between">
-            <Text className="subpixel-antialiased text-lg font-bold">
-              Top picks for you
-            </Text>
-            <View className="flex-row items-center mr-3">
-              <Text>View All</Text>
-              <AntDesign className="ml-3 font-thin" name="arrowright" size={20} color="black" />
+            <View className="my-5 mx-1 flex-row justify-between">
+              <Text className="subpixel-antialiased text-lg font-bold">
+                Top picks for you
+              </Text>
+              <View className="flex-row items-center mr-3">
+                <Text>View All</Text>
+                <AntDesign className="ml-3 font-thin" name="arrowright" size={20} color="black" />
+              </View>
+            </View>
+            <View>
+              {/* <TopPicksCityList data={topPicksCities.data} /> */}
+              <TopPicksCityList />
             </View>
           </View>
-          <View>
-            <TopPicksCityList data={topPicksCities.data} />
-          </View>
-          <View className="my-5 mx-1 flex-row justify-between">
-            <Text className="subpixel-antialiased text-lg font-bold">
-              Top trends from your city
-            </Text>
-            <View className="flex-row items-center mr-3">
-              <Text>View All</Text>
-              <AntDesign className="ml-3 font-thin" name="arrowright" size={20} color="black" />
+          {/* <View>
+            <View className="my-5 mx-1 flex-row justify-between">
+              <Text className="subpixel-antialiased text-lg font-bold">
+                Top trends from your city
+              </Text>
+              <View className="flex-row items-center mr-3">
+                <Text>View All</Text>
+                <AntDesign className="ml-3 font-thin" name="arrowright" size={20} color="black" />
+              </View>
             </View>
-          </View>
-          <View>
-            <TopTrendsFromYourCity data={topTrendsCities} />
-          </View>
+            <View>
+              <TopTrendsFromYourCity />
+            </View>
+          </View> */}
         </ScrollView>
       </View>
     </SafeAreaView>

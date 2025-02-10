@@ -6,7 +6,7 @@ export const GetPixabayImageByCityName = async (name) => {
         const response = await axios.get(BASE_URL_FOR_CITY_IMAGE_BY_NAME_SEARCH);
         
         // console.log('Pixabay API Response:', response.data); // Debug API response
-        return JSON.stringify(response.data);
+        return JSON.stringify(response?.data);
     } catch (error) {
         console.error('Error fetching Pixabay image details:', error); // Log detailed error
         return JSON.stringify({ hits: [] }); // Return empty hits on error

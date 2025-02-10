@@ -2,18 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native';
 import axios from "axios"
 import { GetPixabayImageByCityName } from '../../services/PixabayApi';
+import { GetPlaceDetailsByTextSearch } from '../../services/GlobalApi'
+import { TopPicksOnlyForYou, TopTrendsFromYourCityApi } from '../../services/AmadeusApi'
+import { cityCodes } from '../../constants/iataCityCodes';
 
 export const CityList = ({ data }) => {
     const [places, setPlaces] = useState([]);
 
     useEffect(() => {
-        if (data && data.results) {
-            setPlaces(data.results);
+        fetchData()
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const popularDestinations = await GetPlaceDetailsByTextSearch();
+            // console.log('popularDestinations:',popularDestinations);
+
+            setPlaces(popularDestinations.results);
+        } catch (error) {
+            console.error("Error during fetching city list:", error);
         }
-    }, [data]);
+    };
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity className="flex items-center justify-center" style={{marginRight: 10}}>
+        <TouchableOpacity className="flex items-center justify-center" style={{ marginRight: 10 }}>
             {item.photos && item.photos.length > 0 && (
                 <View style={{
                     padding: 2,
@@ -22,7 +34,7 @@ export const CityList = ({ data }) => {
                     borderColor: 'black',
                     alignItems: 'center',
                     justifyContent: 'center',
-                  }}
+                }}
                 >
                     <Image
                         source={{
@@ -58,33 +70,43 @@ export const TopPicksCityList = ({ data }) => {
     const [cities, setCities] = useState([]);
 
     // console.log('TopPicksCityList console.log: ', cities)
-
     useEffect(() => {
-        const fetchCitiesWithImages = async () => {
-            if (!data) return;
+        fetchData()
+    }, []);
 
-            try {
-                const citiesWithImages = await Promise.all(
-                    data.data.map(async (city) => {
-                        try {
-                            const imageResponse = await GetPixabayImageByCityName(city.name);
-                            const parsedData = JSON.parse(imageResponse);
-                            const image = parsedData.hits?.[0]?.largeImageURL || null;
-                            return { ...city, imageUrl: image };
-                        } catch (error) {
-                            console.error(`Failed to fetch image for ${city.name}:`, error);
-                            return { ...city, imageUrl: null };
-                        }
-                    })
-                );
-                setCities(citiesWithImages);
-            } catch (error) {
-                console.error("Error fetching cities with images:", error);
-            }
-        };
+    const fetchData = async () => {
+        try {
+            const topPicks = await TopPicksOnlyForYou();
+            // console.log('TopPicksOnlyForYou:',topPicks);
+            fetchCitiesWithImages(topPicks.data)
+        } catch (error) {
+            console.error("Error during fetching top picks city list:", error);
+        }
+    };
 
-        fetchCitiesWithImages();
-    }, [data]);
+    const fetchCitiesWithImages = async (data) => {
+        // if (!data) return;
+        // console.log('data: ', data)
+
+        try {
+            const citiesWithImages = await Promise.all(
+                data?.data?.map(async (city) => {
+                    try {
+                        const imageResponse = await GetPixabayImageByCityName(city.name);
+                        const parsedData = await JSON.parse(imageResponse);
+                        const image = parsedData.hits?.[0]?.largeImageURL || null;
+                        return { ...city, imageUrl: image };
+                    } catch (error) {
+                        console.error(`Failed to fetch image for ${city.name}:`, error);
+                        return { ...city, imageUrl: null };
+                    }
+                })
+            );
+            setCities(citiesWithImages);
+        } catch (error) {
+            console.error("Error fetching cities with images:", error);
+        }
+    };
 
     const renderItem = ({ item }) => {
 
@@ -131,34 +153,56 @@ export const TopTrendsFromYourCity = ({ data }) => {
     const [cities, setCities] = useState([]);
 
     // console.log('TopPicksCityList console.log: ', cities)
-
     useEffect(() => {
-        const fetchCitiesWithImages = async () => {
-            if (!data) return;
+        fetchData()
+    }, []);
 
-            try {
-                const citiesWithImages = await Promise.all(
-                    data.data.map(async (city) => {
-                        try {
-                            const imageResponse = await GetPixabayImageByCityName(city.cityName);
-                            const parsedData = JSON.parse(imageResponse);
-                            const image = parsedData.hits?.[0]?.largeImageURL || null;
-                            return { ...city, imageUrl: image };
-                        } catch (error) {
-                            console.error(`Failed to fetch image for ${city.destination}:`, error);
-                            return { ...city, imageUrl: null };
-                        }
-                    })
-                );
-                // console.log("citiesWithImages: ", citiesWithImages)
-                setCities(citiesWithImages);
-            } catch (error) {
-                console.error("Error fetching cities with images:", error);
-            }
+    const fetchData = async () => {
+        try {
+            const topTrends = await TopTrendsFromYourCityApi();
+            // console.log('TopPicksOnlyForYou:',topPicks);
+            const data = enrichDataWithCityNames(topTrends.data)
+            // console.log('data: ', data)
+            fetchCitiesWithImages(data)
+        } catch (error) {
+            console.error("Error during fetching top trends city list:", error);
+        }
+    };
+
+    const enrichDataWithCityNames = (apiResponse) => {
+        // console.log('data enrichDataWithCityNames: ', apiResponse)
+        return {
+            data: apiResponse?.data?.map((item) => ({
+                ...item,
+                cityName: cityCodes[item.destination] || "Unknown City",
+            }))
         };
+    };
 
-        fetchCitiesWithImages();
-    }, [data]);
+    const fetchCitiesWithImages = async (data) => {
+        // if (!data) return;
+        // console.log('data: ', data)
+
+        try {
+            const citiesWithImages = await Promise.all(
+                data?.data?.map(async (city) => {
+                    try {
+                        const imageResponse = await GetPixabayImageByCityName(city.cityName);
+                        const parsedData = await JSON.parse(imageResponse);
+                        const image = parsedData.hits?.[0]?.largeImageURL || null;
+                        return { ...city, imageUrl: image };
+                    } catch (error) {
+                        console.error(`Failed to fetch image for ${city.cityName}:`, error);
+                        return { ...city, imageUrl: null };
+                    }
+                })
+            );
+            setCities(citiesWithImages);
+        } catch (error) {
+            console.error("Error fetching cities with images:", error);
+        }
+    };
+
 
     const renderItem = ({ item }) => {
 
