@@ -1,19 +1,28 @@
 import { View, Text, TextInput, ScrollView } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import TopBar from '../../components/topBar'
 import { MaterialIcons } from '@expo/vector-icons'
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { CityList, TopPicksCityList, TopTrendsFromYourCity } from '../../components/citiesFlatList'
+import { CityList, ExploreFlatList, TopPicksCityList, TopTrendsFromYourCity } from '../../components/citiesFlatList'
+import Animated, { FadeInLeft, FadeInRight } from 'react-native-reanimated';
+import ExploreHeader from '../../components/flatLists'
 
 
 const HomeScreen = () => {
 
+  const [category, setCategory] = useState('hotel');
+
+
+  const onDataChanged = (category) => {
+    setCategory(category);
+  };
+
 
   return (
     <SafeAreaView style={{ backgroundColor: 'white', flex: 1 }}>
-      <TopBar logo text={'Hotfoot'} />
-      <View className="flex container pl-5">
+      <TopBar logo text={'Hotfoot'}/>
+      <View className="flex container pl-5 mb-28">
         <View className='mb-5'>
           <TextInput
             className="border-gray-100 bg-gray-100 border-2 py-4 px-10 rounded-2xl mr-5"
@@ -73,6 +82,14 @@ const HomeScreen = () => {
               <TopTrendsFromYourCity />
             </View>
           </View> */}
+
+          <View>
+
+            <View>
+              <ExploreHeader onCategoryChanged={onDataChanged} />
+              <ExploreFlatList category={category}/>
+            </View>
+          </View>
         </ScrollView>
       </View>
     </SafeAreaView>

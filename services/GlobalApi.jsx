@@ -1,7 +1,7 @@
 import axios from "axios"
 import { toast } from "sonner";
 
-const apiKey = process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY;
+// const apiKey = process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY;
 
 
 // <====================== Get Place Latitude and Longitude Function ===============>
@@ -10,7 +10,7 @@ const apiKey = process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY;
 
 export const GetPlaceLatLng = async (placeid) => {
     try {
-        const BASE_URL_FOR_PLACE_LAT_LNG = `https://places.googleapis.com/v1/places/${placeid}?fields=location&key=${apiKey}`
+        const BASE_URL_FOR_PLACE_LAT_LNG = `https://places.googleapis.com/v1/places/${placeid}?fields=location&key=${process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY}`
 
         const { data } = await axios.get(BASE_URL_FOR_PLACE_LAT_LNG)
 
@@ -31,20 +31,20 @@ export const GetPlaceLatLng = async (placeid) => {
 
 export const GetPlaceDetails = async (body) => {
     try {
-        const BASE_URL_FOR_PLACE_DETAILS = `https://places.googleapis.com/v1/places:searchNearby?key=${apiKey}`
+        const BASE_URL_FOR_PLACE_DETAILS = `https://places.googleapis.com/v1/places:searchNearby?key=${process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY}`
 
         const config = {
             headers: {
                 'Content-Type': 'application/json',
-                'X-Goog-Api-Key': apiKey,
+                'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY,
                 'X-Goog-FieldMask': [
                     'places.displayName',
                     'places.id',
-                    'places.accessibilityOptions',
-                    'places.restroom',
-                    'places.servesCoffee',
-                    'places.goodForChildren',
-                    'places.businessStatus',
+                    // 'places.accessibilityOptions',
+                    // 'places.restroom',
+                    // 'places.servesCoffee',
+                    // 'places.goodForChildren',
+                    // 'places.businessStatus',
                     'places.editorialSummary',
                     'places.formattedAddress',
                     'places.googleMapsUri',
@@ -57,8 +57,8 @@ export const GetPlaceDetails = async (body) => {
                     'places.reviews',
                     'places.regularOpeningHours',
                     'places.types',
-                    'places.primaryType',
-                    'places.primaryTypeDisplayName',
+                    // 'places.primaryType',
+                    // 'places.primaryTypeDisplayName',
                     'places.websiteUri',
                     'places.paymentOptions',
                 ]
@@ -69,8 +69,8 @@ export const GetPlaceDetails = async (body) => {
 
         return data;
     } catch (error) {
-        console.error('Error fetching place details:', error);
-        toast("Oops, something went wrong while fetching place details")
+        console.error('Error fetching nearby place details:', error);
+        toast("Oops, something went wrong while fetching nearby place details")
     }
 }
 
@@ -82,19 +82,73 @@ export const GetPlaceDetails = async (body) => {
 export const GetPlaceDetailsByTextSearch = async (data) => {
     try {
 
-        const BASE_URL_FOR_PLACE_DETAILS_BY_TEXT_SEARCH = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=popular+europe+tourists+cities&key=${apiKey}`
+        const BASE_URL_FOR_PLACE_DETAILS_BY_TEXT_SEARCH = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=popular+europe+tourists+cities&key=${process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY}`
 
         const { data } = await axios.post(BASE_URL_FOR_PLACE_DETAILS_BY_TEXT_SEARCH)
 
         return data;
     } catch (error) {
-        console.error('Error fetching place details:', error);
-        toast("Oops, something went wrong while fetching place details")
+        console.error('Error fetching place details by text search:', error);
+        toast("Oops, something went wrong while fetching place details by text search")
+    }
+}
+
+// <====================== Get Place Details by Place ID Function =====================>
+
+
+export const GetPlaceDetailsById = async (placeid) => {
+    try {
+        // console.log("placeid: ", placeid)
+        const BASE_URL_FOR_PLACE_DETAILS = `https://places.googleapis.com/v1/places/${placeid}?key=${process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY}`
+
+        const fieldMask = [
+            'displayName',
+            'id',
+            'accessibilityOptions',
+            'restroom',
+            'servesCoffee',
+            'goodForChildren',
+            'businessStatus',
+            'editorialSummary',
+            'formattedAddress',
+            'googleMapsUri',
+            'internationalPhoneNumber',
+            'location',
+            'nationalPhoneNumber',
+            'photos',
+            'rating',
+            'userRatingCount',
+            'reviews',
+            'regularOpeningHours',
+            'types',
+            'primaryType',
+            'primaryTypeDisplayName',
+            'websiteUri',
+            'paymentOptions',
+        ].join(',');
+
+        const config = {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY,
+                'X-Goog-FieldMask': fieldMask, // Use the comma-separated string here
+            },
+        };
+
+        const { data } = await axios.get(BASE_URL_FOR_PLACE_DETAILS, config)
+
+        // console.log("placeid data: ", data)
+
+        return data 
+
+    } catch (error) {
+        console.error('Error fetching place details by ID :', error);
+        toast("Oops, something went wrong while fetching place details by ID")
     }
 }
 
 export const getRouteMatrix = async (origin, destinations) => {
-    const url = `https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix?key=${apiKey}`;
+    const url = `https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix?key=${process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY}`;
 
     const requestBody = {
         origins: [
@@ -127,7 +181,7 @@ export const getRouteMatrix = async (origin, destinations) => {
     const config = {
         headers: {
             'Content-Type': 'application/json',
-            'X-Goog-Api-Key': apiKey,
+            'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY,
             'X-Goog-FieldMask': ['originIndex', 'destinationIndex', 'duration', 'distanceMeters', 'status', 'condition'],
         }
     };
@@ -142,4 +196,4 @@ export const getRouteMatrix = async (origin, destinations) => {
     }
 };
 
-export const PHOTO_REF_URL = 'https://places.googleapis.com/v1/{NAME}/media?maxHeightPx=1000&maxWidthPx=1000&key=' + apiKey
+export const PHOTO_REF_URL = 'https://places.googleapis.com/v1/{NAME}/media?maxHeightPx=1000&maxWidthPx=1000&key=' + process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY
