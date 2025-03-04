@@ -277,7 +277,7 @@ export const ExploreFlatList = ({ category }) => {
     const fetchData = async () => {
         try {
             const popularDestinations = await GetPlaceDetails(body);
-            // console.log('popularDestinations:', popularDestinations);
+            // console.log('popularDestinations:', popularDestinations.places);
 
             setPlaces(popularDestinations.places);
         } catch (error) {
@@ -288,7 +288,7 @@ export const ExploreFlatList = ({ category }) => {
     const renderItem = ({ item }) => (
 
         <View className="p-3">
-            <Link href={{ pathname: `/${category}/${item?.id}`, state: item }} asChild>
+            <Link href={{ pathname: `/${category}/${item?.id}`, params: { name: item?.displayName?.text, phoneNumber: item?.internationalPhoneNumber, latitude: item?.location.latitude, longitude: item?.location.longitude }}} asChild>
                 <TouchableOpacity className="rounded-xl bg-white p-3 shadow-lg hover:shadow-xl">
                     {item.photos && item.photos.length > 0 && (
                         <View
@@ -309,7 +309,7 @@ export const ExploreFlatList = ({ category }) => {
                         <View style={styles.container}>
                             {/* Display Name */}
                             <Text style={styles.displayName}>
-                                {item.displayName?.text || "Unknown Place"}
+                                {item?.displayName?.text || "Unknown Place"}
                             </Text>
 
                             {/* Address */}

@@ -1,312 +1,337 @@
 export default placeDetails = {
-    "id": "ChIJa7MYyssEdkgRW0GxGFyDvWw",
-    "types": [
-      "hotel",
-      "lodging",
-      "point_of_interest",
-      "establishment"
-    ],
-    "nationalPhoneNumber": "020 7379 4737",
-    "internationalPhoneNumber": "+44 20 7379 4737",
-    "formattedAddress": "372 Strand, London WC2R 0JJ, UK",
-    "location": {
-      "latitude": 51.5108923,
-      "longitude": -0.12084299999999999
+  "id": "ChIJGTHtrjEbdkgRFY6-Ga5ZbPE",
+  "types": [
+    "hotel",
+    "lodging",
+    "event_venue",
+    "restaurant",
+    "bar",
+    "point_of_interest",
+    "food",
+    "establishment"
+  ],
+  "nationalPhoneNumber": "020 7637 2488",
+  "internationalPhoneNumber": "+44 20 7637 2488",
+  "formattedAddress": "38-51 Bedford Way, London WC1H 0DG, UK",
+  "location": {
+    "latitude": 51.5234634,
+    "longitude": -0.1273153
+  },
+  "rating": 3.5,
+  "googleMapsUri": "https://maps.google.com/?cid=17396378064916483605",
+  "websiteUri": "https://www.imperialhotels.co.uk/hotels/royal-national-hotel?utm_source=mybusiness&utm_medium=organic",
+  "businessStatus": "OPERATIONAL",
+  "userRatingCount": 14883,
+  "displayName": {
+    "text": "Royal National Hotel",
+    "languageCode": "en"
+  },
+  "primaryTypeDisplayName": {
+    "text": "Hotel",
+    "languageCode": "en-IN"
+  },
+  "primaryType": "hotel",
+  "editorialSummary": {
+    "text": "Straightforward hotel with unfussy rooms, plus traditional dining, a pub and a bowling alley.",
+    "languageCode": "en"
+  },
+  "reviews": [
+    {
+      "name": "places/ChIJGTHtrjEbdkgRFY6-Ga5ZbPE/reviews/ChdDSUhNMG9nS0VJQ0FnTUNnMFB6R3d3RRAB",
+      "relativePublishTimeDescription": "in the last week",
+      "rating": 5,
+      "text": {
+        "text": "What a lovely experience. The rooms was just enough of what you need. Located near SOHO which offered great night life and many food options. This hotel is also very close to train stops and bus stops which make traveling smooth. Right outside you'll find a great pub and a pizza spot for quick food. Also amazing coffee shops near by. You could also easily walk over to the British Museum!",
+        "languageCode": "en"
+      },
+      "originalText": {
+        "text": "What a lovely experience. The rooms was just enough of what you need. Located near SOHO which offered great night life and many food options. This hotel is also very close to train stops and bus stops which make traveling smooth. Right outside you'll find a great pub and a pizza spot for quick food. Also amazing coffee shops near by. You could also easily walk over to the British Museum!",
+        "languageCode": "en"
+      },
+      "authorAttribution": {
+        "displayName": "Jessica Soto",
+        "uri": "https://www.google.com/maps/contrib/105815803155426959445/reviews",
+        "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjVNGxM0iK7EQ2HiqGQ1IviphniELaNvdu_CUcnoEoHw-F4FCnMGXw=s128-c0x00000000-cc-rp-mo-ba3"
+      },
+      "publishTime": "2025-02-15T15:32:00.524590Z",
+      "flagContentUri": "https://www.google.com/local/review/rap/report?postId=ChdDSUhNMG9nS0VJQ0FnTUNnMFB6R3d3RRAB&d=17924085&t=1",
+      "googleMapsUri": "https://www.google.com/maps/reviews/data=!4m6!14m5!1m4!2m3!1sChdDSUhNMG9nS0VJQ0FnTUNnMFB6R3d3RRAB!2m1!1s0x48761b31aeed3119:0xf16c59ae19be8e15"
     },
-    "rating": 4.1,
-    "googleMapsUri": "https://maps.google.com/?cid=7835563358269030747",
-    "websiteUri": "https://www.strandpalacehotel.co.uk/?utm_source=google&utm_medium=local&utm_campaign=hotel-strandpalace",
-    "regularOpeningHours": {
-      "openNow": true,
-      "periods": [
+    {
+      "name": "places/ChIJGTHtrjEbdkgRFY6-Ga5ZbPE/reviews/ChZDSUhNMG9nS0VJQ0FnTUNBaTlhcEJBEAE",
+      "relativePublishTimeDescription": "2 weeks ago",
+      "rating": 5,
+      "text": {
+        "text": "This hotel is clean and central which is what I wanted. Whilst it is basic the rooms are spotless and beds are comfortable. There was hot water and clean towels. I thought we were gonna be in for a night of noise but it didn't last long and we had sound sleeps for 3 nights.\nI would recommend this hotel for the value of money and accessibility to anywhere in London. Any staff I spoke to were very friendly and very helpful. The bar on the grounds is v expensive so I'd avoid that.\nThanks for a lovely stay",
+        "languageCode": "en"
+      },
+      "originalText": {
+        "text": "This hotel is clean and central which is what I wanted. Whilst it is basic the rooms are spotless and beds are comfortable. There was hot water and clean towels. I thought we were gonna be in for a night of noise but it didn't last long and we had sound sleeps for 3 nights.\nI would recommend this hotel for the value of money and accessibility to anywhere in London. Any staff I spoke to were very friendly and very helpful. The bar on the grounds is v expensive so I'd avoid that.\nThanks for a lovely stay",
+        "languageCode": "en"
+      },
+      "authorAttribution": {
+        "displayName": "Sarragh Mc Cabe",
+        "uri": "https://www.google.com/maps/contrib/117576737944645399171/reviews",
+        "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjXIhnKLD8H4t_kWdJHXQ8JsITXfvtMEAgoPiBse1N_sx_z3Gt7WPQ=s128-c0x00000000-cc-rp-mo-ba5"
+      },
+      "publishTime": "2025-02-04T07:20:58.466185Z",
+      "flagContentUri": "https://www.google.com/local/review/rap/report?postId=ChZDSUhNMG9nS0VJQ0FnTUNBaTlhcEJBEAE&d=17924085&t=1",
+      "googleMapsUri": "https://www.google.com/maps/reviews/data=!4m6!14m5!1m4!2m3!1sChZDSUhNMG9nS0VJQ0FnTUNBaTlhcEJBEAE!2m1!1s0x48761b31aeed3119:0xf16c59ae19be8e15"
+    },
+    {
+      "name": "places/ChIJGTHtrjEbdkgRFY6-Ga5ZbPE/reviews/ChZDSUhNMG9nS0VJQ0FnSURmekxYY053EAE",
+      "relativePublishTimeDescription": "a month ago",
+      "rating": 5,
+      "text": {
+        "text": "I stayed at this hotel with my family for three nights, and we had a great time. A week after we got home, my mom realized she had left her earrings in the room. We contacted the hotel, and they were super helpful and quick to respond. The staff had found the earrings and kept them safe for us. I really appreciate their honesty and effort—thank you so much to the team!\n\nThe location is fantastic, right in central London. The hotel may look a bit old, but the room was clean and comfortable. I’ll definitely stay here again next time I’m in the city. Highly recommend!",
+        "languageCode": "en"
+      },
+      "originalText": {
+        "text": "I stayed at this hotel with my family for three nights, and we had a great time. A week after we got home, my mom realized she had left her earrings in the room. We contacted the hotel, and they were super helpful and quick to respond. The staff had found the earrings and kept them safe for us. I really appreciate their honesty and effort—thank you so much to the team!\n\nThe location is fantastic, right in central London. The hotel may look a bit old, but the room was clean and comfortable. I’ll definitely stay here again next time I’m in the city. Highly recommend!",
+        "languageCode": "en"
+      },
+      "authorAttribution": {
+        "displayName": "Gina Yothatip",
+        "uri": "https://www.google.com/maps/contrib/104155341482952140593/reviews",
+        "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjWuJiBgRaaKd1XPdi9EzcA6-dbGygt-uO0ESf9VnLFFixnvzYdH=s128-c0x00000000-cc-rp-mo"
+      },
+      "publishTime": "2025-01-04T11:36:04.103513Z",
+      "flagContentUri": "https://www.google.com/local/review/rap/report?postId=ChZDSUhNMG9nS0VJQ0FnSURmekxYY053EAE&d=17924085&t=1",
+      "googleMapsUri": "https://www.google.com/maps/reviews/data=!4m6!14m5!1m4!2m3!1sChZDSUhNMG9nS0VJQ0FnSURmekxYY053EAE!2m1!1s0x48761b31aeed3119:0xf16c59ae19be8e15"
+    },
+    {
+      "name": "places/ChIJGTHtrjEbdkgRFY6-Ga5ZbPE/reviews/ChdDSUhNMG9nS0VJQ0FnTURBeVpLRjhBRRAB",
+      "relativePublishTimeDescription": "a week ago",
+      "rating": 5,
+      "text": {
+        "text": "5 STAR for providing a comfy place to stay before my exam. Stayed for a night right before the most important exam of my career. Quiet and comfy, good illumination which are the most important factors for my last minute revision. Although I could barely sleep due to my anxiety + fear towards exam, the beds were comfy. Forgot to print out my revision materials and the receptionist kindly printed that out for me (tho she charged me quite a bit cause there are too many pages…)\nAnyway the extra 1 star bonus is because I PASSED my exam 🎉, might have gained luck from staying here! And yes, I deliberately did my review after I got my results cause if I failed I might have rated 1 star🫢… well jokes aside, clean and tidy rooms with great location, nice place to stay in general.",
+        "languageCode": "en"
+      },
+      "originalText": {
+        "text": "5 STAR for providing a comfy place to stay before my exam. Stayed for a night right before the most important exam of my career. Quiet and comfy, good illumination which are the most important factors for my last minute revision. Although I could barely sleep due to my anxiety + fear towards exam, the beds were comfy. Forgot to print out my revision materials and the receptionist kindly printed that out for me (tho she charged me quite a bit cause there are too many pages…)\nAnyway the extra 1 star bonus is because I PASSED my exam 🎉, might have gained luck from staying here! And yes, I deliberately did my review after I got my results cause if I failed I might have rated 1 star🫢… well jokes aside, clean and tidy rooms with great location, nice place to stay in general.",
+        "languageCode": "en"
+      },
+      "authorAttribution": {
+        "displayName": "Carmen Leung",
+        "uri": "https://www.google.com/maps/contrib/108409836084352991647/reviews",
+        "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjX28Q5RmPLGiNV8uvs2Dma7mo60M6V7QtD2QEDqb3GUddroAVEx=s128-c0x00000000-cc-rp-mo-ba3"
+      },
+      "publishTime": "2025-02-10T02:17:53.825293Z",
+      "flagContentUri": "https://www.google.com/local/review/rap/report?postId=ChdDSUhNMG9nS0VJQ0FnTURBeVpLRjhBRRAB&d=17924085&t=1",
+      "googleMapsUri": "https://www.google.com/maps/reviews/data=!4m6!14m5!1m4!2m3!1sChdDSUhNMG9nS0VJQ0FnTURBeVpLRjhBRRAB!2m1!1s0x48761b31aeed3119:0xf16c59ae19be8e15"
+    },
+    {
+      "name": "places/ChIJGTHtrjEbdkgRFY6-Ga5ZbPE/reviews/ChZDSUhNMG9nS0VJQ0FnSUQzdFpTNllREAE",
+      "relativePublishTimeDescription": "3 months ago",
+      "rating": 2,
+      "text": {
+        "text": "A popular budget-friendly option, offering a central location near major attractions and excellent public transport links. While its size ensures availability, the facilities and service can feel impersonal at times. The rooms are basic but clean, and the breakfast, though sufficient, is often busy due to the hotel’s large number of guests. For those seeking affordability and convenience over luxury, it’s a practical choice. However, improvements in modern amenities and customer service would enhance the overall experience. Perfect for short stays or travelers focused on exploring the city rather than spending time in the hotel.",
+        "languageCode": "en"
+      },
+      "originalText": {
+        "text": "A popular budget-friendly option, offering a central location near major attractions and excellent public transport links. While its size ensures availability, the facilities and service can feel impersonal at times. The rooms are basic but clean, and the breakfast, though sufficient, is often busy due to the hotel’s large number of guests. For those seeking affordability and convenience over luxury, it’s a practical choice. However, improvements in modern amenities and customer service would enhance the overall experience. Perfect for short stays or travelers focused on exploring the city rather than spending time in the hotel.",
+        "languageCode": "en"
+      },
+      "authorAttribution": {
+        "displayName": "Orod Zarrin",
+        "uri": "https://www.google.com/maps/contrib/106046628824596876129/reviews",
+        "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocIGjfO2iIWDwi51iM-d-yUYaqLVTWO6fmWshVJ5daDEdzkdviw=s128-c0x00000000-cc-rp-mo-ba6"
+      },
+      "publishTime": "2024-11-19T12:00:39.028716Z",
+      "flagContentUri": "https://www.google.com/local/review/rap/report?postId=ChZDSUhNMG9nS0VJQ0FnSUQzdFpTNllREAE&d=17924085&t=1",
+      "googleMapsUri": "https://www.google.com/maps/reviews/data=!4m6!14m5!1m4!2m3!1sChZDSUhNMG9nS0VJQ0FnSUQzdFpTNllREAE!2m1!1s0x48761b31aeed3119:0xf16c59ae19be8e15"
+    }
+  ],
+  "photos": [
+    {
+      "name": "places/ChIJGTHtrjEbdkgRFY6-Ga5ZbPE/photos/AVzFdbk5W2qH5lHRtLfbWu-pPI6BSpPfZY2s4I4tcnRW9_ADydgaraSK6mPsCxvWnXyjTRI4La4oqXGZx4Ea0tUZbk5PDTMvknUsOnja6-bVxCT6ysyOUiAiO-kTqyykHDVHN5Hs2DablOLYonjcz4_cGPsLoP6rk5TOLnhyCk5bmSVx",
+      "widthPx": 4800,
+      "heightPx": 3198,
+      "authorAttributions": [
         {
-          "open": {
-            "day": 0,
-            "hour": 0,
-            "minute": 0
-          }
+          "displayName": "Royal National Hotel",
+          "uri": "https://maps.google.com/maps/contrib/111007069930382217377",
+          "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjW0CMrs4EBSmgBiXSM6sqdYEB_QzJHtDO56povNchnRgHWL78q-=s100-p-k-no-mo"
         }
       ],
-      "weekdayDescriptions": [
-        "Monday: Open 24 hours",
-        "Tuesday: Open 24 hours",
-        "Wednesday: Open 24 hours",
-        "Thursday: Open 24 hours",
-        "Friday: Open 24 hours",
-        "Saturday: Open 24 hours",
-        "Sunday: Open 24 hours"
-      ]
+      "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipOmZ-RMY3pERk20mktkGaMrmUB-XdZqSv4-8ZUZ&hl=en-IN",
+      "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipOmZ-RMY3pERk20mktkGaMrmUB-XdZqSv4-8ZUZ!2e10!4m2!3m1!1s0x48761b31aeed3119:0xf16c59ae19be8e15"
     },
-    "businessStatus": "OPERATIONAL",
-    "userRatingCount": 7786,
-    "displayName": {
-      "text": "Strand Palace",
-      "languageCode": "en"
+    {
+      "name": "places/ChIJGTHtrjEbdkgRFY6-Ga5ZbPE/photos/AVzFdbm08RXhBswmS-P_kGVyb_LkV5-Cojfe015Jhj1ODWx6RBLWq134XWhOcjCYwD6P2EXIXM1H-ylf-eBPFrO-9xxfngq2J2gabaFZ3XaoBbAhU0Wr_ti9pbaWkj6dDvwdGVKe0X3O4fgmwDK-Jv2l05seDbannybzFtyzGuRjJegX",
+      "widthPx": 4800,
+      "heightPx": 3197,
+      "authorAttributions": [
+        {
+          "displayName": "Royal National Hotel",
+          "uri": "https://maps.google.com/maps/contrib/111007069930382217377",
+          "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjW0CMrs4EBSmgBiXSM6sqdYEB_QzJHtDO56povNchnRgHWL78q-=s100-p-k-no-mo"
+        }
+      ],
+      "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipPApq7k7ZLQoCONs8p2sDp-vYMeXaqdl3JkPHjI&hl=en-IN",
+      "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipPApq7k7ZLQoCONs8p2sDp-vYMeXaqdl3JkPHjI!2e10!4m2!3m1!1s0x48761b31aeed3119:0xf16c59ae19be8e15"
     },
-    "primaryTypeDisplayName": {
-      "text": "Hotel",
-      "languageCode": "en-IN"
+    {
+      "name": "places/ChIJGTHtrjEbdkgRFY6-Ga5ZbPE/photos/AVzFdbk4EvCWAkPSplJi-DPhxR2c1qDkeJt9FM0qLtqOZ464wejjRYpA5nQ-g685JO9c9jFjwHgBM5BKQHwxm377d0L98CiMpVrb-Bc99oKULRQ96qriPYp6KsreDDYD1LRxAZjqRwrntgt1ygjUriWfPLTcm1181Om4JaSJ8stBp80S",
+      "widthPx": 4500,
+      "heightPx": 3000,
+      "authorAttributions": [
+        {
+          "displayName": "Royal National Hotel",
+          "uri": "https://maps.google.com/maps/contrib/111007069930382217377",
+          "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjW0CMrs4EBSmgBiXSM6sqdYEB_QzJHtDO56povNchnRgHWL78q-=s100-p-k-no-mo"
+        }
+      ],
+      "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipPkd4rAUHvbpxl2frcaVGityrUpCpvYeUFpClJD&hl=en-IN",
+      "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipPkd4rAUHvbpxl2frcaVGityrUpCpvYeUFpClJD!2e10!4m2!3m1!1s0x48761b31aeed3119:0xf16c59ae19be8e15"
     },
-    "primaryType": "hotel",
-    "editorialSummary": {
-      "text": "Laid-back rooms and suites in a storied 1909 hotel featuring a restaurant and bar, plus a gym.",
-      "languageCode": "en"
+    {
+      "name": "places/ChIJGTHtrjEbdkgRFY6-Ga5ZbPE/photos/AVzFdbnqY1mypqztRCPC07MjUteGR8MB3Goxlc3gdv2tCQMD5LpVy86SPsbZpzVymyZ4L4hrAqAVs6x6405YBAU7mraoGRT5OIX-XkNwSHLwcLadj7avsCB82kxYSiBlrN5XyOG1uIFGZ2y5c6d2CCQnQIHHIB3HMkjv7uNUvitXwVW3",
+      "widthPx": 4500,
+      "heightPx": 3000,
+      "authorAttributions": [
+        {
+          "displayName": "Royal National Hotel",
+          "uri": "https://maps.google.com/maps/contrib/111007069930382217377",
+          "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjW0CMrs4EBSmgBiXSM6sqdYEB_QzJHtDO56povNchnRgHWL78q-=s100-p-k-no-mo"
+        }
+      ],
+      "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipP90WiCYGNizrl1TJNscx4wySQPGF0xln-fcd0O&hl=en-IN",
+      "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipP90WiCYGNizrl1TJNscx4wySQPGF0xln-fcd0O!2e10!4m2!3m1!1s0x48761b31aeed3119:0xf16c59ae19be8e15"
     },
-    "reviews": [
-      {
-        "name": "places/ChIJa7MYyssEdkgRW0GxGFyDvWw/reviews/ChZDSUhNMG9nS0VJQ0FnTUNBN0tESU5REAE",
-        "relativePublishTimeDescription": "2 weeks ago",
-        "rating": 5,
-        "text": {
-          "text": "I stayed here with my children in the family room because it was in easy walking distance of the Lyceum and we were visiting to see The Lion King.\nThe room had a sofa bed as the second bed, so would be a good sized room if you weren’t using that, with the sofa bed out it was smallish but big enough for a few nights without a problem. Both beds were comfortable, and the room was quiet (so nice after the business outside) and very clean. Nice bathroom with a great shower.\nThere were so many things included in the room- chocolates, crackers, wine, soft drinks, and water in a cute red recycled plastic “London” bottle, it felt like such a treat!\nThey seemed to be making efforts in sustainability- we noticed a water refill station, reusable water bottle, and refillable toiletries.\nBreakfast was fresh and tasty and had a wide selection of choices.\nWe chose room service for dinner which came from the in house restaurant. Portions were huge and the food was really lovely, with plenty of choices suitable for children.\nLocation is great- it’s a quick walk from Convent Garden, the Embankment and Westminster.\nStaff were friendly and helpful, they looked after our bags for us both before checked in and after we checked out so we could go shopping without carrying everything.\nI thoroughly recommend a stay here, we loved it.",
-          "languageCode": "en"
-        },
-        "originalText": {
-          "text": "I stayed here with my children in the family room because it was in easy walking distance of the Lyceum and we were visiting to see The Lion King.\nThe room had a sofa bed as the second bed, so would be a good sized room if you weren’t using that, with the sofa bed out it was smallish but big enough for a few nights without a problem. Both beds were comfortable, and the room was quiet (so nice after the business outside) and very clean. Nice bathroom with a great shower.\nThere were so many things included in the room- chocolates, crackers, wine, soft drinks, and water in a cute red recycled plastic “London” bottle, it felt like such a treat!\nThey seemed to be making efforts in sustainability- we noticed a water refill station, reusable water bottle, and refillable toiletries.\nBreakfast was fresh and tasty and had a wide selection of choices.\nWe chose room service for dinner which came from the in house restaurant. Portions were huge and the food was really lovely, with plenty of choices suitable for children.\nLocation is great- it’s a quick walk from Convent Garden, the Embankment and Westminster.\nStaff were friendly and helpful, they looked after our bags for us both before checked in and after we checked out so we could go shopping without carrying everything.\nI thoroughly recommend a stay here, we loved it.",
-          "languageCode": "en"
-        },
-        "authorAttribution": {
-          "displayName": "Sunshine Please",
-          "uri": "https://www.google.com/maps/contrib/114498434244050277549/reviews",
-          "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjXWXvfeCVKNktyMkvZMsc1dA6EsR8_npK6ZxKATL1SOTvt4_pE=s128-c0x00000000-cc-rp-mo"
-        },
-        "publishTime": "2025-01-30T03:12:30.849621Z",
-        "flagContentUri": "https://www.google.com/local/review/rap/report?postId=ChZDSUhNMG9nS0VJQ0FnTUNBN0tESU5REAE&d=17924085&t=1",
-        "googleMapsUri": "https://www.google.com/maps/reviews/data=!4m6!14m5!1m4!2m3!1sChZDSUhNMG9nS0VJQ0FnTUNBN0tESU5REAE!2m1!1s0x487604cbca18b36b:0x6cbd835c18b1415b"
-      },
-      {
-        "name": "places/ChIJa7MYyssEdkgRW0GxGFyDvWw/reviews/ChdDSUhNMG9nS0VJQ0FnTURBc1pUNHB3RRAB",
-        "relativePublishTimeDescription": "a week ago",
-        "rating": 3,
-        "text": {
-          "text": "Lovely hotel but rooms are small for the price and needing some maintenance. We had a terrible check-in experience with the lady taking 25 minutes to complete it. Luckily all other staff were extremely helpful and welcoming. The breakfast had something for everyone and was delicious. It is well located for exploring London and the West end.",
-          "languageCode": "en"
-        },
-        "originalText": {
-          "text": "Lovely hotel but rooms are small for the price and needing some maintenance. We had a terrible check-in experience with the lady taking 25 minutes to complete it. Luckily all other staff were extremely helpful and welcoming. The breakfast had something for everyone and was delicious. It is well located for exploring London and the West end.",
-          "languageCode": "en"
-        },
-        "authorAttribution": {
-          "displayName": "Danielle Turner",
-          "uri": "https://www.google.com/maps/contrib/116766888981598704732/reviews",
-          "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocIFrPjuAnqTnAf9NxrApotOxLBF_NjysG_NedyhA0Cxp8nIrg=s128-c0x00000000-cc-rp-mo"
-        },
-        "publishTime": "2025-02-09T21:20:21.357613Z",
-        "flagContentUri": "https://www.google.com/local/review/rap/report?postId=ChdDSUhNMG9nS0VJQ0FnTURBc1pUNHB3RRAB&d=17924085&t=1",
-        "googleMapsUri": "https://www.google.com/maps/reviews/data=!4m6!14m5!1m4!2m3!1sChdDSUhNMG9nS0VJQ0FnTURBc1pUNHB3RRAB!2m1!1s0x487604cbca18b36b:0x6cbd835c18b1415b"
-      },
-      {
-        "name": "places/ChIJa7MYyssEdkgRW0GxGFyDvWw/reviews/ChZDSUhNMG9nS0VJQ0FnSURfc08tMk5BEAE",
-        "relativePublishTimeDescription": "4 weeks ago",
-        "rating": 5,
-        "text": {
-          "text": "I’ve always admired this hotel whenever I passed by it on my trips to London, and during my last stay in December, I finally decided to book it. I’m so glad I did – it exceeded all my expectations.\n\nFrom the moment I arrived, I was fortunate enough to check in earlier than the usual time, which was a lovely surprise. My room was exactly as I had hoped: very clean, comfortable, and tastefully decorated. I truly felt at home, which is rare and much appreciated.\n\nThe hotel’s location is absolutely perfect, right in the heart of London. I couldn’t have asked for a better spot – everything is within easy reach, making getting around a breeze. The room service was also excellent: quick and with top-quality food.\n\nUnfortunately, I didn’t have the chance to try the breakfast this time, but I look forward to doing so on my next visit!\n\nOn the day of my departure, I was able to leave my luggage at the hotel so I could enjoy my last day in London without any hassle, which was a great bonus. The staff were all incredibly attentive, friendly, and helpful. Special thanks to Mary and Gigi for their kindness and professionalism.\n\nAs London is my favourite city, I know for sure that whenever I return, the Strand Palace Hotel will be my go-to place! A big thank you to the entire team for making my stay unforgettable.",
-          "languageCode": "en"
-        },
-        "originalText": {
-          "text": "I’ve always admired this hotel whenever I passed by it on my trips to London, and during my last stay in December, I finally decided to book it. I’m so glad I did – it exceeded all my expectations.\n\nFrom the moment I arrived, I was fortunate enough to check in earlier than the usual time, which was a lovely surprise. My room was exactly as I had hoped: very clean, comfortable, and tastefully decorated. I truly felt at home, which is rare and much appreciated.\n\nThe hotel’s location is absolutely perfect, right in the heart of London. I couldn’t have asked for a better spot – everything is within easy reach, making getting around a breeze. The room service was also excellent: quick and with top-quality food.\n\nUnfortunately, I didn’t have the chance to try the breakfast this time, but I look forward to doing so on my next visit!\n\nOn the day of my departure, I was able to leave my luggage at the hotel so I could enjoy my last day in London without any hassle, which was a great bonus. The staff were all incredibly attentive, friendly, and helpful. Special thanks to Mary and Gigi for their kindness and professionalism.\n\nAs London is my favourite city, I know for sure that whenever I return, the Strand Palace Hotel will be my go-to place! A big thank you to the entire team for making my stay unforgettable.",
-          "languageCode": "en"
-        },
-        "authorAttribution": {
-          "displayName": "Miyada Mokhtari",
-          "uri": "https://www.google.com/maps/contrib/108939618442751578087/reviews",
-          "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjWRZ7AUloK9JdIk1qM92Q0uZOaUxvJP5tcAAUBBc4kMDTpET3vv=s128-c0x00000000-cc-rp-mo"
-        },
-        "publishTime": "2025-01-21T00:06:57.129556Z",
-        "flagContentUri": "https://www.google.com/local/review/rap/report?postId=ChZDSUhNMG9nS0VJQ0FnSURfc08tMk5BEAE&d=17924085&t=1",
-        "googleMapsUri": "https://www.google.com/maps/reviews/data=!4m6!14m5!1m4!2m3!1sChZDSUhNMG9nS0VJQ0FnSURfc08tMk5BEAE!2m1!1s0x487604cbca18b36b:0x6cbd835c18b1415b"
-      },
-      {
-        "name": "places/ChIJa7MYyssEdkgRW0GxGFyDvWw/reviews/ChdDSUhNMG9nS0VJQ0FnSURfNjgtQXJ3RRAB",
-        "relativePublishTimeDescription": "3 weeks ago",
-        "rating": 5,
-        "text": {
-          "text": "I had a wonderful stay at the Strand Palace Hotel! The location is absolutely perfect, right in the heart of London, making it easy to explore the city. The hotel itself is impeccably clean, and the rooms are comfortable and well-maintained.\n\nWhat really stood out to me was the staff – they were incredibly welcoming and always ready to help. Whenever I needed guidance or directions, they went out of their way to assist me, which made my experience even better.\n\nI would definitely recommend this hotel to anyone looking for a great place to stay in London. Thank you, Strand Palace, for making my visit so enjoyable!",
-          "languageCode": "en"
-        },
-        "originalText": {
-          "text": "I had a wonderful stay at the Strand Palace Hotel! The location is absolutely perfect, right in the heart of London, making it easy to explore the city. The hotel itself is impeccably clean, and the rooms are comfortable and well-maintained.\n\nWhat really stood out to me was the staff – they were incredibly welcoming and always ready to help. Whenever I needed guidance or directions, they went out of their way to assist me, which made my experience even better.\n\nI would definitely recommend this hotel to anyone looking for a great place to stay in London. Thank you, Strand Palace, for making my visit so enjoyable!",
-          "languageCode": "en"
-        },
-        "authorAttribution": {
-          "displayName": "Bogdan Harbuz",
-          "uri": "https://www.google.com/maps/contrib/116529618250836656154/reviews",
-          "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjWEEZ_ohib-VE93qHfFvB-P6kaW2894m2JQbmmdmm7BxwS1YZerXg=s128-c0x00000000-cc-rp-mo"
-        },
-        "publishTime": "2025-01-27T08:13:09.936006Z",
-        "flagContentUri": "https://www.google.com/local/review/rap/report?postId=ChdDSUhNMG9nS0VJQ0FnSURfNjgtQXJ3RRAB&d=17924085&t=1",
-        "googleMapsUri": "https://www.google.com/maps/reviews/data=!4m6!14m5!1m4!2m3!1sChdDSUhNMG9nS0VJQ0FnSURfNjgtQXJ3RRAB!2m1!1s0x487604cbca18b36b:0x6cbd835c18b1415b"
-      },
-      {
-        "name": "places/ChIJa7MYyssEdkgRW0GxGFyDvWw/reviews/ChdDSUhNMG9nS0VJQ0FnTURBdDZUTV9RRRAB",
-        "relativePublishTimeDescription": "in the last week",
-        "rating": 5,
-        "text": {
-          "text": "This hotel is in a great location on the strand,with easy access to Leicester Square, Covent garden, Trafalgar Square, Big Ben and Westminster, in fact many many famous landmarks in Central London. The hotel itself is very nice , with a lovely reception area, restaurant and bar. There is also Joe Allen's bar and American diner within the hotel. The doorman was also a nice touch, always welcoming when you return to the hotel. I particularly liked the strand palace app, which I was able to make many requests rather than have to go down to reception or call reception. The speed of response to any request was rapid and welcomed. All in all, we had a great stay over two days two nights at the strand palace hotel and plan to return in the near future.",
-          "languageCode": "en"
-        },
-        "originalText": {
-          "text": "This hotel is in a great location on the strand,with easy access to Leicester Square, Covent garden, Trafalgar Square, Big Ben and Westminster, in fact many many famous landmarks in Central London. The hotel itself is very nice , with a lovely reception area, restaurant and bar. There is also Joe Allen's bar and American diner within the hotel. The doorman was also a nice touch, always welcoming when you return to the hotel. I particularly liked the strand palace app, which I was able to make many requests rather than have to go down to reception or call reception. The speed of response to any request was rapid and welcomed. All in all, we had a great stay over two days two nights at the strand palace hotel and plan to return in the near future.",
-          "languageCode": "en"
-        },
-        "authorAttribution": {
-          "displayName": "Neil Roberts",
-          "uri": "https://www.google.com/maps/contrib/103090766545807689149/reviews",
-          "photoUri": "https://lh3.googleusercontent.com/a/ACg8ocJyTSXBPIoelbOwBhwv5WGHb8Xuu4oTtC5d7iVrUitUURkYxQ=s128-c0x00000000-cc-rp-mo-ba4"
-        },
-        "publishTime": "2025-02-12T14:01:33.682226Z",
-        "flagContentUri": "https://www.google.com/local/review/rap/report?postId=ChdDSUhNMG9nS0VJQ0FnTURBdDZUTV9RRRAB&d=17924085&t=1",
-        "googleMapsUri": "https://www.google.com/maps/reviews/data=!4m6!14m5!1m4!2m3!1sChdDSUhNMG9nS0VJQ0FnTURBdDZUTV9RRRAB!2m1!1s0x487604cbca18b36b:0x6cbd835c18b1415b"
-      }
-    ],
-    "photos": [
-      {
-        "name": "places/ChIJa7MYyssEdkgRW0GxGFyDvWw/photos/AVzFdbknMSWVcY8UE9UTOn147CmQEwDIjxbqvYGq853CeKhdRPvnWc0CPwsAGKP2kW9Z6n4ADAY0Le13GFpG801Cm5lmqJH9jJcFw0FjHwXCs9NxB5siuugvCGtglsyJhgev_v_hD2diMEguq9-op7-CF85ibN20cO9j8446nn0V3o_Y",
-        "widthPx": 4800,
-        "heightPx": 3120,
-        "authorAttributions": [
-          {
-            "displayName": "Strand Palace",
-            "uri": "https://maps.google.com/maps/contrib/106211313699521269653",
-            "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjXJMzSfam9uzqytvRjd9z4XHZ63GcjPenteGAm5V66crJ1imzcZ=s100-p-k-no-mo"
-          }
-        ],
-        "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipN5Yvz5X3OqoNtVF1nuqWN8O_m4jSW2UpFKtnq5&hl=en-IN",
-        "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipN5Yvz5X3OqoNtVF1nuqWN8O_m4jSW2UpFKtnq5!2e10!4m2!3m1!1s0x487604cbca18b36b:0x6cbd835c18b1415b"
-      },
-      {
-        "name": "places/ChIJa7MYyssEdkgRW0GxGFyDvWw/photos/AVzFdbn-yvO3XfQksqJVA1rCNUTOEF-VYNbQILl1OBdaFTnWI5VkMTHrGaU-1aDHJBE81bzJB9TOzlk2Ye-BrLTqyHgU0fi94jr3OGx8yLLsXlDX-YIWLgocwKhwgmr8ZKhGf7PT9UOtGelQ-e8h4Ri4u9fICUqk-SOcinA-C0m6TcL4",
-        "widthPx": 3000,
-        "heightPx": 2249,
-        "authorAttributions": [
-          {
-            "displayName": "Strand Palace",
-            "uri": "https://maps.google.com/maps/contrib/106211313699521269653",
-            "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjXJMzSfam9uzqytvRjd9z4XHZ63GcjPenteGAm5V66crJ1imzcZ=s100-p-k-no-mo"
-          }
-        ],
-        "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipPFS1pe2QVLsyMMnKYfRim9V2NkwDxEQi54Wf62&hl=en-IN",
-        "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipPFS1pe2QVLsyMMnKYfRim9V2NkwDxEQi54Wf62!2e10!4m2!3m1!1s0x487604cbca18b36b:0x6cbd835c18b1415b"
-      },
-      {
-        "name": "places/ChIJa7MYyssEdkgRW0GxGFyDvWw/photos/AVzFdbke1ReFJzND8jazjGjZ0oFLojhunTjhvK9sKYuT_uR-kNcRudSe_wPJmN_YjCE9x1eq25fOq8hHgHWsD7x75q0O5asLfvR4bddMduD4pRygu2yN73yhohlnI_5-Gxwfr1na4QwIcyyuuSf0C-L7_vyj4H38bClnNThuRmGB8g34",
-        "widthPx": 3000,
-        "heightPx": 2000,
-        "authorAttributions": [
-          {
-            "displayName": "Strand Palace",
-            "uri": "https://maps.google.com/maps/contrib/106211313699521269653",
-            "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjXJMzSfam9uzqytvRjd9z4XHZ63GcjPenteGAm5V66crJ1imzcZ=s100-p-k-no-mo"
-          }
-        ],
-        "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipN7uoJAeXhD7PS5vK1HUUZmCXvDlTpX-lYEn9wQ&hl=en-IN",
-        "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipN7uoJAeXhD7PS5vK1HUUZmCXvDlTpX-lYEn9wQ!2e10!4m2!3m1!1s0x487604cbca18b36b:0x6cbd835c18b1415b"
-      },
-      {
-        "name": "places/ChIJa7MYyssEdkgRW0GxGFyDvWw/photos/AVzFdbn_s6WrQVNcSoHx2psYapC6AcesijweWKgYSueb7Moz2uGiKvFr3RorGMKbCVHuNXeiKpYT_sFZcgaPOMpxuEOVBWLcBxOnXFPopM4ebZhy-lA2EIwDeaZgAgnX5kba-KwBhvWJCeI0JgLWYO92n5NvCxAA2-LRkEuEe_78po9U",
-        "widthPx": 2048,
-        "heightPx": 1365,
-        "authorAttributions": [
-          {
-            "displayName": "Strand Palace",
-            "uri": "https://maps.google.com/maps/contrib/106211313699521269653",
-            "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjXJMzSfam9uzqytvRjd9z4XHZ63GcjPenteGAm5V66crJ1imzcZ=s100-p-k-no-mo"
-          }
-        ],
-        "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipNGTvM469KiKG0eO5j3BfHsFG7lUv--IcEdXQb5&hl=en-IN",
-        "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipNGTvM469KiKG0eO5j3BfHsFG7lUv--IcEdXQb5!2e10!4m2!3m1!1s0x487604cbca18b36b:0x6cbd835c18b1415b"
-      },
-      {
-        "name": "places/ChIJa7MYyssEdkgRW0GxGFyDvWw/photos/AVzFdbn00pvztANbJnUZYX5_qbMhLuzPoYcmu5PtWv5Sx1s-3dp9uT_DAlnCh06YMQ7FzufTe9gNmSjAQxaG-K899X-Yqk9Ie4dNo6GGM7DX75bsXHrFDKZ0-L_NgKJs9S83wfoyBlfFfzTzmseXQwIEhfi0RkXwm6Ldg03b8QLg592C",
-        "widthPx": 4000,
-        "heightPx": 2667,
-        "authorAttributions": [
-          {
-            "displayName": "Strand Palace",
-            "uri": "https://maps.google.com/maps/contrib/106211313699521269653",
-            "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjXJMzSfam9uzqytvRjd9z4XHZ63GcjPenteGAm5V66crJ1imzcZ=s100-p-k-no-mo"
-          }
-        ],
-        "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipMa2F2wCYs2yl8znB2VKn3tUa6mf7O1O16QQ7-w&hl=en-IN",
-        "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipMa2F2wCYs2yl8znB2VKn3tUa6mf7O1O16QQ7-w!2e10!4m2!3m1!1s0x487604cbca18b36b:0x6cbd835c18b1415b"
-      },
-      {
-        "name": "places/ChIJa7MYyssEdkgRW0GxGFyDvWw/photos/AVzFdbkC2SJD8oI7YMqJ1PbQgCW7hh0kZ0kJcck31lUySNUgjYEeAMsPhjJZYeQcbvuyurIaTY8I-ljciWaGeDbQH1jsN9cA9cVszjTDBSD-W_cJ76QKdC7lkrhCXhhaVkAel3eTsKGVeGrF1MriaaAQU4WTL7Z8Nj-RlmoakdO7ZuQT",
-        "widthPx": 4000,
-        "heightPx": 2801,
-        "authorAttributions": [
-          {
-            "displayName": "Strand Palace",
-            "uri": "https://maps.google.com/maps/contrib/106211313699521269653",
-            "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjXJMzSfam9uzqytvRjd9z4XHZ63GcjPenteGAm5V66crJ1imzcZ=s100-p-k-no-mo"
-          }
-        ],
-        "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipNX0OgKfpQYtUmmCxD3VRegjrxPdWBPfkUmJqA0&hl=en-IN",
-        "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipNX0OgKfpQYtUmmCxD3VRegjrxPdWBPfkUmJqA0!2e10!4m2!3m1!1s0x487604cbca18b36b:0x6cbd835c18b1415b"
-      },
-      {
-        "name": "places/ChIJa7MYyssEdkgRW0GxGFyDvWw/photos/AVzFdbm74kI2v4cVa-HcCjb-GaU465rFZw0j3a7RFYhZ-RKyitQut9F017_FcCcSwUGEeK4JnAnZZEK0Hl1cSQD63EoOxnUy0sE1Rk6s4oETAqKdNAgY6brjHpwwddNrjh5S7--kYdGUE5ZCk6YGCJIyKY3p9lKTMQjJYHBYFxiEWacY",
-        "widthPx": 2048,
-        "heightPx": 1365,
-        "authorAttributions": [
-          {
-            "displayName": "Strand Palace",
-            "uri": "https://maps.google.com/maps/contrib/106211313699521269653",
-            "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjXJMzSfam9uzqytvRjd9z4XHZ63GcjPenteGAm5V66crJ1imzcZ=s100-p-k-no-mo"
-          }
-        ],
-        "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipMawV87_0iY4oejvQwlWGFKzFzayaru0ecYthLJ&hl=en-IN",
-        "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipMawV87_0iY4oejvQwlWGFKzFzayaru0ecYthLJ!2e10!4m2!3m1!1s0x487604cbca18b36b:0x6cbd835c18b1415b"
-      },
-      {
-        "name": "places/ChIJa7MYyssEdkgRW0GxGFyDvWw/photos/AVzFdbn0HLsXKwIaczuXuXFPx_PBs_LGfhdFVZluMdf0rM7LZYeiX7zQm_uHMKHcvrX2nUPd357DT431Ev3HwE2U-xfmZkyZaiqcxh2eE0AF6Q3uwadb7aT7n2TF1InUg97gtiw7vrjW-6mNS2xXW7AvuBKDs_Wpui_z0NgQXwYySg6l",
-        "widthPx": 4800,
-        "heightPx": 3203,
-        "authorAttributions": [
-          {
-            "displayName": "Strand Palace",
-            "uri": "https://maps.google.com/maps/contrib/106211313699521269653",
-            "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjXJMzSfam9uzqytvRjd9z4XHZ63GcjPenteGAm5V66crJ1imzcZ=s100-p-k-no-mo"
-          }
-        ],
-        "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipOZYetwuiOhz-O_gO3jVsUrrvmFeaz6jCTSRVoo&hl=en-IN",
-        "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipOZYetwuiOhz-O_gO3jVsUrrvmFeaz6jCTSRVoo!2e10!4m2!3m1!1s0x487604cbca18b36b:0x6cbd835c18b1415b"
-      },
-      {
-        "name": "places/ChIJa7MYyssEdkgRW0GxGFyDvWw/photos/AVzFdbnpWZmiMH9gk1aSul35jJ2edl5srYSGo2ZTryEmGauWKcov7qdkA_-PP32Ehi9qvWTpYxg01XjAXnN1f28rc3B2n0oZeq3737x0g6BybEYOlLSpJeVuj4un3SUAhVrbO_w5rUiQNal-wqJQehs9ij5ploUHsSUJaEERaiw_A2H_",
-        "widthPx": 2239,
-        "heightPx": 3000,
-        "authorAttributions": [
-          {
-            "displayName": "Strand Palace",
-            "uri": "https://maps.google.com/maps/contrib/106211313699521269653",
-            "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjXJMzSfam9uzqytvRjd9z4XHZ63GcjPenteGAm5V66crJ1imzcZ=s100-p-k-no-mo"
-          }
-        ],
-        "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipNwlkJV1FSJU9hbAPBeX1k-pQQrJZSFZtq83o2v&hl=en-IN",
-        "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipNwlkJV1FSJU9hbAPBeX1k-pQQrJZSFZtq83o2v!2e10!4m2!3m1!1s0x487604cbca18b36b:0x6cbd835c18b1415b"
-      },
-      {
-        "name": "places/ChIJa7MYyssEdkgRW0GxGFyDvWw/photos/AVzFdbmJtEeUF4ayv3eNJ1TsipwQJDo_N8mWYRJVdxFxb0yYhmXM_mAyjNw9o0mjbTpxaediVmSBtA7vSwaTsIAlUNO6LVGfpZz7ELOfBhf4yOvJIVnFdpLbzgHnGeqBxl_KmVBJAfG5M2HKAZCmyPt2brbcIUvAQzGy1LUnD2NAv01Z",
-        "widthPx": 2048,
-        "heightPx": 1365,
-        "authorAttributions": [
-          {
-            "displayName": "Strand Palace",
-            "uri": "https://maps.google.com/maps/contrib/106211313699521269653",
-            "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjXJMzSfam9uzqytvRjd9z4XHZ63GcjPenteGAm5V66crJ1imzcZ=s100-p-k-no-mo"
-          }
-        ],
-        "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipNz4J2366G8495qPzMnG5-0FXaaHGkqiursfJ9K&hl=en-IN",
-        "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipNz4J2366G8495qPzMnG5-0FXaaHGkqiursfJ9K!2e10!4m2!3m1!1s0x487604cbca18b36b:0x6cbd835c18b1415b"
-      }
-    ],
-    "goodForChildren": true,
-    "paymentOptions": {
-      "acceptsCreditCards": true,
-      "acceptsCashOnly": false
+    {
+      "name": "places/ChIJGTHtrjEbdkgRFY6-Ga5ZbPE/photos/AVzFdbku1CjXGJ37iQLXvj3yIOuOYXQikGO7e7NXw73PHmnc7-TueA1IPIeRcFYpQGe1v8cyoTOblSWhTPbzYtvml7FZJqLHGt7hmKQ61MO1DBz_Wfdbz2D9CasL0SD65jJoBAMkP01sVn7rUiIvG5-ThUCUqWuVMf7zghqdPd_neZnO",
+      "widthPx": 2640,
+      "heightPx": 1759,
+      "authorAttributions": [
+        {
+          "displayName": "Royal National Hotel",
+          "uri": "https://maps.google.com/maps/contrib/111007069930382217377",
+          "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjW0CMrs4EBSmgBiXSM6sqdYEB_QzJHtDO56povNchnRgHWL78q-=s100-p-k-no-mo"
+        }
+      ],
+      "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipOQHzcw5z_q5rzhd1JHJVM7tlCV6bErpXYoNsJ0&hl=en-IN",
+      "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipOQHzcw5z_q5rzhd1JHJVM7tlCV6bErpXYoNsJ0!2e10!4m2!3m1!1s0x48761b31aeed3119:0xf16c59ae19be8e15"
     },
-    "accessibilityOptions": {
-      "wheelchairAccessibleEntrance": true
+    {
+      "name": "places/ChIJGTHtrjEbdkgRFY6-Ga5ZbPE/photos/AVzFdbk9dRtY1s6N3V4TrJdF21KWkMDAHaR2HmI-y5vp5vTOBElqsC9hnZQyq2ATwAK6wi0-r9nJKhrPixzZGyDL-o4D6SsVrbvkxX8ZkWqmagywbNZKEY1-qYa_kClexz17mEPvPRs4UPp2QqMEsuV9NQ2bcTbBPV2SBTV_-xA_ek9s",
+      "widthPx": 2640,
+      "heightPx": 1760,
+      "authorAttributions": [
+        {
+          "displayName": "Royal National Hotel",
+          "uri": "https://maps.google.com/maps/contrib/111007069930382217377",
+          "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjW0CMrs4EBSmgBiXSM6sqdYEB_QzJHtDO56povNchnRgHWL78q-=s100-p-k-no-mo"
+        }
+      ],
+      "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipPTGP0MwFS-NhbZw1MqCAB8ioobpC3R44crtWTA&hl=en-IN",
+      "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipPTGP0MwFS-NhbZw1MqCAB8ioobpC3R44crtWTA!2e10!4m2!3m1!1s0x48761b31aeed3119:0xf16c59ae19be8e15"
+    },
+    {
+      "name": "places/ChIJGTHtrjEbdkgRFY6-Ga5ZbPE/photos/AVzFdbmdYx0ehkZSzm85RFl6KWF33vLzJZxqeN2Fkh_kl4O_yJKivzyU73R1NoLxJJpGuWLN-RBWxNLlSN6-jN0UfYpesj5EoDWclACW9PWEWUIPjHjCFJldCIX7Q1IHjSDcluCK9d5OsjcMb6y11jo-cadb6OapZuCZ2Rk86-bDm9yO",
+      "widthPx": 4602,
+      "heightPx": 3076,
+      "authorAttributions": [
+        {
+          "displayName": "Royal National Hotel",
+          "uri": "https://maps.google.com/maps/contrib/111007069930382217377",
+          "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjW0CMrs4EBSmgBiXSM6sqdYEB_QzJHtDO56povNchnRgHWL78q-=s100-p-k-no-mo"
+        }
+      ],
+      "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipPfprRX2oIQ7KVhjfXGMlweLvv6WzRnL67FIQTz&hl=en-IN",
+      "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipPfprRX2oIQ7KVhjfXGMlweLvv6WzRnL67FIQTz!2e10!4m2!3m1!1s0x48761b31aeed3119:0xf16c59ae19be8e15"
+    },
+    {
+      "name": "places/ChIJGTHtrjEbdkgRFY6-Ga5ZbPE/photos/AVzFdbnxEhRP_S2wPycFF25m_ShUOseHm0dn8Gj0u-huuIkkf6drWSRtADA_ckr_vgXBsm3lbY38cRG94HwyXMzxtk2c_N2fybkeCu0W2jYTiSvtFUZTL-JaUGqeZyfi7O7etiODC_EGM7vggEpVNZDyWRWFCHMtmtfDqSc22PgvRR5T",
+      "widthPx": 4500,
+      "heightPx": 2993,
+      "authorAttributions": [
+        {
+          "displayName": "Royal National Hotel",
+          "uri": "https://maps.google.com/maps/contrib/111007069930382217377",
+          "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjW0CMrs4EBSmgBiXSM6sqdYEB_QzJHtDO56povNchnRgHWL78q-=s100-p-k-no-mo"
+        }
+      ],
+      "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipNWUR-NezOSfRo32XMFCVRdFiuT6WLHBAL-c-X6&hl=en-IN",
+      "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipNWUR-NezOSfRo32XMFCVRdFiuT6WLHBAL-c-X6!2e10!4m2!3m1!1s0x48761b31aeed3119:0xf16c59ae19be8e15"
+    },
+    {
+      "name": "places/ChIJGTHtrjEbdkgRFY6-Ga5ZbPE/photos/AVzFdbkDJy1x2SP9Qpm3cRmDYfK6gD29gokibpEt7zvMCF50lUcarfsDgDgMJ3vMbLQQjRDuV0nDUjPDwKt3OFZ4160Av4tVWEHIJG1b0rB_GhEfTJrFJXhECBeYyGXCpxxxxSVF6zChfb7eLzeKvc__E5uTsrDZh3zixwDY-0U7hjxN",
+      "widthPx": 4500,
+      "heightPx": 3000,
+      "authorAttributions": [
+        {
+          "displayName": "Royal National Hotel",
+          "uri": "https://maps.google.com/maps/contrib/111007069930382217377",
+          "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjW0CMrs4EBSmgBiXSM6sqdYEB_QzJHtDO56povNchnRgHWL78q-=s100-p-k-no-mo"
+        }
+      ],
+      "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipOloY6z9DLUjqn0-33PHOQGhl4KD3n6K7dYzsI6&hl=en-IN",
+      "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipOloY6z9DLUjqn0-33PHOQGhl4KD3n6K7dYzsI6!2e10!4m2!3m1!1s0x48761b31aeed3119:0xf16c59ae19be8e15"
+    },
+    {
+      "name": "places/ChIJGTHtrjEbdkgRFY6-Ga5ZbPE/photos/AVzFdbn9zwcTp5iOwMMdh17T-Gn31nOzpT07kwE9-bhvg5VV8ccggWCCbYfsYKKKROyAA2Q13qp5LKYraT_zBA570SllxuZ58QAyJybDA6LGpLpjSKFIS_REd2Wk-eMIjacD-jd0xGSCSOnfXWdqcUJUmAqKo11SXFxOrT4lGAvv5Rl6",
+      "widthPx": 2016,
+      "heightPx": 1512,
+      "authorAttributions": [
+        {
+          "displayName": "Alex CABERO",
+          "uri": "https://maps.google.com/maps/contrib/111978359555000597953",
+          "photoUri": "https://lh3.googleusercontent.com/a-/ALV-UjUXWj6Ebjn3IzlBn7J7W5oIoBbf2LoVyQRnXiTo6_ewiHBpcqH4=s100-p-k-no-mo"
+        }
+      ],
+      "flagContentUri": "https://www.google.com/local/imagery/report/?cb_client=maps_api_places.places_api&image_key=!1e10!2sAF1QipMWNs1-IH5HVusx88xEZBKXOGch3iQfIE7qPlfS&hl=en-IN",
+      "googleMapsUri": "https://www.google.com/maps/place//data=!3m4!1e2!3m2!1sAF1QipMWNs1-IH5HVusx88xEZBKXOGch3iQfIE7qPlfS!2e10!4m2!3m1!1s0x48761b31aeed3119:0xf16c59ae19be8e15"
     }
-  }
+  ],
+  "goodForChildren": true,
+  "paymentOptions": {
+    "acceptsCreditCards": true,
+    "acceptsDebitCards": true,
+    "acceptsCashOnly": false
+  },
+  "accessibilityOptions": {
+    "wheelchairAccessibleParking": true,
+    "wheelchairAccessibleEntrance": true
+  },
+  "amenities": [
+    "Restaurant",
+    "Non-smoking rooms",
+    "Internet",
+    "Free Internet",
+    "Wheelchair access",
+    "Bar/Lounge",
+    "Public Wifi",
+    "Meeting rooms",
+    "Concierge",
+    "Multilingual Staff",
+    "Accessible rooms",
+    "Conference Facilities",
+    "Non-smoking hotel",
+    "Flatscreen TV",
+    "Breakfast Buffet",
+    "Breakfast Available",
+    "Parking",
+    "Facilities for Disabled Guests",
+    "Housekeeping",
+    "Baggage Storage",
+    "24-Hour Check-in",
+    "Complimentary Tea",
+    "Doorperson",
+    "English",
+    "Complimentary Instant Coffee",
+    "24-Hour Front Desk",
+    "Hindi",
+    "Kid-Friendly Buffet",
+    "Parking Garage",
+    "Paid Private Parking On-site",
+    "Paid Private Parking Nearby",
+    "24-Hour Security",
+    "Spanish",
+    "Special Diet Menus",
+    "Taxi Service",
+    "Vending Machine"
+  ]
+}
+
+

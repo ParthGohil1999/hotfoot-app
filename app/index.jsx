@@ -7,7 +7,7 @@ const home = () => {
   return (
     <View>
       < Redirect href={'/(tabs)/home'} />
-      {/* < Redirect href={'/preferences/travelPreferences'} /> */}
+      {/* < Redirect href={'/onboarding'} /> */}
     </View>
   )
 }

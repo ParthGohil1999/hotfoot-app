@@ -10,9 +10,9 @@ import { toast } from "sonner";
 
 export const GetPlaceLatLng = async (placeid) => {
     try {
-        const BASE_URL_FOR_PLACE_LAT_LNG = `https://places.googleapis.com/v1/places/${placeid}?fields=location&key=${process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY}`
+        const BASE_URL_FOR_PLACE_LAT_LNG = `https://owr0q96ay7.execute-api.us-east-1.amazonaws.com/place-latlng`
 
-        const { data } = await axios.get(BASE_URL_FOR_PLACE_LAT_LNG)
+        const { data } = await axios.post(BASE_URL_FOR_PLACE_LAT_LNG,{placeid})
 
         const latitude = data.location.latitude
         const longitude = data.location.longitude
@@ -31,41 +31,41 @@ export const GetPlaceLatLng = async (placeid) => {
 
 export const GetPlaceDetails = async (body) => {
     try {
-        const BASE_URL_FOR_PLACE_DETAILS = `https://places.googleapis.com/v1/places:searchNearby?key=${process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY}`
+        const BASE_URL_FOR_PLACE_DETAILS = `https://owr0q96ay7.execute-api.us-east-1.amazonaws.com/place-details`
 
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY,
-                'X-Goog-FieldMask': [
-                    'places.displayName',
-                    'places.id',
-                    // 'places.accessibilityOptions',
-                    // 'places.restroom',
-                    // 'places.servesCoffee',
-                    // 'places.goodForChildren',
-                    // 'places.businessStatus',
-                    'places.editorialSummary',
-                    'places.formattedAddress',
-                    'places.googleMapsUri',
-                    'places.internationalPhoneNumber',
-                    'places.location',
-                    'places.nationalPhoneNumber',
-                    'places.photos',
-                    'places.rating',
-                    'places.userRatingCount',
-                    'places.reviews',
-                    'places.regularOpeningHours',
-                    'places.types',
-                    // 'places.primaryType',
-                    // 'places.primaryTypeDisplayName',
-                    'places.websiteUri',
-                    'places.paymentOptions',
-                ]
-            }
-        }
+        // const config = {
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY,
+        //         'X-Goog-FieldMask': [
+        //             'places.displayName',
+        //             'places.id',
+        //             // 'places.accessibilityOptions',
+        //             // 'places.restroom',
+        //             // 'places.servesCoffee',
+        //             // 'places.goodForChildren',
+        //             // 'places.businessStatus',
+        //             'places.editorialSummary',
+        //             'places.formattedAddress',
+        //             'places.googleMapsUri',
+        //             'places.internationalPhoneNumber',
+        //             'places.location',
+        //             'places.nationalPhoneNumber',
+        //             'places.photos',
+        //             'places.rating',
+        //             'places.userRatingCount',
+        //             'places.reviews',
+        //             'places.regularOpeningHours',
+        //             'places.types',
+        //             // 'places.primaryType',
+        //             // 'places.primaryTypeDisplayName',
+        //             'places.websiteUri',
+        //             'places.paymentOptions',
+        //         ]
+        //     }
+        // }
 
-        const { data } = await axios.post(BASE_URL_FOR_PLACE_DETAILS, body, config)
+        const { data } = await axios.post(BASE_URL_FOR_PLACE_DETAILS, body)
 
         return data;
     } catch (error) {
@@ -79,12 +79,12 @@ export const GetPlaceDetails = async (body) => {
 
 // PLEASE NOTE!!! Body is being passed as data where the function is being used...
 
-export const GetPlaceDetailsByTextSearch = async (data) => {
+export const GetPlaceDetailsByTextSearch = async () => {
     try {
 
-        const BASE_URL_FOR_PLACE_DETAILS_BY_TEXT_SEARCH = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=popular+europe+tourists+cities&key=${process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY}`
+        const BASE_URL_FOR_PLACE_DETAILS_BY_TEXT_SEARCH = `https://owr0q96ay7.execute-api.us-east-1.amazonaws.com/place-details-text-search`
 
-        const { data } = await axios.post(BASE_URL_FOR_PLACE_DETAILS_BY_TEXT_SEARCH)
+        const { data } = await axios.get(BASE_URL_FOR_PLACE_DETAILS_BY_TEXT_SEARCH)
 
         return data;
     } catch (error) {
@@ -99,43 +99,43 @@ export const GetPlaceDetailsByTextSearch = async (data) => {
 export const GetPlaceDetailsById = async (placeid) => {
     try {
         // console.log("placeid: ", placeid)
-        const BASE_URL_FOR_PLACE_DETAILS = `https://places.googleapis.com/v1/places/${placeid}?key=${process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY}`
+        const BASE_URL_FOR_PLACE_DETAILS = `https://owr0q96ay7.execute-api.us-east-1.amazonaws.com/place-details-by-id`
 
-        const fieldMask = [
-            'displayName',
-            'id',
-            'accessibilityOptions',
-            'restroom',
-            'servesCoffee',
-            'goodForChildren',
-            'businessStatus',
-            'editorialSummary',
-            'formattedAddress',
-            'googleMapsUri',
-            'internationalPhoneNumber',
-            'location',
-            'nationalPhoneNumber',
-            'photos',
-            'rating',
-            'userRatingCount',
-            'reviews',
-            'regularOpeningHours',
-            'types',
-            'primaryType',
-            'primaryTypeDisplayName',
-            'websiteUri',
-            'paymentOptions',
-        ].join(',');
+        // const fieldMask = [
+        //     'displayName',
+        //     'id',
+        //     'accessibilityOptions',
+        //     'restroom',
+        //     'servesCoffee',
+        //     'goodForChildren',
+        //     'businessStatus',
+        //     'editorialSummary',
+        //     'formattedAddress',
+        //     'googleMapsUri',
+        //     'internationalPhoneNumber',
+        //     'location',
+        //     'nationalPhoneNumber',
+        //     'photos',
+        //     'rating',
+        //     'userRatingCount',
+        //     'reviews',
+        //     'regularOpeningHours',
+        //     'types',
+        //     'primaryType',
+        //     'primaryTypeDisplayName',
+        //     'websiteUri',
+        //     'paymentOptions',
+        // ].join(',');
 
-        const config = {
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY,
-                'X-Goog-FieldMask': fieldMask, // Use the comma-separated string here
-            },
-        };
+        // const config = {
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'X-Goog-Api-Key': process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY,
+        //         'X-Goog-FieldMask': fieldMask, // Use the comma-separated string here
+        //     },
+        // };
 
-        const { data } = await axios.get(BASE_URL_FOR_PLACE_DETAILS, config)
+        const { data } = await axios.post(BASE_URL_FOR_PLACE_DETAILS, {placeid})
 
         // console.log("placeid data: ", data)
 
@@ -148,7 +148,7 @@ export const GetPlaceDetailsById = async (placeid) => {
 }
 
 export const getRouteMatrix = async (origin, destinations) => {
-    const url = `https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix?key=${process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY}`;
+    const url = `https://owr0q96ay7.execute-api.us-east-1.amazonaws.com/route-matrix`;
 
     const requestBody = {
         origins: [
@@ -187,7 +187,7 @@ export const getRouteMatrix = async (origin, destinations) => {
     };
 
     try {
-        const response = await axios.post(url, requestBody, config);
+        const response = await axios.post(url, [{origin}, {destinations}]);
         console.log("response.duration: ", response.data)
         return [response.data];
     } catch (error) {

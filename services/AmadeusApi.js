@@ -29,20 +29,21 @@ export const TopPicksOnlyForYou = async () => {
 
     try {
         
-        const data = await getAmadeusAccessToken()
+        // const data = await getAmadeusAccessToken()
 
         // console.log('access token: ', data.access_token)
 
-        const BASE_URL_FOR_TOP_PICK_CITIES = 'https://test.api.amadeus.com/v1/reference-data/recommended-locations?cityCodes=LON&destinationCountryCodes=FR'
+        const BASE_URL_FOR_TOP_PICK_CITIES = 'https://olec7zq74a.execute-api.us-east-1.amazonaws.com/dev/toppicks'
 
-        const topPicksconfig = {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${data?.access_token}`,
-            }
-        };
+        // const topPicksconfig = {
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'Authorization': `Bearer ${data?.access_token}`,
+        //     }
+        // };
         // Recommended locations similar to PAR
-        const topPicks = await axios.get(BASE_URL_FOR_TOP_PICK_CITIES, topPicksconfig)
+        // const topPicks = await axios.get(BASE_URL_FOR_TOP_PICK_CITIES, topPicksconfig)
+        const topPicks = await axios.get(BASE_URL_FOR_TOP_PICK_CITIES)
 
         // console.log('topPicks from A-apiii:', topPicks)
 
@@ -57,22 +58,23 @@ export const TopTrendsFromYourCityApi = async () => {
 
     try {
         
-        const data = await getAmadeusAccessToken()
+        // const data = await getAmadeusAccessToken()
 
         // console.log('access token: ', data.access_token)
 
-        const BASE_URL_FOR_TOP_TRENDS_FROM_YOUR_CITY = 'https://test.api.amadeus.com/v1/travel/analytics/air-traffic/traveled?originCityCode=LON&period=2017-08&sort=analytics.travelers.score'
+        const BASE_URL_FOR_TOP_TRENDS_FROM_YOUR_CITY = 'https://olec7zq74a.execute-api.us-east-1.amazonaws.com/dev/toptrends'
 
-        const topTrendsFromYourCityconfig = {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${data?.access_token}`,
-            }
-        };
+        // const topTrendsFromYourCityconfig = {
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'Authorization': `Bearer ${data?.access_token}`,
+        //     }
+        // };
         // Recommended locations similar to PAR
-        const topTrends = await axios.get(BASE_URL_FOR_TOP_TRENDS_FROM_YOUR_CITY, topTrendsFromYourCityconfig)
+        const topTrends = await axios.get(BASE_URL_FOR_TOP_TRENDS_FROM_YOUR_CITY)
+        // const topTrends = await axios.get(BASE_URL_FOR_TOP_TRENDS_FROM_YOUR_CITY, topTrendsFromYourCityconfig)
 
-        console.log('topPicks from A-api:')
+        // console.log('topPicks from A-api:')
 
         return topTrends
     } catch (error) {
