@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import axios from "axios"
 import { Dimensions } from 'react-native';
 import { GetPixabayImageByCityName } from '../../services/PixabayApi';
@@ -7,6 +7,9 @@ import { GetPlaceDetails, GetPlaceDetailsByTextSearch } from '../../services/Glo
 import { TopPicksOnlyForYou, TopTrendsFromYourCityApi } from '../../services/AmadeusApi'
 import { cityCodes } from '../../constants/iataCityCodes';
 import { Link } from 'expo-router';
+import { hotelDetails } from "../../constants/hotels"
+import Carousel from "react-native-reanimated-carousel";
+import { useRouter } from "expo-router";
 
 export const CityList = ({ data }) => {
     const [places, setPlaces] = useState([]);
@@ -249,8 +252,9 @@ export const TopTrendsFromYourCity = ({ data }) => {
 
 export const ExploreFlatList = ({ category }) => {
     const [places, setPlaces] = useState([]);
+    const router = useRouter();
+    const width = Dimensions.get('window').width
 
-    // console.log('category:', category);
 
 
     // types for google api
@@ -271,15 +275,25 @@ export const ExploreFlatList = ({ category }) => {
     }
 
     useEffect(() => {
+        // console.log('category:', hotelDetails);
         fetchData()
     }, [category]);
 
     const fetchData = async () => {
         try {
-            const popularDestinations = await GetPlaceDetails(body);
+            if (category === "hotel") {
+
+                setPlaces(hotelDetails.properties)
+
+                // console.log('popularDestinations:', hotelDetails.properties);
+
+            } else {
+                const popularDestinations = await GetPlaceDetails(body);
+
+                setPlaces(popularDestinations.places);
+            }
             // console.log('popularDestinations:', popularDestinations.places);
 
-            setPlaces(popularDestinations.places);
         } catch (error) {
             console.error("Error during ExploreFlatList city list:", error);
         }
@@ -287,47 +301,110 @@ export const ExploreFlatList = ({ category }) => {
 
     const renderItem = ({ item }) => (
 
-        <View className="p-3">
-            <Link href={{ pathname: `/${category}/${item?.id}`, params: { name: item?.displayName?.text, phoneNumber: item?.internationalPhoneNumber, latitude: item?.location.latitude, longitude: item?.location.longitude }}} asChild>
-                <TouchableOpacity className="rounded-xl bg-white p-3 shadow-lg hover:shadow-xl">
-                    {item.photos && item.photos.length > 0 && (
-                        <View
-                        >
-                            <Image
-                                source={{
-                                    uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&photoreference=${item.photos[0].name.split("/photos/")[1]}&key=${process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY}`,
-                                }}
-                                style={{ width: Dimensions.get('window').width - 35, height: 200, borderRadius: 10, objectFit: 'none' }}
-                                className="object-contain"
-                            />
-                            <View style={styles.ratingContainer}>
-                                <Text style={styles.ratingText}>★ {item.rating || "N/A"}</Text>
-                            </View>
-                        </View>
-                    )}
-                    <View style={{ marginVertical: 5, marginLeft: 2 }}>
-                        <View style={styles.container}>
-                            {/* Display Name */}
-                            <Text style={styles.displayName}>
-                                {item?.displayName?.text || "Unknown Place"}
-                            </Text>
+        category?.toString() === "hotel" ? (<View className="p-3">
+            <TouchableOpacity style={styles.card}>
+                {item.images && item.images.length > 0 && (
+                    <View>
 
-                            {/* Address */}
-                            {item.formattedAddress && (
-                                <View>
-                                    <Text style={styles.address}>{item.formattedAddress}</Text>
-                                    <Text style={styles.address}>Category: {category}</Text>
-                                </View>
+                        <Carousel
+                            loop
+                            width={width - 35}
+                            height={200}
+                            autoPlay={false}
+                            data={item.images}
+                            scrollAnimationDuration={1000}
+                            renderItem={({ item }) => (
+                                <Image
+                                    source={{ uri: item.original_image }}
+                                    style={{ width: width - 35, height: 200, borderRadius: 12, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}
+                                    className="object-cover"
+                                />
                             )}
-
-
-
-
+                        />
+                        <View style={styles.ratingContainer}>
+                            <Text style={styles.ratingText}>{item.rate_per_night.lowest || "N/A"}</Text>
                         </View>
                     </View>
-                </TouchableOpacity>
-            </Link>
-        </View>
+                )}
+
+                {/* Hotel Info */}
+                <View>
+                    <View style={{ padding: 10 }}>
+                        {/* Hotel Info */}
+                        {/* Amenities */}
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-5 px-2">
+                            {item?.amenities?.map((amenity, index) => (
+                                <View key={index} style={styles.aminityContainer}>
+                                    <Text style={styles.aminityText}>{amenity}</Text>
+                                </View>
+                            ))}
+                        </ScrollView>
+                        <Text className="text-lg font-bold mt-2">★ {item.location_rating} {item.reviews && `(${item.reviews})`}</Text>
+
+                        <View className="mt-2 mx-40">
+                            <Text className="text-lg font-semibold text-gray-900">{item.name}</Text>
+                        </View>
+
+                        {/* Pricing & Deals */}
+                        <View style={styles.viewDealContainer}>
+                            {/* <Text className="text-lg font-bold ">★ {item.location_rating} / night</Text> */}
+                            <TouchableOpacity
+                                style={styles.viewDetails}
+                                onPress={() => router.push(`/${category}/${item.property_token}`)}
+                            >
+                                <Text style={styles.viewDetailsText}>View Details</Text>
+                            </TouchableOpacity>
+                        </View>
+
+
+                    </View>
+                </View>
+
+
+
+            </TouchableOpacity>
+        </View>) :
+            (<View className="p-3">
+                <Link href={{ pathname: `/${category}/${item?.id}`, params: { name: item?.displayName?.text, phoneNumber: item?.internationalPhoneNumber, latitude: item?.location?.latitude, longitude: item?.location?.longitude } }} asChild>
+                    <TouchableOpacity className="rounded-xl bg-white p-3 shadow-lg hover:shadow-xl">
+                        {item.photos && item.photos.length > 0 && (
+                            <View
+                            >
+                                <Image
+                                    source={{
+                                        uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&photoreference=${item.photos[0].name.split("/photos/")[1]}&key=${process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY}`,
+                                    }}
+                                    style={{ width: Dimensions.get('window').width - 35, height: 200, borderRadius: 10, objectFit: 'none' }}
+                                    className="object-contain"
+                                />
+                                <View style={styles.ratingContainer}>
+                                    <Text style={styles.ratingText}>★ {item.rating || "N/A"}</Text>
+                                </View>
+                            </View>
+                        )}
+                        <View style={{ marginVertical: 5, marginLeft: 2 }}>
+                            <View style={styles.container}>
+                                {/* Display Name */}
+                                <Text style={styles.displayName}>
+                                    {item?.displayName?.text || "Unknown Place"}
+                                </Text>
+
+                                {/* Address */}
+                                {item.formattedAddress && (
+                                    <View>
+                                        <Text style={styles.address}>{item.formattedAddress}</Text>
+                                        <Text style={styles.address}>Category: {category}</Text>
+                                    </View>
+                                )}
+
+
+
+
+                            </View>
+                        </View>
+                    </TouchableOpacity>
+                </Link>
+            </View>)
     );
 
     return (
@@ -352,6 +429,12 @@ const styles = StyleSheet.create({
         marginTop: 12,
         marginBottom: 30,
     },
+    card: {
+        borderRadius: 12, // rounded-xl
+        marginBottom: 20, // p-3
+        borderWidth: 1, // border
+        borderColor: "#f3f4f6", // border-gray-100
+    },
     displayName: {
         fontSize: 20,
         fontWeight: "600",
@@ -375,6 +458,37 @@ const styles = StyleSheet.create({
         color: "black", // Gold/yellow color for stars
         fontWeight: "600",
         fontSize: 16,
+    },
+    aminityContainer: {
+        backgroundColor: "#f1f1f1", // Semi-transparent background
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 8,
+        marginRight: 7,
+        marginTop: 7,
+    },
+    aminityText: {
+        color: "black", // Gold/yellow color for stars
+        fontWeight: "600",
+        fontSize: 12,
+    },
+    viewDetails: {
+        backgroundColor: "black", // Semi-transparent background
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        borderRadius: 8,
+        marginRight: 7,
+        marginTop: 7,
+    },
+    viewDetailsText: {
+        color: "white", // Semi-transparent background
+        fontWeight: "bold"
+    },
+    viewDealContainer: {
+        display: "flex", // Semi-transparent background
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 15
     },
     reviewCount: {
         color: "#fff", // gray-600
