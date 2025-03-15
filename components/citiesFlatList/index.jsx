@@ -322,8 +322,9 @@ export const ExploreFlatList = ({ category }) => {
                             )}
                         />
                         <View style={styles.ratingContainer}>
-                            <Text style={styles.ratingText}>{item.rate_per_night.lowest || "N/A"}</Text>
+                            <Text style={styles.ratingText}>★ {item.location_rating} {item.reviews && `(${item.reviews})`}</Text>
                         </View>
+                        
                     </View>
                 )}
 
@@ -339,23 +340,24 @@ export const ExploreFlatList = ({ category }) => {
                                 </View>
                             ))}
                         </ScrollView>
-                        <Text className="text-lg font-bold mt-2">★ {item.location_rating} {item.reviews && `(${item.reviews})`}</Text>
 
-                        <View className="mt-2 mx-40">
-                            <Text className="text-lg font-semibold text-gray-900">{item.name}</Text>
+
+                        <View className="mt-2" style={{marginLeft: 10}}>
+                            <Text className="text-2xl mt-4 font-semibold text-gray-900">{item.name}</Text>
                         </View>
 
                         {/* Pricing & Deals */}
-                        <View style={styles.viewDealContainer}>
-                            {/* <Text className="text-lg font-bold ">★ {item.location_rating} / night</Text> */}
-                            <TouchableOpacity
-                                style={styles.viewDetails}
-                                onPress={() => router.push(`/${category}/${item.property_token}`)}
-                            >
-                                <Text style={styles.viewDetailsText}>View Details</Text>
+                       
+                        <View style={styles.priceContainer}>
+                            <View>
+                                <Text style={styles.priceLabel}>Starting from</Text>
+                                <Text style={styles.priceValue}>{item.rate_per_night.lowest || "N/A"}</Text>
+                                <Text style={styles.priceSubtext}>per night</Text>
+                            </View>
+                            <TouchableOpacity style={styles.bookButton} onPress={() => router.push(`/${category}/dummyPage`)}>
+                                <Text style={styles.bookButtonText}>Book Now</Text>
                             </TouchableOpacity>
                         </View>
-
 
                     </View>
                 </View>
@@ -434,6 +436,7 @@ const styles = StyleSheet.create({
         marginBottom: 20, // p-3
         borderWidth: 1, // border
         borderColor: "#f3f4f6", // border-gray-100
+        backgroundColor: '#f8f8f8',
     },
     displayName: {
         fontSize: 20,
@@ -515,4 +518,38 @@ const styles = StyleSheet.create({
         color: "white",
         fontWeight: "600",
     },
+    priceContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        // backgroundColor: '#f8f8f8',
+        paddingVertical: 20,
+        paddingHorizontal: 10,
+        borderRadius: 16,
+        // marginBottom: 24,
+      },
+      priceLabel: {
+        fontSize: 14,
+        color: '#666',
+      },
+      priceValue: {
+        fontSize: 28,
+        fontWeight: '700',
+        color: '#1a1a1a',
+      },
+      priceSubtext: {
+        fontSize: 14,
+        color: '#666',
+      },
+      bookButton: {
+        backgroundColor: '#1a1a1a',
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 25,
+      },
+      bookButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
+      },
 });
