@@ -1,4 +1,4 @@
-import { View, Text, TextInput, ScrollView } from 'react-native'
+import { View, Text, TextInput, ScrollView, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import TopBar from '../../components/topBar'
@@ -12,10 +12,15 @@ import ExploreHeader from '../../components/flatLists'
 const HomeScreen = () => {
 
   const [category, setCategory] = useState('hotel');
+  const [loading, setLoading] = useState(false);
 
 
   const onDataChanged = (category) => {
     setCategory(category);
+  };
+
+  const handleLoading = (isLoading) => {
+    setLoading(isLoading);
   };
 
 
@@ -50,7 +55,7 @@ const HomeScreen = () => {
             </View>
             <View>
               {/* <CityList data={cities} /> */}
-              <CityList />
+              {/* <CityList /> */}
             </View>
           </View>
           <View>
@@ -86,8 +91,8 @@ const HomeScreen = () => {
           <View>
 
             <View>
-              <ExploreHeader onCategoryChanged={onDataChanged} />
-              <ExploreFlatList category={category}/>
+            <ExploreHeader onCategoryChanged={onDataChanged} />
+            <ExploreFlatList category={category}  />
             </View>
           </View>
         </ScrollView>

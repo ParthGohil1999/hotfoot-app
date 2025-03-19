@@ -36,8 +36,9 @@ export default function RootLayout() {
       <Stack.Screen name="preferences/personalTouch" options={{ headerShown: false }} />
       <Stack.Screen name="preferences/allSet" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="hotel/[id]" options={{ headerTransparent: true, headerTitle: '' }} />
-      <Stack.Screen name="hotel/dummyPage" options={{ headerTransparent: true, headerTitle: '' }} />
+      <Stack.Screen name="hotel/[id]" options={{ headerShown: false, headerTitle: '' }} />
+      <Stack.Screen name="hotel/dummyPage" options={{ headerShown: false, headerTitle: '' }} />
+      <Stack.Screen name="place/cityDetails" options={{ headerShown: false, headerTitle: '' }} />
     </Stack>
 
 

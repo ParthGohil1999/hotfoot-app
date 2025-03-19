@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import axios from "axios"
 import { Dimensions } from 'react-native';
 import { GetPixabayImageByCityName } from '../../services/PixabayApi';
 import { GetPlaceDetails, GetPlaceDetailsByTextSearch } from '../../services/GlobalApi'
@@ -10,18 +9,20 @@ import { Link } from 'expo-router';
 import { hotelDetails } from "../../constants/hotels"
 import Carousel from "react-native-reanimated-carousel";
 import { useRouter } from "expo-router";
+import { HotelCard } from '../hotelCard/hotelCard';
 
 export const CityList = ({ data }) => {
     const [places, setPlaces] = useState([]);
 
     useEffect(() => {
         fetchData()
+        // console.log('places:', places)
     }, []);
 
     const fetchData = async () => {
         try {
             const popularDestinations = await GetPlaceDetailsByTextSearch();
-            // console.log('popularDestinations:',popularDestinations);
+            console.log('popularDestinations:', popularDestinations);
 
             setPlaces(popularDestinations.results);
         } catch (error) {
@@ -83,7 +84,7 @@ export const TopPicksCityList = ({ data }) => {
         try {
             const topPicks = await TopPicksOnlyForYou();
             // console.log('TopPicksOnlyForYou:',topPicks);
-            fetchCitiesWithImages(topPicks.data)
+            await fetchCitiesWithImages(topPicks.data)
         } catch (error) {
             console.error("Error during fetching top picks city list:", error);
         }
@@ -100,6 +101,7 @@ export const TopPicksCityList = ({ data }) => {
                         const imageResponse = await GetPixabayImageByCityName(city.name);
                         const parsedData = await JSON.parse(imageResponse);
                         const image = parsedData.hits?.[0]?.largeImageURL || null;
+                        // console.log("citiesWithImages: ", parsedData)
                         return { ...city, imageUrl: image };
                     } catch (error) {
                         console.error(`Failed to fetch image for ${city.name}:`, error);
@@ -107,6 +109,7 @@ export const TopPicksCityList = ({ data }) => {
                     }
                 })
             );
+            // console.log("citiesWithImages: ", citiesWithImages)
             setCities(citiesWithImages);
         } catch (error) {
             console.error("Error fetching cities with images:", error);
@@ -168,7 +171,7 @@ export const TopTrendsFromYourCity = ({ data }) => {
             // console.log('TopPicksOnlyForYou:',topPicks);
             const data = enrichDataWithCityNames(topTrends.data)
             // console.log('data: ', data)
-            fetchCitiesWithImages(data)
+            await fetchCitiesWithImages(data)
         } catch (error) {
             console.error("Error during fetching top trends city list:", error);
         }
@@ -250,9 +253,10 @@ export const TopTrendsFromYourCity = ({ data }) => {
 };
 
 
-export const ExploreFlatList = ({ category }) => {
+export const ExploreFlatList = ({ category, onLoading }) => {
     const [places, setPlaces] = useState([]);
     const router = useRouter();
+    const [loading, setLoading] = useState(true)
     const width = Dimensions.get('window').width
 
 
@@ -274,9 +278,14 @@ export const ExploreFlatList = ({ category }) => {
         }
     }
 
+    // onLoading(true)
     useEffect(() => {
         // console.log('category:', hotelDetails);
         fetchData()
+        // setTimeout(() => {
+            
+        //     onLoading(false);
+        // }, 2000);
     }, [category]);
 
     const fetchData = async () => {
@@ -300,71 +309,74 @@ export const ExploreFlatList = ({ category }) => {
     };
 
     const renderItem = ({ item }) => (
+            // <View>
+            //     <TouchableOpacity style={styles.card}>
+            //         {item.images && item.images.length > 0 && (
+            //             <View>
+
+            //                 <Carousel
+            //                     loop
+            //                     width={width - 35}
+            //                     height={200}
+            //                     autoPlay={false}
+            //                     data={item.images}
+            //                     scrollAnimationDuration={1000}
+            //                     renderItem={({ item }) => (
+            //                         <Image
+            //                             source={{ uri: item.original_image }}
+            //                             style={{ width: width - 35, height: 200, borderRadius: 12, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}
+            //                             className="object-cover"
+            //                         />
+            //                     )}
+            //                 />
+            //                 <View style={styles.ratingContainer}>
+            //                     <Text style={styles.ratingText}>★ {item.location_rating} {item.reviews && `(${item.reviews})`}</Text>
+            //                 </View>
+
+            //             </View>
+            //         )}
+
+            //         {/* Hotel Info */}
+            //         <View>
+            //             <View style={{ padding: 10 }}>
+            //                 {/* Hotel Info */}
+            //                 {/* Amenities */}
+            //                 <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-5 px-2">
+            //                     {item?.amenities?.map((amenity, index) => (
+            //                         <View key={index} style={styles.aminityContainer}>
+            //                             <Text style={styles.aminityText}>{amenity}</Text>
+            //                         </View>
+            //                     ))}
+            //                 </ScrollView>
+
+
+            //                 <View className="mt-2" style={{ marginLeft: 10 }}>
+            //                     <Text style={styles.sourceName} >{item.name}</Text>
+            //                 </View>
+
+            //                 {/* Pricing & Deals */}
+
+            //                 <View style={styles.priceContainer}>
+            //                     <View>
+            //                         <Text style={styles.priceLabel}>Starting from</Text>
+            //                         <Text style={styles.priceValue}>{item?.rate_per_night?.lowest || "N/A"}</Text>
+            //                         <Text style={styles.priceSubtext}>per night</Text>
+            //                     </View>
+            //                     <TouchableOpacity style={styles.bookButton} onPress={() => router.push(`/${category}/${item?.id}`)}>
+            //                         <Text style={styles.bookButtonText}>Book Now</Text>
+            //                     </TouchableOpacity>
+            //                 </View>
+
+            //             </View>
+            //         </View>
+
+
+
+            //     </TouchableOpacity>
+            // </View>
 
         category?.toString() === "hotel" ? (<View className="p-3">
-            <TouchableOpacity style={styles.card}>
-                {item.images && item.images.length > 0 && (
-                    <View>
-
-                        <Carousel
-                            loop
-                            width={width - 35}
-                            height={200}
-                            autoPlay={false}
-                            data={item.images}
-                            scrollAnimationDuration={1000}
-                            renderItem={({ item }) => (
-                                <Image
-                                    source={{ uri: item.original_image }}
-                                    style={{ width: width - 35, height: 200, borderRadius: 12, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}
-                                    className="object-cover"
-                                />
-                            )}
-                        />
-                        <View style={styles.ratingContainer}>
-                            <Text style={styles.ratingText}>★ {item.location_rating} {item.reviews && `(${item.reviews})`}</Text>
-                        </View>
-                        
-                    </View>
-                )}
-
-                {/* Hotel Info */}
-                <View>
-                    <View style={{ padding: 10 }}>
-                        {/* Hotel Info */}
-                        {/* Amenities */}
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-5 px-2">
-                            {item?.amenities?.map((amenity, index) => (
-                                <View key={index} style={styles.aminityContainer}>
-                                    <Text style={styles.aminityText}>{amenity}</Text>
-                                </View>
-                            ))}
-                        </ScrollView>
-
-
-                        <View className="mt-2" style={{marginLeft: 10}}>
-                            <Text className="text-2xl mt-4 font-semibold text-gray-900">{item.name}</Text>
-                        </View>
-
-                        {/* Pricing & Deals */}
-                       
-                        <View style={styles.priceContainer}>
-                            <View>
-                                <Text style={styles.priceLabel}>Starting from</Text>
-                                <Text style={styles.priceValue}>{item.rate_per_night.lowest || "N/A"}</Text>
-                                <Text style={styles.priceSubtext}>per night</Text>
-                            </View>
-                            <TouchableOpacity style={styles.bookButton} onPress={() => router.push(`/${category}/dummyPage`)}>
-                                <Text style={styles.bookButtonText}>Book Now</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                    </View>
-                </View>
-
-
-
-            </TouchableOpacity>
+            <HotelCard hotel={item} />
         </View>) :
             (<View className="p-3">
                 <Link href={{ pathname: `/${category}/${item?.id}`, params: { name: item?.displayName?.text, phoneNumber: item?.internationalPhoneNumber, latitude: item?.location?.latitude, longitude: item?.location?.longitude } }} asChild>
@@ -414,7 +426,7 @@ export const ExploreFlatList = ({ category }) => {
             <FlatList
                 data={places}
                 renderItem={renderItem}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => Date.now().toString() + Math.random().toString(36).substring(7)}
                 vertical={true}
                 showsVerticalScrollIndicator={false}
                 className="mr-5"
@@ -430,6 +442,12 @@ const styles = StyleSheet.create({
     container: {
         marginTop: 12,
         marginBottom: 30,
+    },
+    sourceName: {
+        fontSize: 16,
+        fontWeight: '700',
+        letterSpacing: 0.2,
+        marginTop: 20
     },
     card: {
         borderRadius: 12, // rounded-xl
@@ -527,29 +545,29 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         borderRadius: 16,
         // marginBottom: 24,
-      },
-      priceLabel: {
+    },
+    priceLabel: {
         fontSize: 14,
         color: '#666',
-      },
-      priceValue: {
+    },
+    priceValue: {
         fontSize: 28,
         fontWeight: '700',
         color: '#1a1a1a',
-      },
-      priceSubtext: {
+    },
+    priceSubtext: {
         fontSize: 14,
         color: '#666',
-      },
-      bookButton: {
+    },
+    bookButton: {
         backgroundColor: '#1a1a1a',
         paddingVertical: 12,
         paddingHorizontal: 24,
         borderRadius: 25,
-      },
-      bookButtonText: {
+    },
+    bookButtonText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: '600',
-      },
+    },
 });

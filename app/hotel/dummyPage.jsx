@@ -12,15 +12,14 @@ import {
     Modal,
     Dimensions,
     Platform,
-    Animated,
-    Pressable,
-    ImageBackground,
-    BlurView
+    Animated
 } from 'react-native';
 import { Ionicons, MaterialIcons, FontAwesome, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MapPin, Star, Clock, Phone, Calendar, Users, ChevronRight, Award, Leaf } from 'lucide-react-native';
+import { Star } from 'lucide-react-native';
 import ReviewBreakdown from '../../components/reviews/reviewBreakDown';
+import HotelPricingScreen from './hotelPrice';
+import { hotelDetails } from '../../constants/hoteldetails'
 
 const { width, height } = Dimensions.get('window');
 
@@ -156,9 +155,9 @@ export default function HotelDetailsScreen() {
 
     const renderRatingBar = (percentage) => (
         <View style={styles.ratingBarContainer}>
-          <View style={[styles.ratingBar, { width: `${percentage}%` }]} />
+            <View style={[styles.ratingBar, { width: `${percentage}%` }]} />
         </View>
-      );
+    );
 
     const renderReview = ({ item }) => (
         <Animated.View style={styles.reviewItem}>
@@ -374,27 +373,27 @@ Just steps away from the famous Place de la Madeleine, you'll find yourself perf
                 {/* Price and quick info */}
                 <View style={styles.section}>
 
-                <View style={styles.quickInfoContainer}>
-                    <View style={styles.infoCard}>
-                    <FontAwesome name="calendar-check-o" size={24} color="black" />
-                        
-                        <Text style={styles.infoLabel}>Check-in</Text>
-                        <Text style={styles.infoValue}>3:00 PM</Text>
+                    <View style={styles.quickInfoContainer}>
+                        <View style={styles.infoCard}>
+                            <FontAwesome name="calendar-check-o" size={24} color="black" />
+
+                            <Text style={styles.infoLabel}>Check-in</Text>
+                            <Text style={styles.infoValue}>3:00 PM</Text>
+                        </View>
+                        <View style={styles.infoCard}>
+                            <MaterialCommunityIcons name="exit-run" size={24} color="black" />
+                            <Text style={styles.infoLabel}>Check-out</Text>
+                            <Text style={styles.infoValue}>12:00 PM</Text>
+                        </View>
+                        <View style={styles.infoCard}>
+                            <Ionicons name="people-outline" size={24} color="black" />
+                            <Text style={styles.infoLabel}>Guests</Text>
+                            <Text style={styles.infoValue}>2 Adults</Text>
+                        </View>
                     </View>
-                    <View style={styles.infoCard}>
-                    <MaterialCommunityIcons name="exit-run" size={24} color="black" />
-                        <Text style={styles.infoLabel}>Check-out</Text>
-                        <Text style={styles.infoValue}>12:00 PM</Text>
-                    </View>
-                    <View style={styles.infoCard}>
-                    <Ionicons name="people-outline" size={24} color="black" />
-                        <Text style={styles.infoLabel}>Guests</Text>
-                        <Text style={styles.infoValue}>2 Adults</Text>
-                    </View>
-                </View>
 
                 </View>
-                
+
 
                 {/* Gallery Section */}
                 <View style={styles.section}>
@@ -558,62 +557,62 @@ Just steps away from the famous Place de la Madeleine, you'll find yourself perf
                                 <View style={styles.modalHeaderRight} />
                             </View>
                             <ScrollView className="flex container  h-full " showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
-                                
-                            <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Guest Reviews</Text>
-          <View style={styles.overallRating}>
-            <Text style={styles.overallRatingNumber}>3.8</Text>
-            <View style={styles.ratingDetails}>
-              <Text style={styles.ratingCount}>Based on {5647} reviews</Text>
-              <View style={styles.ratingStars}>
-                <Star size={16} color="black" />
-                <Star size={16} color="black" />
-                <Star size={16} color="black" />
-                <Star size={16} color="black" />
-                <Star size={16} color="#DDD" />
-              </View>
-            </View>
-          </View>
-          <View style={styles.ratingBars}>
-            <View style={styles.ratingBarRow}>
-              <Text style={styles.ratingBarLabel}>5</Text>
-              {renderRatingBar(42)}
-              <Text style={styles.ratingBarCount}>2,354</Text>
-            </View>
-            <View style={styles.ratingBarRow}>
-              <Text style={styles.ratingBarLabel}>4</Text>
-              {renderRatingBar(27)}
-              <Text style={styles.ratingBarCount}>1,542</Text>
-            </View>
-            <View style={styles.ratingBarRow}>
-              <Text style={styles.ratingBarLabel}>3</Text>
-              {renderRatingBar(13)}
-              <Text style={styles.ratingBarCount}>747</Text>
-            </View>
-            <View style={styles.ratingBarRow}>
-              <Text style={styles.ratingBarLabel}>2</Text>
-              {renderRatingBar(7)}
-              <Text style={styles.ratingBarCount}>389</Text>
-            </View>
-            <View style={styles.ratingBarRow}>
-              <Text style={styles.ratingBarLabel}>1</Text>
-              {renderRatingBar(11)}
-              <Text style={styles.ratingBarCount}>615</Text>
-            </View>
-          </View>
-        </View>
 
-        <View style={styles.section}>
-        <ReviewBreakdown />
-        </View>
-                            <FlatList
-                                data={reviews}
-                                renderItem={renderReview}
-                                keyExtractor={(item) => item.id}
-                                contentContainerStyle={styles.modalContent}
-                                showsVerticalScrollIndicator={false}
-                                scrollEnabled={false}
-                            />
+                                <View style={styles.section}>
+                                    <Text style={styles.sectionTitle}>Guest Reviews</Text>
+                                    <View style={styles.overallRating}>
+                                        <Text style={styles.overallRatingNumber}>3.8</Text>
+                                        <View style={styles.ratingDetails}>
+                                            <Text style={styles.ratingCount}>Based on {5647} reviews</Text>
+                                            <View style={styles.ratingStars}>
+                                                <Star size={16} color="black" />
+                                                <Star size={16} color="black" />
+                                                <Star size={16} color="black" />
+                                                <Star size={16} color="black" />
+                                                <Star size={16} color="#DDD" />
+                                            </View>
+                                        </View>
+                                    </View>
+                                    <View style={styles.ratingBars}>
+                                        <View style={styles.ratingBarRow}>
+                                            <Text style={styles.ratingBarLabel}>5</Text>
+                                            {renderRatingBar(42)}
+                                            <Text style={styles.ratingBarCount}>2,354</Text>
+                                        </View>
+                                        <View style={styles.ratingBarRow}>
+                                            <Text style={styles.ratingBarLabel}>4</Text>
+                                            {renderRatingBar(27)}
+                                            <Text style={styles.ratingBarCount}>1,542</Text>
+                                        </View>
+                                        <View style={styles.ratingBarRow}>
+                                            <Text style={styles.ratingBarLabel}>3</Text>
+                                            {renderRatingBar(13)}
+                                            <Text style={styles.ratingBarCount}>747</Text>
+                                        </View>
+                                        <View style={styles.ratingBarRow}>
+                                            <Text style={styles.ratingBarLabel}>2</Text>
+                                            {renderRatingBar(7)}
+                                            <Text style={styles.ratingBarCount}>389</Text>
+                                        </View>
+                                        <View style={styles.ratingBarRow}>
+                                            <Text style={styles.ratingBarLabel}>1</Text>
+                                            {renderRatingBar(11)}
+                                            <Text style={styles.ratingBarCount}>615</Text>
+                                        </View>
+                                    </View>
+                                </View>
+
+                                <View style={styles.section}>
+                                    <ReviewBreakdown />
+                                </View>
+                                <FlatList
+                                    data={reviews}
+                                    renderItem={renderReview}
+                                    keyExtractor={(item) => item.id}
+                                    contentContainerStyle={styles.modalContent}
+                                    showsVerticalScrollIndicator={false}
+                                    scrollEnabled={false}
+                                />
                             </ScrollView>
                         </SafeAreaView>
                     </Modal>
@@ -629,8 +628,13 @@ Just steps away from the famous Place de la Madeleine, you'll find yourself perf
                         <Text style={styles.writeReviewText}>Write a Review</Text>
                     </TouchableOpacity>
 
-                    
+
                 </View>
+                <View style={styles.section}>
+
+                <HotelPricingScreen hotelData={hotelDetails} />
+                </View>
+
 
                 {/* Bottom spacer for content to be visible above bottom bar */}
                 <View style={styles.bottomSpacer} />
@@ -639,7 +643,7 @@ Just steps away from the famous Place de la Madeleine, you'll find yourself perf
             {/* Bottom Booking Bar */}
             <View style={styles.bottomBar}>
                 <View>
-                <View>
+                    <View>
                         <Text style={styles.priceLabel}>Starting from</Text>
                         <Text style={styles.priceValue}>$183 <Text style={styles.priceSubtext}>/ per night</Text></Text>
                         {/* <Text style={styles.priceSubtext}>per night</Text> */}
@@ -879,80 +883,80 @@ const styles = StyleSheet.create({
 
     ratingBreakdown: {
         marginBottom: 24,
-      },
-      overallRating: {
+    },
+    overallRating: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 16,
-      },
-      overallRatingNumber: {
+    },
+    overallRatingNumber: {
         fontSize: 48,
         fontWeight: '700',
         color: '#1a1a1a',
         marginRight: 16,
-      },
-      ratingDetails: {
+    },
+    ratingDetails: {
         flex: 1,
-      },
-      ratingStars: {
+    },
+    ratingStars: {
         flexDirection: 'row',
         gap: 4,
         marginTop: 4,
-      },
-      ratingBars: {
+    },
+    ratingBars: {
         gap: 8,
-      },
-      ratingBarRow: {
+    },
+    ratingBarRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-      },
-      ratingBarLabel: {
+    },
+    ratingBarLabel: {
         width: 20,
         fontSize: 14,
         color: '#666',
         textAlign: 'right',
-      },
-      ratingBarContainer: {
+    },
+    ratingBarContainer: {
         flex: 1,
         height: 8,
         backgroundColor: '#f0f0f0',
         borderRadius: 4,
         overflow: 'hidden',
-      },
-      ratingBar: {
+    },
+    ratingBar: {
         height: '100%',
         backgroundColor: 'black',
-      },
-      ratingBarCount: {
+    },
+    ratingBarCount: {
         width: 50,
         fontSize: 14,
         color: '#666',
-      },
+    },
     quickInfoContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         // marginVertical: 24,
-      },
-      infoCard: {
+    },
+    infoCard: {
         backgroundColor: '#f9f9f9',
         padding: 16,
         borderRadius: 12,
         alignItems: 'center',
         width: '31%',
-      },
-      infoLabel: {
+    },
+    infoLabel: {
         fontSize: 12,
         color: '#666',
         marginTop: 8,
-      },
-      infoValue: {
+    },
+    infoValue: {
         fontSize: 14,
         fontWeight: '600',
         color: '#333',
         marginTop: 4,
-      },
-      priceContainer: {
+    },
+    priceContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -960,31 +964,31 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 16,
         // marginBottom: 24,
-      },
-      priceLabel: {
+    },
+    priceLabel: {
         fontSize: 14,
         color: '#666',
-      },
-      priceValue: {
+    },
+    priceValue: {
         fontSize: 28,
         fontWeight: '700',
         color: '#1a1a1a',
-      },
-      priceSubtext: {
+    },
+    priceSubtext: {
         fontSize: 14,
         color: '#666',
-      },
-      bookButton: {
+    },
+    bookButton: {
         backgroundColor: '#1a1a1a',
         paddingVertical: 12,
         paddingHorizontal: 24,
         borderRadius: 25,
-      },
-      bookButtonText: {
+    },
+    bookButtonText: {
         color: '#fff',
         fontSize: 16,
         fontWeight: '600',
-      },
+    },
     priceContainerTop: {
         flexDirection: 'row',
         alignItems: 'flex-end',
@@ -1305,7 +1309,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
         color: '#333',
-      },
+    },
     ratingText: {
         color: 'white',
         fontWeight: 'bold',
