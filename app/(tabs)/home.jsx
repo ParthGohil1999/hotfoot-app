@@ -7,42 +7,30 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { CityList, ExploreFlatList, TopPicksCityList, TopTrendsFromYourCity } from '../../components/citiesFlatList'
 import Animated, { FadeInLeft, FadeInRight } from 'react-native-reanimated';
 import ExploreHeader from '../../components/flatLists'
+import AnimatedExploreBar from '../../components/animatedExploreBar'
+import ExploreCategory from '../../components/animatedExploreBar/exploreCategory'
 
 
 const HomeScreen = () => {
 
   const [category, setCategory] = useState('hotel');
-  const [loading, setLoading] = useState(false);
 
 
   const onDataChanged = (category) => {
     setCategory(category);
   };
 
-  const handleLoading = (isLoading) => {
-    setLoading(isLoading);
-  };
-
 
   return (
     <SafeAreaView style={{ backgroundColor: 'white', flex: 1 }}>
-      <TopBar logo text={'Hotfoot'}/>
+      <TopBar logo text={'Hotfoot'} />
       <View className="flex container pl-5 mb-28">
         <View className='mb-5'>
-          <TextInput
-            className="border-gray-100 bg-gray-100 border-2 py-4 px-10 rounded-2xl mr-5"
-            placeholderTextColor="gray"
-            placeholder="Search destinations..."
-          />
-          <MaterialIcons
-            name="search"
-            size={20}
-            color="#8f8f8f"
-            style={{ position: 'absolute', left: 15, bottom: 15, zIndex: 1 }}
-          />
+          <AnimatedExploreBar />
         </View>
 
         <ScrollView className="flex container mb-28 h-full " showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
+            <ExploreCategory />
           <View>
             <View className="mb-5 mx-1 flex-row justify-between">
               <Text className="subpixel-antialiased text-lg font-bold">
@@ -91,8 +79,8 @@ const HomeScreen = () => {
           <View>
 
             <View>
-            <ExploreHeader onCategoryChanged={onDataChanged} />
-            <ExploreFlatList category={category}  />
+              <ExploreHeader onCategoryChanged={onDataChanged} />
+              <ExploreFlatList category={category} />
             </View>
           </View>
         </ScrollView>

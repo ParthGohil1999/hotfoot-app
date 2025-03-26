@@ -10,6 +10,9 @@ import { hotelDetails } from "../../constants/hotels"
 import Carousel from "react-native-reanimated-carousel";
 import { useRouter } from "expo-router";
 import { HotelCard } from '../hotelCard/hotelCard';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Heart, MapPin } from 'lucide-react-native';
+import * as Haptics from 'expo-haptics';
 
 export const CityList = ({ data }) => {
     const [places, setPlaces] = useState([]);
@@ -123,22 +126,45 @@ export const TopPicksCityList = ({ data }) => {
         // console.log('GetPixabayImageByCityName console.log: ', data)
 
         return (
-            <TouchableOpacity className="">
-                {item.name && (
+            <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.trendingContainer}
+            contentContainerStyle={{ paddingRight: 20 }}
+        >
+
+                <TouchableOpacity
+                    key={item.imageUrl}
+                    style={styles.destinationCard}
+                    onPress={() => {
+                        // setQuery(`Exploring ${destination.name}, ${destination.country}`);
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    }}
+                >
                     <Image
-                        source={{
-                            uri: item.imageUrl,
-                        }}
-                        style={{ width: 250, height: 150, borderRadius: 10, marginRight: 10, objectFit: 'none' }}
-                        className="object-contain"
+                        source={{ uri: item.imageUrl }}
+                        style={styles.destinationImage}
                     />
-                )}
-                <View style={{ marginVertical: 5, marginLeft: 2 }}>
-                    <Text className="font-normal text-lg text-gray-900">
-                        {item.name}
-                    </Text>
-                </View>
-            </TouchableOpacity>
+                    <LinearGradient
+                        colors={['transparent', 'rgba(0,0,0,0.5)']}
+                        style={styles.destinationGradient}
+                    />
+                    <View style={styles.destinationContent}>
+                        {/* <Text style={styles.destinationName}>{item.name}</Text> */}
+                        <View style={styles.destinationDetails}>
+                            <View style={styles.locationContainer}>
+                                <MapPin size={12} color="#FFFFFF" />
+                                <Text style={styles.destinationCountry}>{item?.name}</Text>
+                            </View>
+                            <View style={styles.ratingContainer}>
+                                <Heart size={12} color="#FF6B6B" fill="#FF6B6B" />
+                                <Text style={styles.destinationRating}>4.5</Text>
+                            </View>
+                        </View>
+                    </View>
+                </TouchableOpacity>
+
+        </ScrollView>
         )
 
     };
@@ -569,5 +595,70 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: '600',
+    },
+    trendingContainer: {
+        // marginBottom: 20,
+    },
+    destinationCard: {
+        width: 150,
+        height: 200,
+        borderRadius: 16,
+        overflow: 'hidden',
+        // marginLeft: 5,
+        // marginBottom: 10,
+        position: 'relative',
+    },
+    destinationImage: {
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+    },
+    destinationGradient: {
+        position: 'absolute',
+        width: '100%',
+        height: '70%',
+        bottom: 0,
+        zIndex: 1,
+    },
+    destinationContent: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: 15,
+        zIndex: 2,
+    },
+    destinationName: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#fff',
+        marginBottom: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
+    },
+    destinationDetails: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    locationContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    destinationCountry: {
+        fontSize: 12,
+        color: '#fff',
+        marginLeft: 4,
+    },
+    ratingContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    destinationRating: {
+        fontSize: 12,
+        color: '#fff',
+        marginLeft: 4,
     },
 });

@@ -35,14 +35,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         height: 60,
-        backgroundColor: 'white',
+        backgroundColor: 'transparent',
 
         // borderBottomWidth: 1,
         // borderBottomColor: '#ddd',
     },
     image:{
-        height:30,
-        width:25
+        height:35,
+        width:35,
+        borderRadius: 100,
     },
     leftButtonContainer: { // New style for back button positioning
         flex: 0, // This prevents the container from expanding to fill the space
