@@ -3,6 +3,10 @@ import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, StatusBar 
 import { Calendar, ChevronDown, Users } from 'lucide-react-native';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import PlaceAutocomplete from '../googleAutocomplete/placeAutocomplete';
+import useTripSearchStore from '../../app/store/trpiSearchZustandStore';
+import { useNavigation } from 'expo-router';
+import DatePickerModal from '../datePickerModal/datePickerModal';
+
 
 // Main tabs component
 const TabBar = ({ activeTab, setActiveTab }) => {
@@ -110,7 +114,7 @@ const TravelersDropdown = ({ travelers, setTravelers }) => {
 };
 
 // Unified Search Form Component
-const UnifiedSearchForm = ({ activeTab }) => {
+const UnifiedSearchForm = ({ activeTab, onClose }) => {
     // Common state for all tabs
     const [fromLocation, setFromLocation] = useState(null);
     const [toLocation, setToLocation] = useState(null);
@@ -119,7 +123,32 @@ const UnifiedSearchForm = ({ activeTab }) => {
     const [cabinClass, setCabinClass] = useState('Economy');
     const [tripType, setTripType] = useState('Round Trip');
     const [isTravelersDropdownOpen, setIsTravelersDropdownOpen] = useState(false);
-    
+    const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
+
+    const handleDateSelect = () => {
+        setIsTravelersDropdownOpen(false);
+        setIsDatePickerVisible(true);
+    };
+
+    const handleDateConfirm = (selectedDates) => {
+        setDates({ startDate: selectedDates.startDate, endDate: selectedDates.endDate });
+        setDatesToStore({ startDate: selectedDates.startDate, endDate: selectedDates.endDate });
+    };
+
+
+
+    const navigation = useNavigation();
+
+    // Use Zustand store
+    const {
+        setFromLocationToStore,
+        setToLocationToStore,
+        setDatesToStore,
+        setTravelersToStore,
+        setCabinClassToStore,
+        setTripTypeToStore
+    } = useTripSearchStore();
+
     // New state to control PlaceAutocomplete modal
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [currentField, setCurrentField] = useState(null); // 'from' or 'to'
@@ -159,14 +188,14 @@ const UnifiedSearchForm = ({ activeTab }) => {
     };
 
     // Handle date selection (simulated)
-    const handleDateSelect = () => {
-        setIsTravelersDropdownOpen(false);
-        if (tripType === 'One Way') {
-            setDates({ startDate: 'Mar 25, 2025', endDate: null });
-        } else {
-            setDates({ startDate: 'Mar 25, 2025', endDate: 'Apr 01, 2025' });
-        }
-    };
+    // const handleDateSelect = () => {
+    //     setIsTravelersDropdownOpen(false);
+    //     if (tripType === 'One Way') {
+    //         setDates({ startDate: 'Mar 25, 2025', endDate: null });
+    //     } else {
+    //         setDates({ startDate: 'Mar 25, 2025', endDate: 'Apr 01, 2025' });
+    //     }
+    // };
 
     // Toggle travelers dropdown
     const handleTravelersPress = () => {
@@ -175,14 +204,22 @@ const UnifiedSearchForm = ({ activeTab }) => {
 
     // Check if search is disabled based on active tab
     const isSearchDisabled = () => {
-        const commonRequirements = !toLocation || 
-            !dates.startDate || 
+        const commonRequirements = !toLocation ||
+            !dates.startDate ||
             (tripType === 'Round Trip' && !dates.endDate);
-            
+
         if (activeTab === 'Flights') {
-            return !fromLocation || commonRequirements;
+            // For Flights, require both from and to locations
+            return !fromLocation || !toLocation || commonRequirements;
+        } else if (activeTab === 'Places') {
+            // For Places, from location is optional
+            return !fromLocation || !toLocation || !dates.startDate || !dates.endDate || !travelers
+        } else if (activeTab === 'Hotels') {
+            // For Hotels, require destination and dates
+            return !toLocation || !dates.startDate || !dates.endDate || !travelers;
         }
-        return commonRequirements;
+
+        return true;
     };
 
     // Get search button text based on active tab
@@ -205,7 +242,7 @@ const UnifiedSearchForm = ({ activeTab }) => {
             case 'tripType':
                 return activeTab === 'Flights';
             case 'from':
-                return activeTab === 'Flights';
+                return activeTab === 'Flights' || activeTab === 'Places';
             case 'cabinClass':
                 return activeTab === 'Flights';
             default:
@@ -216,7 +253,35 @@ const UnifiedSearchForm = ({ activeTab }) => {
     // Handle search button press
     const handleSearch = () => {
         setIsTravelersDropdownOpen(false);
-        alert(`${activeTab} search initiated!`);
+        // alert(`${activeTab} search initiated!`);
+        // Set all parameters in the Zustand store
+        setFromLocationToStore(fromLocation);
+        setToLocationToStore(toLocation);
+        setDatesToStore(dates);
+        setTravelersToStore(travelers);
+        setCabinClassToStore(cabinClass);
+        setTripTypeToStore(tripType);
+
+        // Navigate based on active tab
+        switch (activeTab) {
+            case 'Places':
+                // console.log('Navigating to place/cityDetails');
+                navigation.navigate('place/cityDetails');
+                onClose();
+                break;
+            case 'Flights':
+                // console.log('Navigating to FlightDetails');
+                navigation.navigate('FlightDetails');
+                onClose();
+                break;
+            case 'Hotels':
+                // console.log('Navigating to HotelDetails');
+                navigation.navigate('HotelDetails');
+                onClose();
+                break;
+            default:
+                console.warn('Unknown tab:', activeTab);
+        }
     };
 
     return (
@@ -316,7 +381,7 @@ const UnifiedSearchForm = ({ activeTab }) => {
 
                     <View style={[styles.travelersContainer, isTravelersDropdownOpen && styles.travelersContainerActive]}>
                         <Pressable
-                            style={[styles.searchField, isTravelersDropdownOpen && styles.searchFieldActive]}
+                            style={[styles.searchField]}
                             onPress={handleTravelersPress}>
                             <Text style={styles.searchLabel}>Travelers & Class</Text>
                             <View style={styles.searchValueContainer}>
@@ -381,31 +446,43 @@ const UnifiedSearchForm = ({ activeTab }) => {
                     </Pressable>
                 </Animated.View>
             </ScrollView>
-            
+
             {/* Place Autocomplete Modal */}
             {isModalVisible && (
-                <PlaceAutocomplete 
+                <PlaceAutocomplete
                     apiKey={process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY}
-                    onCitySelect={handleLocationSelect} 
-                    type={'(cities)'} 
+                    onCitySelect={handleLocationSelect}
+                    type={'(cities)'}
                     modalVisible={isModalVisible}
                     setModalVisible={setIsModalVisible}
                     currentField={currentField}
                 />
             )}
+
+            {/* Date Picker Modal */}
+            <DatePickerModal
+                visible={isDatePickerVisible}
+                onClose={() => setIsDatePickerVisible(false)}
+                onSelectDates={handleDateConfirm}
+                activeTab={activeTab}
+                tripType={tripType}
+                initialDates={dates}
+            />
+
         </View>
     );
 };
 
 // Main app component
-const TripSearchPage = ({tabName}) => {
+const TripSearchPage = ({ tabName, onClose }) => {
     const [activeTab, setActiveTab] = useState(tabName);
+
 
     return (
         <SafeAreaView style={styles.safeArea}>
             <StatusBar barStyle="dark-content" />
             <TabBar activeTab={activeTab} setActiveTab={setActiveTab} />
-            <UnifiedSearchForm activeTab={activeTab} />
+            <UnifiedSearchForm activeTab={activeTab} onClose={onClose} />
         </SafeAreaView>
     );
 };
@@ -585,7 +662,7 @@ const styles = StyleSheet.create({
         zIndex: 4,
     },
     travelerContent: {
-        backgroundColor: '#333',
+        backgroundColor: '#f1f1f1',
         borderRadius: 12,
         padding: 16,
         gap: 16,
@@ -596,12 +673,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     travelerTitle: {
-        color: '#fff',
+        color: 'black',
         fontSize: 16,
         fontWeight: '600',
     },
     travelerSubtitle: {
-        color: '#aaa',
+        color: 'black',
         fontSize: 14,
         marginTop: 4,
     },
@@ -615,25 +692,25 @@ const styles = StyleSheet.create({
         width: 36,
         height: 36,
         borderRadius: 18,
-        backgroundColor: '#444',
+        // backgroundColor: 'white',
         justifyContent: 'center',
         alignItems: 'center',
     },
     buttonDisabled: {
-        backgroundColor: '#333',
+        // backgroundColor: '#f1f1f1',
     },
     counterButtonText: {
-        color: 'white',
+        color: 'black',
         fontSize: 20,
         fontWeight: 'bold',
     },
     counterButtonTextDisabled: {
-        color: '#666',
+        color: '#999',
         fontSize: 20,
         fontWeight: 'bold',
     },
     count: {
-        color: '#fff',
+        color: 'black',
         fontSize: 16,
         fontWeight: '600',
         minWidth: 24,

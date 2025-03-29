@@ -50,59 +50,7 @@ export default function AnimatedExploreBar() {
     };
 
 
-    // Enhanced suggestions with Unsplash images and richer data
-    const suggestions = [
-        {
-            text: 'Luxury resorts in Maldives',
-            category: 'Hotels',
-            color: 'black',
-            popularity: '96% recommended',
-            imageUrl: unsplashImages.maldives,
-        },
-        {
-            text: 'Direct flights to Bali',
-            category: 'Flights',
-            color: 'black',
-            popularity: 'Trending now',
-            imageUrl: unsplashImages.bali,
-        },
-        {
-            text: 'Best coffee shops in Rome',
-            category: 'Experiences',
-            color: 'black',
-            popularity: 'Top rated',
-            imageUrl: unsplashImages.rome,
-        },
-        {
-            text: 'Hidden beaches in Greece',
-            category: 'Beaches',
-            color: 'black',
-            popularity: 'Secret spots',
-            imageUrl: unsplashImages.greece,
-        },
-    ];
 
-    // Trending destinations with Unsplash images
-    const trendingDestinations = [
-        {
-            name: 'Kyoto',
-            country: 'Japan',
-            rating: 4.8,
-            imageUrl: unsplashImages.kyoto,
-        },
-        {
-            name: 'Santorini',
-            country: 'Greece',
-            rating: 4.9,
-            imageUrl: unsplashImages.santorini,
-        },
-        {
-            name: 'Tulum',
-            country: 'Mexico',
-            rating: 4.7,
-            imageUrl: unsplashImages.tulum,
-        },
-    ];
 
     return (
         <>

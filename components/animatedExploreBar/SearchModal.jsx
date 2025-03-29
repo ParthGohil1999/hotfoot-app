@@ -137,7 +137,7 @@ export function SearchModal({ visible, onClose, tabName }) {
                         </View>
                         {/* Categories section with enhanced UI */}
                         {/* <Text style={styles.sectionTitle}>Explore by Category</Text> */}
-                        <TripSearchPage tabName={tabName} />
+                        <TripSearchPage onClose={onClose} tabName={tabName} />
 
                         {/* Popular searches with rich cards */}
                         <Text style={styles.sectionTitle}>Trending Searches</Text>

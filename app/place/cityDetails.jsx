@@ -33,6 +33,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { HotelCard } from '../../components/hotelCard/hotelCard';
 import { hotelDetails } from "../../constants/hotels"
+import useTripSearchStore from '../store/trpiSearchZustandStore';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const HEADER_HEIGHT = 350;
@@ -44,6 +45,8 @@ export default function ExploreScreen() {
   const [selectedTab, setSelectedTab] = useState('All');
   const [expandedQuestions, setExpandedQuestions] = useState([]);
   const scrollY = useSharedValue(0);
+  const { toLocation, fromLocation, travelers, getTotalTravelers, dates } = useTripSearchStore();
+  console.log("travelers: ", getTotalTravelers());
 
   const hotelData = [
     {
@@ -155,13 +158,16 @@ export default function ExploreScreen() {
             style={[styles.headerGradient, headerTextStyle]}
           >
             <Animated.Text style={[styles.cityName, headerTextStyle]}>
-              Dublin
+              {toLocation.name}
             </Animated.Text>
             <Animated.Text style={[styles.countryName, headerTextStyle]}>
-              Ireland
+              It's a {dates.totalDays} days trip
             </Animated.Text>
+            {/* <Animated.Text style={[styles.countryName, headerTextStyle]}>
+              {getTotalTravelers()} travelers from {fromLocation.name}
+            </Animated.Text> */}
             <Animated.Text style={[styles.dateRange, headerTextStyle]}>
-              Thu 27 Mar - Wed 2 Apr
+              {dates.startDate} - {dates.endDate}
             </Animated.Text>
           </AnimatedLinearGradient>
         </Animated.View>
@@ -180,13 +186,13 @@ export default function ExploreScreen() {
             style={styles.section}
           >
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Travel from London</Text>
+              <Text style={styles.sectionTitle}>Travel from {fromLocation.name}</Text>
               <Info size={20} color="#666" />
             </View>
 
             <TouchableOpacity style={styles.priceAlert}>
               <Text style={styles.priceAlertText}>Prices are currently typical</Text>
-              <ChevronDown size={20} color="#666" />
+              {/* <ChevronDown size={20} color="#666" /> */}
             </TouchableOpacity>
 
             {/* Flight Options */}
