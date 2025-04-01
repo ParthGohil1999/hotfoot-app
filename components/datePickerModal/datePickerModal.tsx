@@ -33,10 +33,10 @@ export default function DatePickerModal({
   initialDates,
 }: DatePickerModalProps) {
   const [startDate, setStartDate] = React.useState<Date>(
-    initialDates.startDate ? new Date(initialDates.startDate) : new Date()
+    initialDates?.startDate ? new Date(initialDates.startDate) : new Date()
   );
   const [endDate, setEndDate] = React.useState<Date | null>(
-    initialDates.endDate ? new Date(initialDates.endDate) : null
+    initialDates?.endDate ? new Date(initialDates.endDate) : null
   );
   const [activeField, setActiveField] = React.useState<'start' | 'end'>('start');
 

@@ -70,7 +70,7 @@ export default function AnimatedExploreBar() {
                         <TextInput
                             ref={inputRef}
                             style={styles.inputText}
-                            placeholder="✨ Plan you trip with AI"
+                            placeholder="✨ Plan your trip with AI"
                             placeholderTextColor="#8f8f8f"
                             editable={false}
                             pointerEvents="none"

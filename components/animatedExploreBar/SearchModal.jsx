@@ -49,7 +49,7 @@ export function SearchModal({ visible, onClose, tabName }) {
         greece: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?q=80&w=1000',
         kyoto: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1000',
         santorini: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?q=80&w=1000',
-        tulum: 'https://images.unsplash.com/photo-1682553264347-fcb536655475?q=80&w=1000',
+        london: 'https://plus.unsplash.com/premium_photo-1682056762926-d00524d8436f?q=80&w=1000',
     };
 
     const suggestions = [
@@ -97,10 +97,10 @@ export function SearchModal({ visible, onClose, tabName }) {
             imageUrl: unsplashImages.santorini,
         },
         {
-            name: 'Tulum',
+            name: 'London',
             country: 'Mexico',
             rating: 4.7,
-            imageUrl: unsplashImages.tulum,
+            imageUrl: unsplashImages.london,
         },
     ];
 
@@ -403,13 +403,15 @@ const styles = StyleSheet.create({
     },
     trendingContainer: {
         marginBottom: 20,
+
     },
     destinationCard: {
+        marginRight: 15,
         width: 160,
         height: 200,
         borderRadius: 16,
         overflow: 'hidden',
-        marginLeft: 20,
+        // marginLeft: 20,
         marginBottom: 10,
         position: 'relative',
     },

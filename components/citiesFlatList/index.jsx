@@ -13,9 +13,38 @@ import { HotelCard } from '../hotelCard/hotelCard';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Heart, MapPin } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
+import { useNavigation } from 'expo-router';
+import useTripSearchStore from '../../app/store/trpiSearchZustandStore';
+import DatePickerModal from '../datePickerModal/datePickerModal';
+
 
 export const CityList = ({ data }) => {
     const [places, setPlaces] = useState([]);
+    const navigation = useNavigation();
+    const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
+    const {
+        setFromLocationToStore,
+        setToLocationToStore,
+        setDatesToStore,
+        resetSearch
+    } = useTripSearchStore();
+
+    const handleDateConfirm = (selectedDates) => {
+        console.log('selectedDates:', selectedDates)
+        setDatesToStore({ startDate: selectedDates.startDate, endDate: selectedDates.endDate });
+        navigation.navigate('place/cityDetails')
+    };
+
+    const handlePress = ({ toLocation }) => {
+        
+        console.log('toLocation:', toLocation)
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        resetSearch();
+        setFromLocationToStore('fromLocation');
+        setToLocationToStore(toLocation);
+        setIsDatePickerVisible(true);
+        
+    };
 
     useEffect(() => {
         fetchData()
@@ -25,7 +54,8 @@ export const CityList = ({ data }) => {
     const fetchData = async () => {
         try {
             const popularDestinations = await GetPlaceDetailsByTextSearch();
-            console.log('popularDestinations:', popularDestinations);
+            // console.log('popularDestinations:', popularDestinations);
+            // console.log('popularDestinations:', JSON.stringify(popularDestinations.results, null, 2));  
 
             setPlaces(popularDestinations.results);
         } catch (error) {
@@ -34,7 +64,8 @@ export const CityList = ({ data }) => {
     };
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity className="flex items-center justify-center" style={{ marginRight: 10 }}>
+        <TouchableOpacity className="flex items-center justify-center" style={{ marginRight: 10 }} onPress={() => handlePress({ toLocation: { name: item?.name, geoCode: {latitude: item?.geometry?.location?.lat, longitude: item?.geometry?.location?.lng} } })}>
+
             {item.photos && item.photos.length > 0 && (
                 <View style={{
                     padding: 2,
@@ -71,12 +102,45 @@ export const CityList = ({ data }) => {
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
             />
+             <DatePickerModal
+                visible={isDatePickerVisible}
+                onClose={() => setIsDatePickerVisible(false)}
+                onSelectDates={handleDateConfirm}
+                activeTab={'Places'}
+                tripType={'Round Trip'}
+                // initialDates={dates}
+            />
         </View>
     );
 };
 
 export const TopPicksCityList = ({ data }) => {
     const [cities, setCities] = useState([]);
+    const navigation = useNavigation();
+    const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
+    const {
+        setFromLocationToStore,
+        setToLocationToStore,
+        setDatesToStore,
+        resetSearch
+    } = useTripSearchStore();
+
+    const handleDateConfirm = (selectedDates) => {
+        console.log('selectedDates:', selectedDates)
+        setDatesToStore({ startDate: selectedDates.startDate, endDate: selectedDates.endDate });
+        navigation.navigate('place/cityDetails')
+    };
+
+    const handlePress = ({ toLocation }) => {
+        
+        console.log('toLocation:', toLocation)
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        resetSearch();
+        setFromLocationToStore('fromLocation');
+        setToLocationToStore(toLocation);
+        setIsDatePickerVisible(true);
+        
+    };
 
     // console.log('TopPicksCityList console.log: ', cities)
     useEffect(() => {
@@ -119,6 +183,7 @@ export const TopPicksCityList = ({ data }) => {
         }
     };
 
+
     const renderItem = ({ item }) => {
 
         // const data = GetPixabayImageByCityName(item.name)
@@ -127,19 +192,16 @@ export const TopPicksCityList = ({ data }) => {
 
         return (
             <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.trendingContainer}
-            contentContainerStyle={{ paddingRight: 20 }}
-        >
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.trendingContainer}
+                contentContainerStyle={{ paddingRight: 20 }}
+            >
 
                 <TouchableOpacity
                     key={item.imageUrl}
                     style={styles.destinationCard}
-                    onPress={() => {
-                        // setQuery(`Exploring ${destination.name}, ${destination.country}`);
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                    }}
+                    onPress={() => handlePress({ toLocation: { name: item?.name, geoCode: item?.geoCode } })}
                 >
                     <Image
                         source={{ uri: item.imageUrl }}
@@ -164,7 +226,7 @@ export const TopPicksCityList = ({ data }) => {
                     </View>
                 </TouchableOpacity>
 
-        </ScrollView>
+            </ScrollView>
         )
 
     };
@@ -177,6 +239,14 @@ export const TopPicksCityList = ({ data }) => {
                 keyExtractor={(item) => item.name}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
+            />
+            <DatePickerModal
+                visible={isDatePickerVisible}
+                onClose={() => setIsDatePickerVisible(false)}
+                onSelectDates={handleDateConfirm}
+                activeTab={'Places'}
+                tripType={'Round Trip'}
+                // initialDates={dates}
             />
         </View>
     );
@@ -309,7 +379,7 @@ export const ExploreFlatList = ({ category, onLoading }) => {
         // console.log('category:', hotelDetails);
         fetchData()
         // setTimeout(() => {
-            
+
         //     onLoading(false);
         // }, 2000);
     }, [category]);
@@ -335,71 +405,71 @@ export const ExploreFlatList = ({ category, onLoading }) => {
     };
 
     const renderItem = ({ item }) => (
-            // <View>
-            //     <TouchableOpacity style={styles.card}>
-            //         {item.images && item.images.length > 0 && (
-            //             <View>
+        // <View>
+        //     <TouchableOpacity style={styles.card}>
+        //         {item.images && item.images.length > 0 && (
+        //             <View>
 
-            //                 <Carousel
-            //                     loop
-            //                     width={width - 35}
-            //                     height={200}
-            //                     autoPlay={false}
-            //                     data={item.images}
-            //                     scrollAnimationDuration={1000}
-            //                     renderItem={({ item }) => (
-            //                         <Image
-            //                             source={{ uri: item.original_image }}
-            //                             style={{ width: width - 35, height: 200, borderRadius: 12, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}
-            //                             className="object-cover"
-            //                         />
-            //                     )}
-            //                 />
-            //                 <View style={styles.ratingContainer}>
-            //                     <Text style={styles.ratingText}>★ {item.location_rating} {item.reviews && `(${item.reviews})`}</Text>
-            //                 </View>
+        //                 <Carousel
+        //                     loop
+        //                     width={width - 35}
+        //                     height={200}
+        //                     autoPlay={false}
+        //                     data={item.images}
+        //                     scrollAnimationDuration={1000}
+        //                     renderItem={({ item }) => (
+        //                         <Image
+        //                             source={{ uri: item.original_image }}
+        //                             style={{ width: width - 35, height: 200, borderRadius: 12, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}
+        //                             className="object-cover"
+        //                         />
+        //                     )}
+        //                 />
+        //                 <View style={styles.ratingContainer}>
+        //                     <Text style={styles.ratingText}>★ {item.location_rating} {item.reviews && `(${item.reviews})`}</Text>
+        //                 </View>
 
-            //             </View>
-            //         )}
+        //             </View>
+        //         )}
 
-            //         {/* Hotel Info */}
-            //         <View>
-            //             <View style={{ padding: 10 }}>
-            //                 {/* Hotel Info */}
-            //                 {/* Amenities */}
-            //                 <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-5 px-2">
-            //                     {item?.amenities?.map((amenity, index) => (
-            //                         <View key={index} style={styles.aminityContainer}>
-            //                             <Text style={styles.aminityText}>{amenity}</Text>
-            //                         </View>
-            //                     ))}
-            //                 </ScrollView>
-
-
-            //                 <View className="mt-2" style={{ marginLeft: 10 }}>
-            //                     <Text style={styles.sourceName} >{item.name}</Text>
-            //                 </View>
-
-            //                 {/* Pricing & Deals */}
-
-            //                 <View style={styles.priceContainer}>
-            //                     <View>
-            //                         <Text style={styles.priceLabel}>Starting from</Text>
-            //                         <Text style={styles.priceValue}>{item?.rate_per_night?.lowest || "N/A"}</Text>
-            //                         <Text style={styles.priceSubtext}>per night</Text>
-            //                     </View>
-            //                     <TouchableOpacity style={styles.bookButton} onPress={() => router.push(`/${category}/${item?.id}`)}>
-            //                         <Text style={styles.bookButtonText}>Book Now</Text>
-            //                     </TouchableOpacity>
-            //                 </View>
-
-            //             </View>
-            //         </View>
+        //         {/* Hotel Info */}
+        //         <View>
+        //             <View style={{ padding: 10 }}>
+        //                 {/* Hotel Info */}
+        //                 {/* Amenities */}
+        //                 <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-5 px-2">
+        //                     {item?.amenities?.map((amenity, index) => (
+        //                         <View key={index} style={styles.aminityContainer}>
+        //                             <Text style={styles.aminityText}>{amenity}</Text>
+        //                         </View>
+        //                     ))}
+        //                 </ScrollView>
 
 
+        //                 <View className="mt-2" style={{ marginLeft: 10 }}>
+        //                     <Text style={styles.sourceName} >{item.name}</Text>
+        //                 </View>
 
-            //     </TouchableOpacity>
-            // </View>
+        //                 {/* Pricing & Deals */}
+
+        //                 <View style={styles.priceContainer}>
+        //                     <View>
+        //                         <Text style={styles.priceLabel}>Starting from</Text>
+        //                         <Text style={styles.priceValue}>{item?.rate_per_night?.lowest || "N/A"}</Text>
+        //                         <Text style={styles.priceSubtext}>per night</Text>
+        //                     </View>
+        //                     <TouchableOpacity style={styles.bookButton} onPress={() => router.push(`/${category}/${item?.id}`)}>
+        //                         <Text style={styles.bookButtonText}>Book Now</Text>
+        //                     </TouchableOpacity>
+        //                 </View>
+
+        //             </View>
+        //         </View>
+
+
+
+        //     </TouchableOpacity>
+        // </View>
 
         category?.toString() === "hotel" ? (<View className="p-3">
             <HotelCard hotel={item} />

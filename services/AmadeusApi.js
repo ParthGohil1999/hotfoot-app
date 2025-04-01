@@ -45,7 +45,7 @@ export const TopPicksOnlyForYou = async () => {
         // const topPicks = await axios.get(BASE_URL_FOR_TOP_PICK_CITIES, topPicksconfig)
         const topPicks = await axios.get(BASE_URL_FOR_TOP_PICK_CITIES)
 
-        // console.log('topPicks from A-apiii:', topPicks)
+        // console.log('topPicks from A-apiii:', JSON.stringify(topPicks, null, 2))
 
         return topPicks
     } catch (error) {

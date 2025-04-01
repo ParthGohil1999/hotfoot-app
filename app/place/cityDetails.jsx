@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -35,6 +35,7 @@ import { HotelCard } from '../../components/hotelCard/hotelCard';
 import { hotelDetails } from "../../constants/hotels"
 import useTripSearchStore from '../store/trpiSearchZustandStore';
 
+
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const HEADER_HEIGHT = 350;
 
@@ -42,11 +43,12 @@ const AnimatedImage = Animated.createAnimatedComponent(Image);
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 export default function ExploreScreen() {
+  
   const [selectedTab, setSelectedTab] = useState('All');
   const [expandedQuestions, setExpandedQuestions] = useState([]);
   const scrollY = useSharedValue(0);
   const { toLocation, fromLocation, travelers, getTotalTravelers, dates } = useTripSearchStore();
-  console.log("travelers: ", getTotalTravelers());
+  console.log("travelers: ", dates);
 
   const hotelData = [
     {

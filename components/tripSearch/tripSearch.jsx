@@ -153,6 +153,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [currentField, setCurrentField] = useState(null); // 'from' or 'to'
 
+
     // Trip types and cabin classes
     const tripTypes = ['Round Trip', 'One Way', 'Multi-City'];
     const cabinClasses = ['Economy', 'Business', 'First'];
@@ -240,11 +241,11 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
     const shouldShowField = (fieldName) => {
         switch (fieldName) {
             case 'tripType':
-                return activeTab === 'Flights';
+                return activeTab === 'Flights' || activeTab === 'Places';
             case 'from':
                 return activeTab === 'Flights' || activeTab === 'Places';
             case 'cabinClass':
-                return activeTab === 'Flights';
+                return activeTab === 'Flights' || activeTab === 'Places';
             default:
                 return true;
         }
@@ -476,6 +477,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
 // Main app component
 const TripSearchPage = ({ tabName, onClose }) => {
     const [activeTab, setActiveTab] = useState(tabName);
+    console.log('Active Tab:', activeTab);
 
 
     return (

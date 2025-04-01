@@ -44,11 +44,12 @@ const useTripSearchStore = create<TripSearchState>()(
       setToLocationToStore: (location) => set({ toLocation: location }),
 
       calculateTotalDays: (startDate, endDate) => {
+        // console.log('Calculating total days with:', { startDate, endDate });
         if (!startDate) return 0;
 
-        const start = moment(startDate, ['MMM D, YYYY', 'YYYY-MM-DD'], true);
-        const end = endDate ? moment(endDate, ['MMM D, YYYY', 'YYYY-MM-DD'], true) : null;
-        console.log('Parsed dates:', { start, end });
+        const start = moment(startDate, ['MMM DD, YYYY', 'YYYY-MM-DD'], true);
+        const end = endDate ? moment(endDate, ['MMM DD, YYYY', 'YYYY-MM-DD'], true) : null;
+        // console.log('Parsed dates:', { start, end });
 
         if (!start.isValid() || (endDate && !end?.isValid())) {
           console.error('Invalid date format:', { startDate, endDate });
@@ -72,7 +73,7 @@ const useTripSearchStore = create<TripSearchState>()(
 
         // Calculate total days
         const totalDays = get().calculateTotalDays(updatedDates.startDate, updatedDates.endDate);
-
+        console.log('Total days after update:', totalDays);
 
 
         return {
