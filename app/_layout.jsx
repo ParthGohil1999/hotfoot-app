@@ -34,6 +34,8 @@ export default function RootLayout() {
       <Stack.Screen name="auth/index" options={{ headerShown: false }} />
       <Stack.Screen name="preferences/travelPreferences" options={{ headerShown: false }} />
       <Stack.Screen name="preferences/personalTouch" options={{ headerShown: false }} />
+      <Stack.Screen name="preferences/budgetSelection" options={{ headerShown: false }} />
+      <Stack.Screen name="preferences/tripReview" options={{ headerShown: false }} />
       <Stack.Screen name="preferences/allSet" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="hotel/[id]" options={{ headerShown: false, headerTitle: '' }} />

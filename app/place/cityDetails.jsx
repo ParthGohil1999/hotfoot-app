@@ -34,6 +34,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { HotelCard } from '../../components/hotelCard/hotelCard';
 import { hotelDetails } from "../../constants/hotels"
 import useTripSearchStore from '../store/trpiSearchZustandStore';
+import { useNavigation } from 'expo-router';
 
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -43,12 +44,13 @@ const AnimatedImage = Animated.createAnimatedComponent(Image);
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 export default function ExploreScreen() {
-  
+
   const [selectedTab, setSelectedTab] = useState('All');
   const [expandedQuestions, setExpandedQuestions] = useState([]);
   const scrollY = useSharedValue(0);
+  const navigation = useNavigation();
   const { toLocation, fromLocation, travelers, getTotalTravelers, dates } = useTripSearchStore();
-  console.log("travelers: ", dates);
+  console.log("travelers: ", travelers);
 
   const hotelData = [
     {
@@ -398,12 +400,30 @@ export default function ExploreScreen() {
                       <ChevronDown size={20} color="#666" />
                     )}
                   </View>
-                  <AnimatePresence>
+                  <AnimatePresence exitBeforeEnter={false}>
                     {expandedQuestions.includes(index) && (
                       <MotiView
                         from={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
+                        exit={{
+                          opacity: 0,
+                          height: 0,
+                          transition: {
+                            height: {
+                              type: 'timing',
+                              duration: 300,
+                              delay: 50
+                            },
+                            opacity: {
+                              type: 'timing',
+                              duration: 200
+                            }
+                          }
+                        }}
+                        transition={{
+                          type: 'timing',
+                          duration: 300
+                        }}
                         style={styles.answerContainer}
                       >
                         <Text style={styles.answerText}>
@@ -420,34 +440,11 @@ export default function ExploreScreen() {
               <Text style={styles.viewMoreText}>View more questions</Text>
             </TouchableOpacity>
           </View>
-
-          {/* Footer */}
-          <View style={styles.footer}>
-            <View style={styles.footerLinks}>
-              {['About', 'Privacy', 'Terms'].map((link, index) => (
-                <Text key={index} style={styles.footerLink}>
-                  {link}
-                </Text>
-              ))}
-            </View>
-
-            <TouchableOpacity style={styles.feedbackButton}>
-              <Text style={styles.feedbackText}>Feedback</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.disclaimer}>
-              Displayed currencies may differ from the currencies used to purchase
-              flights and hotels. Learn more.
-            </Text>
-
-            <Text style={styles.disclaimer}>
-              Prices are final and include all taxes and fees. Additional charges
-              may apply for other types of payment or luggage. Prices and
-              availability are not guaranteed.
-            </Text>
-          </View>
         </View>
       </Animated.ScrollView>
+      <TouchableOpacity style={styles.bottomBar} onPress={() => navigation.navigate('preferences/travelPreferences', { navigateTo: 'preferences/tripBudget' })}>
+        <Text style={styles.generateTrip}>Generate trip</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -508,6 +505,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     backgroundColor: '#ffffff',
+    marginBottom: 70,
   },
   section: {
     // borderRadius: 54,
@@ -833,8 +831,36 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     lineHeight: 18,
   },
-  hotelCardsContainer : {
-      // paddingHorizontal: 6,
-      marginTop: 16,
-    }
+  hotelCardsContainer: {
+    // paddingHorizontal: 6,
+    marginTop: 16,
+  },
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'black',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    paddingBottom: Platform.OS === 'ios' ? 30 : 16,
+    borderTopWidth: 1,
+    borderTopColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -3,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  generateTrip: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: 'white',
+  },
 });

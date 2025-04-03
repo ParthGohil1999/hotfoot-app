@@ -5,10 +5,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Define the types for the store
 interface TravelPreferencesState {
   selectedButtons: string[];
+  budgetPreference: string | null;
   
   // Actions
   setSelectedButtons: (buttons: string[]) => void;
   toggleButton: (button: string) => void;
+  setBudgetPreference: (budget: string) => void;
   resetPreferences: () => void;
 }
 
@@ -16,6 +18,7 @@ const useTravelPreferencesStore = create<TravelPreferencesState>()(
   persist(
     (set) => ({
       selectedButtons: [],
+      budgetPreference: null,
       
       setSelectedButtons: (buttons) => set({ selectedButtons: buttons }),
       
@@ -34,13 +37,19 @@ const useTravelPreferencesStore = create<TravelPreferencesState>()(
         }
       }),
       
-      resetPreferences: () => set({ selectedButtons: [] })
+      setBudgetPreference: (budget) => set({ budgetPreference: budget }),
+      
+      resetPreferences: () => set({ 
+        selectedButtons: [],
+        budgetPreference: null
+      })
     }),
     {
       name: 'travel-preferences-storage', // unique name
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
-        selectedButtons: state.selectedButtons
+        selectedButtons: state.selectedButtons,
+        budgetPreference: state.budgetPreference
       })
     }
   )

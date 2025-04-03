@@ -8,7 +8,7 @@ const LoginScreen = () => {
 
   const navigation = useNavigation()
   const handleDone = () => {
-    navigation.navigate('preferences/travelPreferences')
+    navigation.navigate('preferences/travelPreferences', { navigateTo: 'preferences/personalTouch' })
   }
 
   return (

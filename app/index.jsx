@@ -9,8 +9,9 @@ const home = () => {
       {/* < Redirect href={'/hotel/dummyPage'} /> */}
       {/* < Redirect href={'/hotel/[id]'} /> */}
       {/* < Redirect href={'/place/cityDetails'} /> */}
+      < Redirect href={'/preferences/tripReview'} />
       {/* < Redirect href={'/onboarding'} /> */}
-      < Redirect href={'/(tabs)/home'} />
+      {/* < Redirect href={'/(tabs)/home'} /> */}
     </View>
   )
 }

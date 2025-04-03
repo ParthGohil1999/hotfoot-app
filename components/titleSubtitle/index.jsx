@@ -23,10 +23,10 @@ const styles = StyleSheet.create({
 
     subtitle: {
         fontSize: 15,
-        color: 'black',
         fontWeight: 350,
-        lineHeight: 20,
-        marginVertical: 25
+        marginVertical: 15,
+        color: '#555555',
+        lineHeight: 22,
     },
 })
 

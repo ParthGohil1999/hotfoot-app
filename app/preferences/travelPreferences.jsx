@@ -3,17 +3,17 @@ import React, { useState } from 'react'
 import ButtonMultiselect, {
     ButtonLayout,
 } from 'react-native-button-multiselect';
-import { useNavigation } from 'expo-router';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { SelectActivityPreferencesReactNative } from '../../constants/options';
 import TopBar from '../../components/topBar';
 import BottomBarContinueBtn from '../../components/buttons/bottomBarContinueBtn';
 import TitleSubtitle from '../../components/titleSubtitle';
 
 const TravelPreferences = () => {
-
+    const { navigateTo } = useLocalSearchParams()
     const navigation = useNavigation()
     const handleDone = () => {
-        navigation.navigate('preferences/personalTouch')
+        navigation.navigate(navigateTo)
     }
 
     // Set up state and handlers for selected buttons

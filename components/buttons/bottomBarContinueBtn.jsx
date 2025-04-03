@@ -1,12 +1,12 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
 
-const BottomBarContinueBtn = ({ handleDone }) => {
+const BottomBarContinueBtn = ({ handleDone, customStyles, disabled, buttonText }) => {
     return (
         <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={handleDone}>
+            <TouchableOpacity style={[styles.button, customStyles]} onPress={handleDone} disabled={disabled}>
                 <View style={styles.content}>
-                    <Text style={styles.text}>Continue</Text>
+                    <Text style={styles.text}>{buttonText ? buttonText : 'Continue'}</Text>
                 </View>
             </TouchableOpacity>
         </View>

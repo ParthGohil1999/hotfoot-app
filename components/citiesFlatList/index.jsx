@@ -218,10 +218,10 @@ export const TopPicksCityList = ({ data }) => {
                                 <MapPin size={12} color="#FFFFFF" />
                                 <Text style={styles.destinationCountry}>{item?.name}</Text>
                             </View>
-                            <View style={styles.ratingContainer}>
+                            {/* <View style={styles.ratingContainer}>
                                 <Heart size={12} color="#FF6B6B" fill="#FF6B6B" />
                                 <Text style={styles.destinationRating}>4.5</Text>
-                            </View>
+                            </View> */}
                         </View>
                     </View>
                 </TouchableOpacity>
@@ -405,71 +405,6 @@ export const ExploreFlatList = ({ category, onLoading }) => {
     };
 
     const renderItem = ({ item }) => (
-        // <View>
-        //     <TouchableOpacity style={styles.card}>
-        //         {item.images && item.images.length > 0 && (
-        //             <View>
-
-        //                 <Carousel
-        //                     loop
-        //                     width={width - 35}
-        //                     height={200}
-        //                     autoPlay={false}
-        //                     data={item.images}
-        //                     scrollAnimationDuration={1000}
-        //                     renderItem={({ item }) => (
-        //                         <Image
-        //                             source={{ uri: item.original_image }}
-        //                             style={{ width: width - 35, height: 200, borderRadius: 12, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}
-        //                             className="object-cover"
-        //                         />
-        //                     )}
-        //                 />
-        //                 <View style={styles.ratingContainer}>
-        //                     <Text style={styles.ratingText}>★ {item.location_rating} {item.reviews && `(${item.reviews})`}</Text>
-        //                 </View>
-
-        //             </View>
-        //         )}
-
-        //         {/* Hotel Info */}
-        //         <View>
-        //             <View style={{ padding: 10 }}>
-        //                 {/* Hotel Info */}
-        //                 {/* Amenities */}
-        //                 <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-5 px-2">
-        //                     {item?.amenities?.map((amenity, index) => (
-        //                         <View key={index} style={styles.aminityContainer}>
-        //                             <Text style={styles.aminityText}>{amenity}</Text>
-        //                         </View>
-        //                     ))}
-        //                 </ScrollView>
-
-
-        //                 <View className="mt-2" style={{ marginLeft: 10 }}>
-        //                     <Text style={styles.sourceName} >{item.name}</Text>
-        //                 </View>
-
-        //                 {/* Pricing & Deals */}
-
-        //                 <View style={styles.priceContainer}>
-        //                     <View>
-        //                         <Text style={styles.priceLabel}>Starting from</Text>
-        //                         <Text style={styles.priceValue}>{item?.rate_per_night?.lowest || "N/A"}</Text>
-        //                         <Text style={styles.priceSubtext}>per night</Text>
-        //                     </View>
-        //                     <TouchableOpacity style={styles.bookButton} onPress={() => router.push(`/${category}/${item?.id}`)}>
-        //                         <Text style={styles.bookButtonText}>Book Now</Text>
-        //                     </TouchableOpacity>
-        //                 </View>
-
-        //             </View>
-        //         </View>
-
-
-
-        //     </TouchableOpacity>
-        // </View>
 
         category?.toString() === "hotel" ? (<View className="p-3">
             <HotelCard hotel={item} />

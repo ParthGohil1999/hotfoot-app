@@ -1,18 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  StyleSheet,
-  View,
-  Text,
-  Image,
-  ScrollView,
-  TouchableOpacity,
-  FlatList,
-  SafeAreaView,
-  StatusBar,
-  Modal,
-  Dimensions,
-  Platform,
-  Animated
+    StyleSheet,
+    View,
+    Text,
+    Image,
+    ScrollView,
+    TouchableOpacity,
+    FlatList,
+    SafeAreaView,
+    StatusBar,
+    Modal,
+    Dimensions,
+    Platform,
+    Animated
 } from 'react-native';
 import { Ionicons, MaterialIcons, FontAwesome, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -21,19 +21,24 @@ import ReviewBreakdown from '../../components/reviews/reviewBreakDown';
 import HotelPricingScreen from './hotelPrice';
 import { hotelDetails } from '../../constants/hoteldetails'
 import { useLocalSearchParams } from 'expo-router';
+import useTripSearchStore from '../store/trpiSearchZustandStore';
 
 const { width, height } = Dimensions.get('window');
 
 export default function Page() {
-  const { id, name, phoneNumber, latitude, longitude } = useLocalSearchParams()
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [galleryModalVisible, setGalleryModalVisible] = useState(false);
-  const [selectedGalleryImage, setSelectedGalleryImage] = useState(0);
-  const [readMoreExpanded, setReadMoreExpanded] = useState(false);
-  const [reviewsModalVisible, setReviewsModalVisible] = useState(false);
-  const flatListRef = useRef(null);
-  const scrollY = useRef(new Animated.Value(0)).current;
-    const [barStyle, setBarStyle] = useState("light-content");
+    //   const { id, name, phoneNumber, latitude, longitude } = useLocalSearchParams()
+    // Warning: ReferenceError: Property 'route' doesn't exist, whats the problem?
+    const { property_token } = useLocalSearchParams()
+    const { dates } = useTripSearchStore();
+    console.log("property_token: ",property_token, dates)
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [galleryModalVisible, setGalleryModalVisible] = useState(false);
+    const [selectedGalleryImage, setSelectedGalleryImage] = useState(0);
+    const [readMoreExpanded, setReadMoreExpanded] = useState(false);
+    const [reviewsModalVisible, setReviewsModalVisible] = useState(false);
+    const flatListRef = useRef(null);
+    const scrollY = useRef(new Animated.Value(0)).current;
+    const [barStyle, setBarStyle] = useState("dark-content");
 
     useEffect(() => {
         const listener = scrollY.addListener(({ value }) => {
@@ -634,7 +639,7 @@ Just steps away from the famous Place de la Madeleine, you'll find yourself perf
                 </View>
                 <View style={styles.section}>
 
-                <HotelPricingScreen hotelData={hotelDetails} />
+                    <HotelPricingScreen hotelData={hotelDetails} />
                 </View>
 
 

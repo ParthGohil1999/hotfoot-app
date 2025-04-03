@@ -3,101 +3,136 @@ import {
     Text,
     View,
     Image,
-    ScrollView,
     TouchableOpacity,
-    SafeAreaView,
-    Platform,
-    Dimensions,
     ActivityIndicator
-  } from 'react-native';
+} from 'react-native';
 import { MotiView, MotiText, AnimatePresence } from 'moti';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Star } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
+import { useNavigation } from 'expo-router';
+import useTripSearchStore from '../../app/store/trpiSearchZustandStore';
+import DatePickerModal from '../datePickerModal/datePickerModal';
+import * as Haptics from 'expo-haptics';
 
 // Enhanced Hotel Card Component in Row View with Monochrome Theme - Shorter Version
 export const HotelCard = ({ hotel }) => {
+    const navigation = useNavigation();
+    const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
+    const {
+        setDatesToStore,
+        resetSearch
+    } = useTripSearchStore();
+
+    const handleDateConfirm = (selectedDates) => {
+        console.log('selectedDates:', selectedDates)
+        setDatesToStore({ startDate: selectedDates.startDate, endDate: selectedDates.endDate });
+        navigation.navigate('hotel/[id]', { property_token: hotel?.property_token });
+    };
+    // create a function handlePress to handle the press event on the card, when the card is pressed, it will log the hotel name user should redirect to the hotel details page, with the hotel id
+    const handlePress = () => {
+        console.log('Card Pressed: ', hotel?.name);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        resetSearch();
+        setIsDatePickerVisible(true);
+
+    };
     const [loading, setLoading] = useState(true);
     useEffect(() => {
         setTimeout(() => {
             setLoading(false);
-        }, 1000);  
+        }, 1000);
     }, [])
     // console.log(hotel);
     return (
-        loading ? (<ActivityIndicator size="large" color="#0000ff" />) : (<MotiView
-            from={{ opacity: 0, translateY: 10 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{
-                type: 'timing',
-                duration: 600,
-                delay: 200
-            }}
-            style={styles.hotelCard}
-        >
-            {/* Left side image with overlay gradient */}
-            <View style={styles.imageContainer}>
-                <Image source={{ uri: hotel?.images[0]?.original_image }} style={styles.hotelImage} />
-                <LinearGradient
-                    colors={['transparent', 'rgba(0,0,0,0.7)']}
-                    style={styles.imageGradient}
-                />
-                {hotel?.discount && (
-                    <View style={styles.discountBadge}>
-                        <Text style={styles.discountText}>-{hotel?.discount}%</Text>
-                    </View>
-                )}
-            </View>
+        loading ? (<ActivityIndicator size="large" color="#0000ff" />) : (
 
-            {/* Right side content */}
-            <View style={styles.hotelContent}>
-                {/* Header with name and heart icon */}
-                <View style={styles.hotelHeader}>
-                    <Text style={styles.hotelName} numberOfLines={1}>{hotel?.name}</Text>
-                    {/* <TouchableOpacity style={styles.favoriteButton}>
+            <TouchableOpacity onPress={handlePress}>
+                <MotiView
+                    from={{ opacity: 0, translateY: 10 }}
+                    animate={{ opacity: 1, translateY: 0 }}
+                    transition={{
+                        type: 'timing',
+                        duration: 600,
+                        delay: 200
+                    }}
+                    style={styles.hotelCard}
+                    onpress={() => console.log('Card Pressed')}
+                >
+
+                    {/* Left side image with overlay gradient */}
+                    <View style={styles.imageContainer}>
+                        <Image source={{ uri: hotel?.images[0]?.original_image }} style={styles.hotelImage} />
+                        <LinearGradient
+                            colors={['transparent', 'rgba(0,0,0,0.7)']}
+                            style={styles.imageGradient}
+                        />
+                        {hotel?.discount && (
+                            <View style={styles.discountBadge}>
+                                <Text style={styles.discountText}>-{hotel?.discount}%</Text>
+                            </View>
+                        )}
+                    </View>
+
+                    {/* Right side content */}
+                    <View style={styles.hotelContent} >
+                        {/* Header with name and heart icon */}
+                        <View style={styles.hotelHeader}>
+                            <Text style={styles.hotelName} numberOfLines={1}>{hotel?.name}</Text>
+                            {/* <TouchableOpacity style={styles.favoriteButton}>
                         <Text style={styles.heartIcon}>♡</Text>
                     </TouchableOpacity> */}
-                </View>
-
-                {/* Location with icon */}
-                <View style={styles.locationContainer}>
-                    <View style={styles.locationDot} />
-                    <Text style={styles.locationText} numberOfLines={1}>
-                        {`${hotel?.nearby_places[0]?.name || 'Dublin City Centre'} - ${hotel?.nearby_places[0]?.transportations[0]?.duration || '5 min'}s ${hotel?.nearby_places[0]?.transportations[0]?.type}`}
-                    </Text>
-                </View>
-
-                {/* Rating and price in one row */}
-                <View style={styles.bottomRow}>
-                    <View style={styles.ratingContainer}>
-                        <View style={styles.ratingBadge}>
-                            <Text style={styles.ratingScore}>{hotel?.location_rating || '4.8'}</Text>
                         </View>
-                        <View style={styles.starsContainer}>
-                            {Array(5).fill(0).map((_, i) => (
-                                <Star
-                                    key={i}
-                                    size={10}
-                                    color={i < Math.floor(hotel?.location_rating || 4.8) ? "#CCCCCC" : "#E0E0E0"}
-                                />
-                            ))}
-                        </View>
-                    </View>
-                    <View style={styles.priceContainer}>
-                        {hotel?.deal_description && (
-                            <Text style={styles.originalPrice}>{hotel?.deal_description}</Text>
-                        )}
-                        <Text style={styles.currentPrice}>{hotel?.rate_per_night?.lowest} / night</Text>
-                    </View>
-                    
-                </View>
 
-                {/* Book button */}
-                {/* <TouchableOpacity style={styles.bookButton}>
+                        {/* Location with icon */}
+                        <View style={styles.locationContainer}>
+                            <View style={styles.locationDot} />
+                            <Text style={styles.locationText} numberOfLines={1}>
+                                {`${hotel?.nearby_places[0]?.name || 'Dublin City Centre'} - ${hotel?.nearby_places[0]?.transportations[0]?.duration || '5 min'}s ${hotel?.nearby_places[0]?.transportations[0]?.type}`}
+                            </Text>
+                        </View>
+
+                        {/* Rating and price in one row */}
+                        <View style={styles.bottomRow}>
+                            <View style={styles.ratingContainer}>
+                                <View style={styles.ratingBadge}>
+                                    <Text style={styles.ratingScore}>{hotel?.location_rating || '4.8'}</Text>
+                                </View>
+                                <View style={styles.starsContainer}>
+                                    {Array(5).fill(0).map((_, i) => (
+                                        <Star
+                                            key={i}
+                                            size={10}
+                                            color={i < Math.floor(hotel?.location_rating || 4.8) ? "#CCCCCC" : "#E0E0E0"}
+                                        />
+                                    ))}
+                                </View>
+                            </View>
+                            <View style={styles.priceContainer}>
+                                {hotel?.deal_description && (
+                                    <Text style={styles.originalPrice}>{hotel?.deal_description}</Text>
+                                )}
+                                <Text style={styles.currentPrice}>{hotel?.rate_per_night?.lowest} / night</Text>
+                            </View>
+
+                        </View>
+
+                        {/* Book button */}
+                        {/* <TouchableOpacity style={styles.bookButton}>
                     <Text style={styles.bookButtonText}>Book</Text>
                 </TouchableOpacity> */}
-            </View>
-        </MotiView>)
+                    </View>
+                </MotiView>
+                <DatePickerModal
+                    visible={isDatePickerVisible}
+                    onClose={() => setIsDatePickerVisible(false)}
+                    onSelectDates={handleDateConfirm}
+                    activeTab={'Places'}
+                    tripType={'Round Trip'}
+                // initialDates={dates}
+                />
+            </TouchableOpacity>
+        )
     );
 };
 
@@ -117,7 +152,7 @@ const styles = StyleSheet.create({
         height: 90, // Reduced from 170
         borderWidth: 1,
         borderColor: '#f0f0f0',
-        marginRight: 16,
+        // marginRight: 16,
     },
     imageContainer: {
         width: '35%', // Slightly reduced from 40%
