@@ -43,7 +43,7 @@ const HomeScreen = () => {
             </View>
             <View>
               {/* <CityList data={cities} /> */}
-              {/* <CityList /> */}
+              <CityList />
             </View>
           </View>
           <View>

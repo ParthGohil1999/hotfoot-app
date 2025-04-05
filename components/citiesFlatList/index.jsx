@@ -18,6 +18,35 @@ import useTripSearchStore from '../../app/store/trpiSearchZustandStore';
 import DatePickerModal from '../datePickerModal/datePickerModal';
 
 
+const fetchCitiesWithImages = async (data) => {
+    
+    // if (!data) return;
+    // console.log('data: ', data)
+
+    try {
+        const citiesWithImages = await Promise.all(
+            data?.map(async (city) => {
+                try {
+                    const imageResponse = await GetPixabayImageByCityName(city.name);
+                    const parsedData = await JSON.parse(imageResponse);
+                    const image = parsedData.hits?.[0]?.largeImageURL || null;
+                    // console.log("citiesWithImages: ", parsedData)
+                    return { ...city, imageUrl: image };
+                } catch (error) {
+                    console.error(`Failed to fetch image for ${city.name}:`, error);
+                    return { ...city, imageUrl: null };
+                }
+            })
+        );
+        // console.log("citiesWithImages: ", citiesWithImages)
+        // setCities(citiesWithImages);
+        return citiesWithImages
+    } catch (error) {
+        console.error("Error fetching cities with images:", error);
+    }
+};
+
+
 export const CityList = ({ data }) => {
     const [places, setPlaces] = useState([]);
     const navigation = useNavigation();
@@ -54,10 +83,11 @@ export const CityList = ({ data }) => {
     const fetchData = async () => {
         try {
             const popularDestinations = await GetPlaceDetailsByTextSearch();
-            // console.log('popularDestinations:', popularDestinations);
             // console.log('popularDestinations:', JSON.stringify(popularDestinations.results, null, 2));  
-
-            setPlaces(popularDestinations.results);
+            const citiesWithImages = await fetchCitiesWithImages(popularDestinations.results)
+            // console.log('popularDestinations:', citiesWithImages);
+            setPlaces(citiesWithImages);
+            // setPlaces(popularDestinations.results);
         } catch (error) {
             console.error("Error during fetching city list:", error);
         }
@@ -77,9 +107,7 @@ export const CityList = ({ data }) => {
                 }}
                 >
                     <Image
-                        source={{
-                            uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&photoreference=${item.photos[0].photo_reference}&key=${process.env.EXPO_PUBLIC_GOOGLE_PLACE_API_KEY}`,
-                        }}
+                        source={{ uri: item.imageUrl }}
                         style={{ width: 80, height: 80, borderRadius: 100, objectFit: 'none' }}
                         className="object-contain"
                     />
@@ -151,37 +179,14 @@ export const TopPicksCityList = ({ data }) => {
         try {
             const topPicks = await TopPicksOnlyForYou();
             // console.log('TopPicksOnlyForYou:',topPicks);
-            await fetchCitiesWithImages(topPicks.data)
+            const citiesWithImages = await fetchCitiesWithImages(topPicks.data.data)
+            setCities(citiesWithImages);
         } catch (error) {
             console.error("Error during fetching top picks city list:", error);
         }
     };
 
-    const fetchCitiesWithImages = async (data) => {
-        // if (!data) return;
-        // console.log('data: ', data)
-
-        try {
-            const citiesWithImages = await Promise.all(
-                data?.data?.map(async (city) => {
-                    try {
-                        const imageResponse = await GetPixabayImageByCityName(city.name);
-                        const parsedData = await JSON.parse(imageResponse);
-                        const image = parsedData.hits?.[0]?.largeImageURL || null;
-                        // console.log("citiesWithImages: ", parsedData)
-                        return { ...city, imageUrl: image };
-                    } catch (error) {
-                        console.error(`Failed to fetch image for ${city.name}:`, error);
-                        return { ...city, imageUrl: null };
-                    }
-                })
-            );
-            // console.log("citiesWithImages: ", citiesWithImages)
-            setCities(citiesWithImages);
-        } catch (error) {
-            console.error("Error fetching cities with images:", error);
-        }
-    };
+    
 
 
     const renderItem = ({ item }) => {
@@ -281,30 +286,6 @@ export const TopTrendsFromYourCity = ({ data }) => {
                 cityName: cityCodes[item.destination] || "Unknown City",
             }))
         };
-    };
-
-    const fetchCitiesWithImages = async (data) => {
-        // if (!data) return;
-        // console.log('data: ', data)
-
-        try {
-            const citiesWithImages = await Promise.all(
-                data?.data?.map(async (city) => {
-                    try {
-                        const imageResponse = await GetPixabayImageByCityName(city.cityName);
-                        const parsedData = await JSON.parse(imageResponse);
-                        const image = parsedData.hits?.[0]?.largeImageURL || null;
-                        return { ...city, imageUrl: image };
-                    } catch (error) {
-                        console.error(`Failed to fetch image for ${city.cityName}:`, error);
-                        return { ...city, imageUrl: null };
-                    }
-                })
-            );
-            setCities(citiesWithImages);
-        } catch (error) {
-            console.error("Error fetching cities with images:", error);
-        }
     };
 
 
