@@ -442,7 +442,7 @@ export default function ExploreScreen() {
           </View>
         </View>
       </Animated.ScrollView>
-      <TouchableOpacity style={styles.bottomBar} onPress={() => navigation.navigate('preferences/travelPreferences', { navigateTo: 'preferences/tripBudget' })}>
+      <TouchableOpacity style={styles.bottomBar} onPress={() => navigation.navigate('preferences/travelPreferences', { navigateTo: 'preferences/budgetSelection' })}>
         <Text style={styles.generateTrip}>Generate trip</Text>
       </TouchableOpacity>
     </View>
