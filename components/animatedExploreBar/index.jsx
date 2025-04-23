@@ -61,7 +61,7 @@ export default function AnimatedExploreBar() {
             >
                 <View style={styles.inputRow}>
                     <LinearGradient
-                        colors={['black']}
+                        colors={['black', 'black']}
                         style={styles.searchIconContainer}
                     >
                         <Search size={22} color="#FFFFFF" />

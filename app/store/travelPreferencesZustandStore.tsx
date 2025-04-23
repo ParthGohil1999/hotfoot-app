@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface TravelPreferencesState {
   selectedButtons: string[];
   budgetPreference: string | null;
-  
+
   // Actions
   setSelectedButtons: (buttons: string[]) => void;
   toggleButton: (button: string) => void;
@@ -19,27 +19,27 @@ const useTravelPreferencesStore = create<TravelPreferencesState>()(
     (set) => ({
       selectedButtons: [],
       budgetPreference: null,
-      
+
       setSelectedButtons: (buttons) => set({ selectedButtons: buttons }),
-      
+
       toggleButton: (button) => set((state) => {
         const isSelected = state.selectedButtons.includes(button);
         if (isSelected) {
           // Remove the button if already selected
-          return { 
-            selectedButtons: state.selectedButtons.filter(b => b !== button) 
+          return {
+            selectedButtons: state.selectedButtons.filter(b => b !== button)
           };
         } else {
           // Add the button if not selected
-          return { 
-            selectedButtons: [...state.selectedButtons, button] 
+          return {
+            selectedButtons: [...state.selectedButtons, button]
           };
         }
       }),
-      
+
       setBudgetPreference: (budget) => set({ budgetPreference: budget }),
-      
-      resetPreferences: () => set({ 
+
+      resetPreferences: () => set({
         selectedButtons: [],
         budgetPreference: null
       })

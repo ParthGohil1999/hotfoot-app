@@ -36,10 +36,10 @@ const HomeScreen = () => {
               <Text className="subpixel-antialiased text-lg font-bold">
                 Popular Destinations
               </Text>
-              <View className="flex-row items-center mr-3">
+              {/* <View className="flex-row items-center mr-3">
                 <Text>View All</Text>
                 <AntDesign className="ml-3 font-thin" name="arrowright" size={20} color="black" />
-              </View>
+              </View> */}
             </View>
             <View>
               {/* <CityList data={cities} /> */}
@@ -51,10 +51,10 @@ const HomeScreen = () => {
               <Text className="subpixel-antialiased text-lg font-bold">
                 Top picks for you
               </Text>
-              <View className="flex-row items-center mr-3">
+              {/* <View className="flex-row items-center mr-3">
                 <Text>View All</Text>
                 <AntDesign className="ml-3 font-thin" name="arrowright" size={20} color="black" />
-              </View>
+              </View> */}
             </View>
             <View>
               {/* <TopPicksCityList data={topPicksCities.data} /> */}

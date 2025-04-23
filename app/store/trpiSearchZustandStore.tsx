@@ -123,12 +123,12 @@ const useTripSearchStore = create<TripSearchState>()(
       name: 'trip-search-storage', // unique name
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
-        fromLocation: state.fromLocation,
-        toLocation: state.toLocation,
+        // fromLocation: state.fromLocation,
+        // toLocation: state.toLocation,
         dates: state.dates,
         travelers: state.travelers,
         cabinClass: state.cabinClass,
-        tripType: state.tripType
+        // tripType: state.tripType
       })
     }
   )

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -6,20 +6,17 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   Platform,
-  Dimensions
-} from 'react-native';
-import { MotiView, MotiText, AnimatePresence } from 'moti';
+  Dimensions,
+  ActivityIndicator,
+} from "react-native";
+import { MotiView, AnimatePresence } from "moti";
 import Animated, {
-  FadeIn,
-  FadeInDown,
-  FadeInUp,
   interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
-  useSharedValue
-} from 'react-native-reanimated';
+  useSharedValue,
+} from "react-native-reanimated";
 import {
   ChevronLeft,
   Info,
@@ -27,71 +24,97 @@ import {
   ChevronUp,
   Sun,
   Cloud,
-  Star,
-  StarHalf
-} from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { HotelCard } from '../../components/hotelCard/hotelCard';
-import { hotelDetails } from "../../constants/hotels"
-import useTripSearchStore from '../store/trpiSearchZustandStore';
-import { useNavigation } from 'expo-router';
+} from "lucide-react-native";
+import { LinearGradient } from "expo-linear-gradient";
+// import { HotelCard } from "../../components/hotelCard/hotelCard";
+// import { hotelDetails } from "../../constants/hotels";
+import useTripSearchStore from "../store/trpiSearchZustandStore";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { HotelCardResults } from "../../components/hotelCard/hotelCardResults";
 
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const HEADER_HEIGHT = 350;
 
 const AnimatedImage = Animated.createAnimatedComponent(Image);
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
 export default function ExploreScreen() {
+  const { flightResults, hotelResults, searchDataFlights, searchDataHotels } =
+    useLocalSearchParams();
 
-  const [selectedTab, setSelectedTab] = useState('All');
+  const [selectedTab, setSelectedTab] = useState("All");
   const [expandedQuestions, setExpandedQuestions] = useState([]);
+  const [flightData, setFlightData] = useState(null);
+  const [flightSearchParams, setFlightSearchParams] = useState({});
+  const [hotelData, setHotelData] = useState([]);
+  const [hotelSearchParams, setHotelSearchParams] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const scrollY = useSharedValue(0);
-  const navigation = useNavigation();
-  const { toLocation, fromLocation, travelers, getTotalTravelers, dates } = useTripSearchStore();
-  console.log("travelers: ", travelers);
+  const router = useRouter();
+  const { toLocation, fromLocation, travelers, getTotalTravelers, dates } =
+    useTripSearchStore();
 
-  const hotelData = [
-    {
-      name: 'LATICOUPE Jacobs Inn Dublin',
-      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop',
-      rating: 4.2,
-      reviews: '1.1K',
-      price: '64',
-      originalPrice: '89',
-      location: 'Dublin City Centre - 0.5 mi from center',
-      amenities: ['Wi-Fi', 'Breakfast', 'Parking'],
-      verified: true,
-      recommended: true
-    },
-    {
-      name: 'The Plaza Hotel',
-      image: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=2070&auto=format&fit=crop',
-      rating: 4.5,
-      reviews: '1.1K',
-      price: '76',
-      originalPrice: '105',
-      discount: 28,
-      location: 'Temple Bar - 0.2 mi from center',
-      amenities: ['Pool', 'Spa', 'Restaurant'],
-      verified: true
-    },
-    {
-      name: 'Premier Inn Dublin City Centre',
-      image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=2070&auto=format&fit=crop',
-      rating: 4.8,
-      reviews: '2.3K',
-      price: '82',
-      location: 'Grafton Street - 0.3 mi from center',
-      amenities: ['Gym', 'Breakfast', 'Bar'],
-      recommended: true
+  const formatTime = (timeString) => {
+    if (!timeString) return "--:--";
+    const date = new Date(timeString);
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const formatDuration = (minutes) => {
+    if (!minutes) return "";
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins}m`;
+  };
+
+  useEffect(() => {
+    if (flightResults) {
+      try {
+        let parsedData;
+
+        if (typeof flightResults === "object") {
+          parsedData = flightResults;
+        } else if (typeof flightResults === "string") {
+          parsedData = JSON.parse(flightResults);
+          console.log("Parsed flight results:", parsedData);
+        } else {
+          throw new Error("Invalid flight results format");
+        }
+
+        setFlightData(parsedData);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error processing flight data:", error);
+        Alert.alert("Error", "Failed to load flight data");
+        router.back();
+      }
     }
-  ]
+  }, [flightResults, searchDataFlights]);
+
+  useEffect(() => {
+    try {
+      if (hotelResults) {
+        const parsedResults = JSON.parse(hotelResults);
+        setHotelData(parsedResults.properties || []);
+        setHotelSearchParams(parsedResults.search_parameters || {});
+      }
+      if (searchDataHotels) {
+        const parsedSearchData = JSON.parse(searchDataHotels);
+        setHotelSearchParams((prev) => ({ ...prev, ...parsedSearchData }));
+      }
+    } catch (err) {
+      setError("Failed to parse hotel results");
+      console.error("Parsing error:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [hotelResults, searchDataHotels]);
 
   const toggleQuestion = (index) => {
     if (expandedQuestions.includes(index)) {
-      setExpandedQuestions(expandedQuestions.filter(item => item !== index));
+      setExpandedQuestions(expandedQuestions.filter((item) => item !== index));
     } else {
       setExpandedQuestions([...expandedQuestions, index]);
     }
@@ -108,40 +131,85 @@ export default function ExploreScreen() {
       height: interpolate(
         scrollY.value,
         [0, HEADER_HEIGHT],
-        [HEADER_HEIGHT, Platform.OS === 'ios' ? 100 : 80],
-        'clamp'
+        [HEADER_HEIGHT, Platform.OS === "ios" ? 100 : 80],
+        "clamp"
       ),
     };
   });
 
   const headerTextStyle = useAnimatedStyle(() => {
     return {
-      opacity: interpolate(scrollY.value, [0, HEADER_HEIGHT / 2], [1, 0], 'clamp'),
+      opacity: interpolate(
+        scrollY.value,
+        [0, HEADER_HEIGHT / 2],
+        [1, 0],
+        "clamp"
+      ),
       transform: [
         {
           translateY: interpolate(
             scrollY.value,
             [0, HEADER_HEIGHT],
             [0, -20],
-            'clamp'
+            "clamp"
           ),
         },
       ],
     };
   });
 
+  const renderFlightCard = (flight, index) => {
+    return (
+      <MotiView
+        key={`${flight.airline}-${flight.route}-${index}`}
+        from={{ opacity: 0, translateX: -20 }}
+        animate={{ opacity: 1, translateX: 0 }}
+        transition={{ delay: 400 + index * 100 }}
+        style={styles.flightOption}
+      >
+        <View style={styles.flightInfo}>
+          <View style={styles.airlineLogo}>
+            <Text style={styles.airlineInitial}>
+              {flight.flights[0]?.airline.charAt(0)}
+            </Text>
+          </View>
+          <View>
+            <Text style={styles.airlineName}>{flight.flights[0]?.airline}</Text>
+            <Text style={styles.flightDetails}>
+              {flight.flights?.length === 0
+                ? "Non-stop"
+                : `${flight.flights?.length} stop${
+                    flight.flights?.length > 1 ? "s" : ""
+                  }`}{" "}
+              · {formatDuration(flight.total_duration)}
+            </Text>
+            {flight.departureTime && flight.arrivalTime && (
+              <Text style={styles.flightTimes}>
+                {flight.departureTime} → {flight.arrivalTime}
+              </Text>
+            )}
+          </View>
+        </View>
+        <View style={styles.priceInfo}>
+          <Text style={styles.priceText}>${flight.price}</Text>
+          <Text style={styles.priceSubtext}>{flight.type}</Text>
+        </View>
+      </MotiView>
+    );
+  };
+
   const questions = [
-    'Is Dublin worth visiting?',
-    'Is Dublin an expensive place to visit?',
-    'What to do in Ireland in 3 days?',
-    'What to know before going to Dublin?',
-    'Where to visit from Dublin?'
+    "Is Dublin worth visiting?",
+    "Is Dublin an expensive place to visit?",
+    "What to do in Ireland in 3 days?",
+    "What to know before going to Dublin?",
+    "Where to visit from Dublin?",
   ];
 
   const weatherData = [
-    { month: 'March', high: '11°', low: '4°', popularity: 60 },
-    { month: 'April', high: '13°', low: '5°', popularity: 75 },
-    { month: 'May', high: '16°', low: '7°', popularity: 40 }
+    { month: "March", high: "11°", low: "4°", popularity: 60 },
+    { month: "April", high: "13°", low: "5°", popularity: 75 },
+    { month: "May", high: "16°", low: "7°", popularity: 40 },
   ];
 
   return (
@@ -154,11 +222,13 @@ export default function ExploreScreen() {
         {/* Hero Header */}
         <Animated.View style={[styles.header, headerStyle]}>
           <AnimatedImage
-            source={{ uri: 'https://images.unsplash.com/photo-1549918864-48ac978761a4?q=80&w=2070&auto=format&fit=crop' }}
+            source={{
+              uri: "https://images.unsplash.com/photo-1549918864-48ac978761a4?q=80&w=2070&auto=format&fit=crop",
+            }}
             style={styles.headerImage}
           />
           <AnimatedLinearGradient
-            colors={['transparent', 'rgba(0,0,0,0.8)']}
+            colors={["transparent", "rgba(0,0,0,0.8)"]}
             style={[styles.headerGradient, headerTextStyle]}
           >
             <Animated.Text style={[styles.cityName, headerTextStyle]}>
@@ -190,47 +260,47 @@ export default function ExploreScreen() {
             style={styles.section}
           >
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Travel from {fromLocation.name}</Text>
+              <Text style={styles.sectionTitle}>
+                Travel from {fromLocation.name}
+              </Text>
               <Info size={20} color="#666" />
             </View>
 
             <TouchableOpacity style={styles.priceAlert}>
-              <Text style={styles.priceAlertText}>Prices are currently typical</Text>
-              {/* <ChevronDown size={20} color="#666" /> */}
+              <Text style={styles.priceAlertText}>
+                Prices are currently typical
+              </Text>
             </TouchableOpacity>
 
             {/* Flight Options */}
-            {[
-              { airline: 'Ryanair', duration: '1h 25m', route: 'LTN-DUB', price: '£30' },
-              { airline: 'Ryanair', duration: '1h 25m', route: 'LGW-DUB', price: '£54' },
-              { airline: 'Ryanair', duration: '1h 15m', route: 'LTN-DUB', price: '£68' }
-            ].map((flight, index) => (
-              <MotiView
-                key={index}
-                from={{ opacity: 0, translateX: -20 }}
-                animate={{ opacity: 1, translateX: 0 }}
-                transition={{ delay: 400 + index * 100 }}
-                style={styles.flightOption}
-              >
-                <View style={styles.flightInfo}>
-                  <View style={styles.airlineLogo}>
-                    <Text style={styles.airlineInitial}>R</Text>
-                  </View>
-                  <View>
-                    <Text style={styles.airlineName}>{flight.airline}</Text>
-                    <Text style={styles.flightDetails}>
-                      Non-stop · {flight.duration} · {flight.route}
-                    </Text>
-                  </View>
-                </View>
-                <View style={styles.priceInfo}>
-                  <Text style={styles.priceText}>{flight.price}</Text>
-                  <Text style={styles.priceSubtext}>Round trip</Text>
-                </View>
-              </MotiView>
-            ))}
+            {loading ? (
+              <ActivityIndicator size="large" style={{ marginVertical: 20 }} />
+            ) : error ? (
+              <Text style={styles.errorText}>{error}</Text>
+            ) : flightData?.best_flights?.length > 0 ? (
+              flightData.best_flights.slice(0, 3).map(renderFlightCard)
+            ) : (
+              <Text style={styles.noResultsText}>
+                No flights found for your dates
+              </Text>
+            )}
 
-            <TouchableOpacity style={styles.viewMoreButton}>
+            <TouchableOpacity
+              style={styles.viewMoreButton}
+              onPress={() =>
+                router.push({
+                  pathname: "/flightDetails/index",
+                  params: {
+                    fromLocation: JSON.stringify(fromLocation),
+                    toLocation: JSON.stringify(toLocation),
+                    dates: JSON.stringify(dates),
+                    travelers: JSON.stringify(travelers),
+                    cabinClass,
+                    tripType,
+                  },
+                })
+              }
+            >
               <Text style={styles.viewMoreText}>View all flights</Text>
             </TouchableOpacity>
           </MotiView>
@@ -247,22 +317,24 @@ export default function ExploreScreen() {
               <Info size={20} color="#666" />
             </View>
 
-            <Text style={styles.stayDates}>27 Mar - 2 Apr · 6 nights</Text>
+            <Text style={styles.stayDates}>
+              {dates.startDate} - {dates.endDate} · {dates.totalDays} days
+            </Text>
 
             <View style={styles.stayTypes}>
-              {['Hotels', 'Holiday rentals'].map((type, index) => (
+              {["Hotels", "Holiday rentals"].map((type, index) => (
                 <TouchableOpacity
                   key={type}
                   onPress={() => setSelectedTab(tab)}
                   style={[
                     styles.stayTypeButton,
-                    index === 0 && styles.activeStayType
+                    index === 0 && styles.activeStayType,
                   ]}
                 >
                   <Text
                     style={[
                       styles.stayTypeText,
-                      index === 0 && styles.activeStayTypeText
+                      index === 0 && styles.activeStayTypeText,
                     ]}
                   >
                     {type}
@@ -271,16 +343,46 @@ export default function ExploreScreen() {
               ))}
             </View>
 
-            {/* Hotel Cards */}
-            <View style={styles.hotelCardsContainer}>
-              {hotelDetails?.properties?.slice(0, 3).map((hotel, index) => (
-                <HotelCard key={index} hotel={hotel} />
-              ))}
-            </View>
+            {hotelData?.slice(0, 3).map((hotel, index) => (
+              <HotelCardResults
+                key={`${hotel.property_token || index}`}
+                hotel={hotel}
+                searchParams={hotelSearchParams}
+              />
+            ))}
 
-            <TouchableOpacity style={styles.viewMoreButton}>
-              <Text style={styles.viewMoreText}>View {hotelDetails?.search_information?.total_results}+ hotels</Text>
-            </TouchableOpacity>
+            {hotelData.length > 3 && (
+              <TouchableOpacity
+                style={styles.viewMoreButton}
+                onPress={() =>
+                  router.push({
+                    pathname: "/hotel/results",
+                    params: {
+                      hotelResults: JSON.stringify({
+                        properties: hotelData,
+                        search_parameters: hotelSearchParams,
+                      }),
+                      searchData: JSON.stringify(hotelSearchParams),
+                    },
+                  })
+                }
+              >
+                <Text style={styles.viewMoreText}>
+                  View all {hotelData.length} hotels
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {hotelData.length === 0 && !loading && (
+              <Text style={styles.noResultsText}>
+                No hotels found for your dates
+              </Text>
+            )}
+
+            {/* Show loading indicator */}
+            {loading && (
+              <ActivityIndicator size="large" style={{ marginVertical: 20 }} />
+            )}
           </MotiView>
 
           {/* When to Visit Section */}
@@ -339,9 +441,13 @@ export default function ExploreScreen() {
                   </Text>
                   <View style={styles.popularityBar}>
                     <MotiView
-                      from={{ width: '0%' }}
+                      from={{ width: "0%" }}
                       animate={{ width: `${data.popularity}%` }}
-                      transition={{ type: 'timing', duration: 1000, delay: 900 + index * 100 }}
+                      transition={{
+                        type: "timing",
+                        duration: 1000,
+                        delay: 900 + index * 100,
+                      }}
                       style={[styles.popularityFill]}
                     />
                   </View>
@@ -362,20 +468,20 @@ export default function ExploreScreen() {
               showsHorizontalScrollIndicator={false}
               style={styles.tabsContainer}
             >
-              {['All', 'Travel requirements', 'Costs', 'Getting around'].map(
+              {["All", "Travel requirements", "Costs", "Getting around"].map(
                 (tab, index) => (
                   <TouchableOpacity
                     key={tab}
                     onPress={() => setSelectedTab(tab)}
                     style={[
                       styles.tab,
-                      selectedTab === tab && styles.activeTab
+                      selectedTab === tab && styles.activeTab,
                     ]}
                   >
                     <Text
                       style={[
                         styles.tabText,
-                        selectedTab === tab && styles.activeTabText
+                        selectedTab === tab && styles.activeTabText,
                       ]}
                     >
                       {tab}
@@ -404,30 +510,31 @@ export default function ExploreScreen() {
                     {expandedQuestions.includes(index) && (
                       <MotiView
                         from={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
+                        animate={{ opacity: 1, height: "auto" }}
                         exit={{
                           opacity: 0,
                           height: 0,
                           transition: {
                             height: {
-                              type: 'timing',
+                              type: "timing",
                               duration: 300,
-                              delay: 50
+                              delay: 50,
                             },
                             opacity: {
-                              type: 'timing',
-                              duration: 200
-                            }
-                          }
+                              type: "timing",
+                              duration: 200,
+                            },
+                          },
                         }}
                         transition={{
-                          type: 'timing',
-                          duration: 300
+                          type: "timing",
+                          duration: 300,
                         }}
                         style={styles.answerContainer}
                       >
                         <Text style={styles.answerText}>
-                          This is a placeholder answer for "{question}". Tap to collapse.
+                          This is a placeholder answer for "{question}". Tap to
+                          collapse.
                         </Text>
                       </MotiView>
                     )}
@@ -442,7 +549,17 @@ export default function ExploreScreen() {
           </View>
         </View>
       </Animated.ScrollView>
-      <TouchableOpacity style={styles.bottomBar} onPress={() => navigation.navigate('preferences/travelPreferences', { navigateTo: 'preferences/budgetSelection' })}>
+      <TouchableOpacity
+        style={styles.bottomBar}
+        onPress={() =>
+          router.push({
+            pathname: "/preferences/travelPreferences",
+            params: {
+              flow: "itinerary",
+            },
+          })
+        }
+      >
         <Text style={styles.generateTrip}>Generate trip</Text>
       </TouchableOpacity>
     </View>
@@ -452,192 +569,192 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
   },
   scrollView: {
     flex: 1,
   },
   header: {
     height: HEADER_HEIGHT,
-    position: 'relative',
+    position: "relative",
   },
   headerImage: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
+    width: "100%",
+    height: "100%",
+    position: "absolute",
   },
   headerGradient: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
     height: 140,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
     padding: 20,
   },
   backButton: {
-    position: 'absolute',
-    top: Platform.OS === 'ios' ? 60 : 40,
+    position: "absolute",
+    top: Platform.OS === "ios" ? 60 : 40,
     left: 20,
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    alignItems: "center",
+    justifyContent: "center",
     zIndex: 10,
   },
   cityName: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
     marginBottom: 4,
   },
   countryName: {
     fontSize: 18,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: "rgba(255, 255, 255, 0.9)",
     marginBottom: 4,
   },
   dateRange: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: "rgba(255, 255, 255, 0.8)",
   },
   content: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     marginBottom: 70,
   },
   section: {
     // borderRadius: 54,
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: "#e0e0e0",
   },
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000000',
+    fontWeight: "bold",
+    color: "#000000",
     marginBottom: 8,
   },
   sectionSubtitle: {
     fontSize: 16,
-    color: '#666666',
+    color: "#666666",
     marginBottom: 20,
   },
   priceAlert: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#f5f5f5',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#f5f5f5",
     padding: 16,
     borderRadius: 12,
     marginBottom: 20,
   },
   priceAlertText: {
     fontSize: 16,
-    color: '#000000',
+    color: "#000000",
   },
   flightOption: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: "#e0e0e0",
   },
   flightInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   airlineLogo: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#e0e0e0',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#e0e0e0",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 12,
   },
   airlineInitial: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000000',
+    fontWeight: "bold",
+    color: "#000000",
   },
   airlineName: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#000000',
+    fontWeight: "600",
+    color: "#000000",
     marginBottom: 4,
   },
   flightDetails: {
     fontSize: 14,
-    color: '#666666',
+    color: "#666666",
   },
   priceInfo: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   priceText: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000000',
+    fontWeight: "bold",
+    color: "#000000",
     marginBottom: 4,
   },
   priceSubtext: {
     fontSize: 14,
-    color: '#666666',
+    color: "#666666",
   },
   viewMoreButton: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     padding: 16,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 20,
   },
   viewMoreText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#000000',
+    fontWeight: "600",
+    color: "#000000",
   },
   stayDates: {
     fontSize: 16,
-    color: '#666666',
+    color: "#666666",
     marginBottom: 16,
   },
   stayTypes: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 20,
   },
   stayTypeButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     marginRight: 12,
   },
   activeStayType: {
-    backgroundColor: '#000000',
+    backgroundColor: "#000000",
   },
   stayTypeText: {
     fontSize: 16,
-    color: '#666666',
+    color: "#666666",
   },
   activeStayTypeText: {
-    color: '#ffffff',
+    color: "#ffffff",
   },
   hotelCard: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     borderRadius: 16,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginBottom: 16,
   },
   hotelImage: {
-    width: '100%',
+    width: "100%",
     height: 200,
   },
   hotelInfo: {
@@ -645,114 +762,114 @@ const styles = StyleSheet.create({
   },
   hotelName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000000',
+    fontWeight: "bold",
+    color: "#000000",
     marginBottom: 8,
   },
   ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
   },
   rating: {
     fontSize: 14,
-    color: '#666666',
+    color: "#666666",
     marginRight: 8,
   },
   stars: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginRight: 8,
   },
   reviews: {
     fontSize: 14,
-    color: '#666666',
+    color: "#666666",
   },
   hotelPrice: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#000000',
+    fontWeight: "bold",
+    color: "#000000",
     marginBottom: 4,
   },
   seasons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 24,
   },
   seasonCard: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     borderRadius: 16,
     padding: 16,
     marginHorizontal: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   seasonIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#e0e0e0',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#e0e0e0",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 12,
   },
   seasonTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000000',
+    fontWeight: "bold",
+    color: "#000000",
     marginBottom: 4,
   },
   seasonPeriod: {
     fontSize: 14,
-    color: '#666666',
+    color: "#666666",
     marginBottom: 4,
   },
   seasonDescription: {
     fontSize: 14,
-    color: '#666666',
-    textAlign: 'center',
+    color: "#666666",
+    textAlign: "center",
   },
   weatherSection: {
     marginTop: 24,
   },
   weatherHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: "#e0e0e0",
   },
   weatherLabel: {
     fontSize: 14,
-    color: '#666666',
-    fontWeight: '600',
+    color: "#666666",
+    fontWeight: "600",
   },
   weatherRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: "#e0e0e0",
   },
   monthText: {
     width: 80,
     fontSize: 16,
-    color: '#000000',
+    color: "#000000",
   },
   temperatureText: {
     width: 100,
     fontSize: 16,
-    color: '#000000',
+    color: "#000000",
   },
   popularityBar: {
     flex: 1,
     height: 8,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: "#e0e0e0",
     borderRadius: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   popularityFill: {
-    height: '100%',
-    backgroundColor: '#666666',
+    height: "100%",
+    backgroundColor: "#666666",
     borderRadius: 4,
   },
   tabsContainer: {
@@ -762,60 +879,60 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     marginRight: 12,
   },
   activeTab: {
-    backgroundColor: '#000000',
+    backgroundColor: "#000000",
   },
   tabText: {
     fontSize: 14,
-    color: '#666666',
+    color: "#666666",
   },
   activeTabText: {
-    color: '#ffffff',
+    color: "#ffffff",
   },
   questions: {
     marginBottom: 20,
   },
   questionItem: {
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: "#e0e0e0",
     paddingVertical: 16,
   },
   questionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   questionText: {
     flex: 1,
     fontSize: 16,
-    color: '#000000',
+    color: "#000000",
     marginRight: 16,
   },
   answerContainer: {
     marginTop: 12,
     paddingLeft: 16,
     borderLeftWidth: 2,
-    borderLeftColor: '#e0e0e0',
+    borderLeftColor: "#e0e0e0",
   },
   answerText: {
     fontSize: 14,
-    color: '#666666',
+    color: "#666666",
     lineHeight: 20,
   },
   footer: {
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   footerLinks: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 16,
   },
   footerLink: {
     fontSize: 14,
-    color: '#666666',
+    color: "#666666",
     marginRight: 16,
   },
   feedbackButton: {
@@ -823,11 +940,11 @@ const styles = StyleSheet.create({
   },
   feedbackText: {
     fontSize: 14,
-    color: '#666666',
+    color: "#666666",
   },
   disclaimer: {
     fontSize: 12,
-    color: '#999999',
+    color: "#999999",
     marginBottom: 8,
     lineHeight: 18,
   },
@@ -836,20 +953,20 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   bottomBar: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'black',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "black",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 24,
     paddingVertical: 16,
-    paddingBottom: Platform.OS === 'ios' ? 30 : 16,
+    paddingBottom: Platform.OS === "ios" ? 30 : 16,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-    shadowColor: '#000',
+    borderTopColor: "#E2E8F0",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: -3,
@@ -860,7 +977,46 @@ const styles = StyleSheet.create({
   },
   generateTrip: {
     fontSize: 20,
-    fontWeight: '600',
-    color: 'white',
+    fontWeight: "600",
+    color: "white",
+  },
+  button: {
+    backgroundColor: "#000",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
+    marginHorizontal: 20,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  errorText: {
+    color: "red",
+    textAlign: "center",
+    marginVertical: 20,
+  },
+  noResultsText: {
+    textAlign: "center",
+    marginVertical: 20,
+    color: "#666",
+  },
+  listContainer: {
+    padding: 16,
+  },
+  noResultsContainer: {
+    padding: 32,
+    alignItems: "center",
+  },
+  noResultsText: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  noResultsSubtext: {
+    fontSize: 14,
+    color: "#666",
   },
 });

@@ -357,7 +357,7 @@ export const ExploreFlatList = ({ category, onLoading }) => {
 
     // onLoading(true)
     useEffect(() => {
-        // console.log('category:', hotelDetails);
+        // console.log('category:', hotels);
         fetchData()
         // setTimeout(() => {
 
@@ -387,12 +387,12 @@ export const ExploreFlatList = ({ category, onLoading }) => {
 
     const renderItem = ({ item }) => (
 
-        category?.toString() === "hotel" ? (<View className="p-3">
+        category?.toString() === "hotel" ? (<View>
             <HotelCard hotel={item} />
         </View>) :
-            (<View className="p-3">
+            (<View className="">
                 <Link href={{ pathname: `/${category}/${item?.id}`, params: { name: item?.displayName?.text, phoneNumber: item?.internationalPhoneNumber, latitude: item?.location?.latitude, longitude: item?.location?.longitude } }} asChild>
-                    <TouchableOpacity className="rounded-xl bg-white p-3 shadow-lg hover:shadow-xl">
+                    <TouchableOpacity >
                         {item.photos && item.photos.length > 0 && (
                             <View
                             >
@@ -638,7 +638,7 @@ const styles = StyleSheet.create({
         color: '#fff',
         marginLeft: 4,
     },
-    ratingContainer: {
+    ratingStarContainer: {
         flexDirection: 'row',
         alignItems: 'center',
     },

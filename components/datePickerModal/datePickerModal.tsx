@@ -5,17 +5,16 @@ import {
   Text,
   StyleSheet,
   Pressable,
-  Platform,
   ScrollView,
 } from 'react-native';
-import { Calendar, X } from 'lucide-react-native';
+import { X } from 'lucide-react-native';
 import { addDays, format, differenceInDays } from 'date-fns';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import CalendarPicker from 'react-native-calendar-picker';
 
 interface DatePickerModalProps {
   visible: boolean;
   onClose: () => void;
-  onSelectDates: (dates: { startDate: string; endDate: string | null; totalDays: number }) => void;
+  onSelectDates: (dates: { startDate: any; endDate: any | null; totalDays: number }) => void;
   activeTab: string;
   tripType: string;
   initialDates: {
@@ -38,7 +37,6 @@ export default function DatePickerModal({
   const [endDate, setEndDate] = React.useState<Date | null>(
     initialDates?.endDate ? new Date(initialDates.endDate) : null
   );
-  const [activeField, setActiveField] = React.useState<'start' | 'end'>('start');
 
   const isEndDateRequired = () => {
     if (activeTab === 'Flights') {
@@ -60,20 +58,15 @@ export default function DatePickerModal({
     onClose();
   };
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
-    if (selectedDate) {
-      if (activeField === 'start') {
-        setStartDate(selectedDate);
-        if (endDate && selectedDate >= endDate) {
-          setEndDate(addDays(selectedDate, 1));
-        }
-      } else {
-        setEndDate(selectedDate);
-      }
+  const handleDateChange = (date: Date, type?: 'START_DATE' | 'END_DATE') => {
+    if (type === 'START_DATE') {
+      setStartDate(date);
+    } else if (type === 'END_DATE') {
+      setEndDate(date);
     }
   };
 
-  const minEndDate = addDays(startDate, 1);
+  // const minEndDate = addDays(startDate, 1);
 
   return (
     <Modal
@@ -85,7 +78,7 @@ export default function DatePickerModal({
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <View style={styles.header}>
-            <Text style={styles.title}>Select Dates</Text>
+            <Text style={styles.title}>When will your adventure begin and end? 🗓️</Text>
             <Pressable onPress={onClose} style={styles.closeButton}>
               <X size={24} color="#000" />
             </Pressable>
@@ -93,12 +86,32 @@ export default function DatePickerModal({
 
           <ScrollView style={styles.scrollView}>
             <View style={styles.dateSelectionContainer}>
-              <Pressable
+              <Text className="text-neutral-500 text-lg">Choose the dates for your trip. This helps us plan the perfect itinerary for your travel period.</Text>
+              <View className='pb-6'>
+                <CalendarPicker
+                  selectedStartDate={startDate}
+                  selectedEndDate={endDate || undefined}
+                  restrictMonthNavigation={true}
+                  onDateChange={(date, type) => handleDateChange(date, type)}
+                  allowRangeSelection={tripType === 'Round Trip' ? true : false}
+                  minDate={new Date()}
+                  maxRangeDuration={7}
+                  selectedRangeStyle={{
+                    backgroundColor: '#32B37D'
+                  }}
+                  selectedDayTextStyle={{ color: 'white' }}
+                />
+              </View>
+              {/* <Pressable
                 style={[
                   styles.dateField,
                   activeField === 'start' && styles.activeDateField,
                 ]}
-                onPress={() => setActiveField('start')}
+                onPress={() => {
+                  setActiveField('start')
+                  setShowDatePicker(true)
+                }
+                }
               >
                 <Text style={styles.dateLabel}>Start Date</Text>
                 <View style={styles.dateValueContainer}>
@@ -107,15 +120,19 @@ export default function DatePickerModal({
                     {format(startDate, 'MMM dd, yyyy')}
                   </Text>
                 </View>
-              </Pressable>
+              </Pressable> */}
 
-              {(isEndDateRequired() || activeTab !== 'Flights') && (
+              {/* {(isEndDateRequired() || activeTab !== 'Flights') && (
                 <Pressable
                   style={[
                     styles.dateField,
                     activeField === 'end' && styles.activeDateField,
                   ]}
-                  onPress={() => setActiveField('end')}
+                  onPress={() => {
+                    setActiveField('end')
+                    setShowDatePicker(true)
+                  }
+                  }
                 >
                   <Text style={styles.dateLabel}>End Date</Text>
                   <View style={styles.dateValueContainer}>
@@ -125,19 +142,19 @@ export default function DatePickerModal({
                     </Text>
                   </View>
                 </Pressable>
-              )}
+              )} */}
             </View>
 
-            {Platform.OS !== 'web' && (
+            {/* {Platform.OS !== 'web' && (
               <DateTimePicker
                 value={activeField === 'start' ? startDate : endDate || new Date()}
                 onChange={handleDateChange}
                 minimumDate={activeField === 'end' ? minEndDate : new Date()}
                 mode="date"
               />
-            )}
+            )} */}
 
-            {Platform.OS === 'web' && (
+            {/* {Platform.OS === 'web' && (
               <input
                 type="date"
                 value={format(activeField === 'start' ? startDate : endDate || new Date(), 'yyyy-MM-dd')}
@@ -145,12 +162,12 @@ export default function DatePickerModal({
                   const date = new Date(e.target.value);
                   handleDateChange(null, date);
                 }}
-                min={activeField === 'end' 
+                min={activeField === 'end'
                   ? format(minEndDate, 'yyyy-MM-dd')
                   : format(new Date(), 'yyyy-MM-dd')}
                 style={styles.webDateInput}
               />
-            )}
+            )} */}
 
             <Pressable
               style={[
@@ -179,7 +196,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    minHeight: '50%',
+    minHeight: '80%',
   },
   header: {
     flexDirection: 'row',
@@ -190,6 +207,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#eee',
   },
   title: {
+    width: '80%',
     fontSize: 20,
     fontWeight: 'bold',
   },

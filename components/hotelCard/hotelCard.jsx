@@ -109,9 +109,9 @@ export const HotelCard = ({ hotel }) => {
                                 </View>
                             </View>
                             <View style={styles.priceContainer}>
-                                {hotel?.deal_description && (
+                                {/* {hotel?.deal_description && (
                                     <Text style={styles.originalPrice}>{hotel?.deal_description}</Text>
-                                )}
+                                )} */}
                                 <Text style={styles.currentPrice}>{hotel?.rate_per_night?.lowest} / night</Text>
                             </View>
 
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
         height: 90, // Reduced from 170
         borderWidth: 1,
         borderColor: '#f0f0f0',
-        marginRight: 16,
+        // marginRight: 16,
     },
     imageContainer: {
         width: '35%', // Slightly reduced from 40%

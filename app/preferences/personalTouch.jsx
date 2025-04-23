@@ -1,203 +1,308 @@
-import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView, Button, TextInput, Image } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { useNavigation } from 'expo-router';
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+  Image,
+  ActivityIndicator,
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import CountryPickerComponent from '../../components/countryPicker';
-import TopBar from '../../components/topBar';
-import BottomBarContinueBtn from '../../components/buttons/bottomBarContinueBtn';
-import TitleSubtitle from '../../components/titleSubtitle';
-
-
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import CountryPickerComponent from "../../components/countryPicker";
+import TopBar from "../../components/topBar";
+import BottomBarContinueBtn from "../../components/buttons/bottomBarContinueBtn";
+import TitleSubtitle from "../../components/titleSubtitle";
+import useUserStore from "../store/userZustandStore";
+import { useAuth } from "@clerk/clerk-expo";
 
 const PersonalTouch = () => {
+  const router = useRouter();
+  const params = useLocalSearchParams();
+  const { userId, getToken } = useAuth();
+  const { userData, updatePersonalInfo, fetchUserData, loading } =
+    useUserStore();
+  const [countryCode, setCountryCode] = useState("");
+  const [country, setCountry] = useState(null);
 
-    const [countryCode, setCountryCode] = useState('');
-    const [country, setCountry] = useState(null);
+  const fromOnboarding = params.fromOnboarding === "true";
 
+  const returnPath = params.returnPath;
 
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phoneNumber: "",
+    },
+  });
 
-    const handleCountrySelect = (selectedCountry) => {
-        setCountryCode(selectedCountry?.cca2);
-        setCountry(selectedCountry);
-
-
+  useEffect(() => {
+    const loadData = async () => {
+      if (userId) {
+        await fetchUserData(userId, getToken);
+      }
     };
+    loadData();
+  }, [userId]);
 
-    const navigation = useNavigation()
-    const handleDone = () => {
-        navigation.navigate('preferences/allSet')
+  useEffect(() => {
+    if (userData) {
+      reset({
+        firstName: userData.firstName || "",
+        lastName: userData.lastName || "",
+        email: userData.email || "",
+        phoneNumber:
+          userData.personalInfo?.phoneNumber
+            ?.replace(/[^\d]/g, "")
+            .replace(
+              new RegExp(
+                `^${
+                  userData.personalInfo?.phoneNumber
+                    ?.split("+")[1]
+                    ?.split(" ")[0]
+                }`
+              ),
+              ""
+            ) || "",
+      });
+      if (userData.personalInfo?.countryCode) {
+        setCountry({
+          cca2: userData.personalInfo.countryCode,
+          callingCode:
+            userData.personalInfo.phoneNumber?.split("+")[1]?.split(" ")[0] ||
+            "",
+          name: userData.personalInfo.nationality || "",
+        });
+      }
     }
+  }, [userData]);
 
-    const { control, handleSubmit, formState: { errors }, register } = useForm({
-        defaultValues: {
-            firstName: '',
-            lastName: ''
-        }
-    });
-    const onSubmit = data => console.log(data);
+  const handleCountrySelect = (selectedCountry) => {
+    setCountryCode(selectedCountry?.cca2);
+    setCountry(selectedCountry);
+  };
 
+  const onSubmit = async (data) => {
+    try {
+      const fullPhoneNumber = country?.callingCode
+        ? `+${country.callingCode}${data.phoneNumber}`
+        : data.phoneNumber;
 
+      const personalInfo = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        nationality: country?.name || "",
+        phoneNumber: fullPhoneNumber,
+        countryCode: country?.cca2 || "",
+      };
+
+      await updatePersonalInfo(userId, getToken, personalInfo);
+
+      if (params.flow === "onboarding") {
+        router.push("/preferences/locationPermission");
+      } else if (params.returnPath) {
+        router.push(params.returnPath);
+      } else {
+        router.back();
+      }
+    } catch (error) {
+      console.error("Failed to save personal info:", error);
+      alert("Failed to save personal info. Please try again.");
+    }
+  };
+
+  if (loading) {
     return (
-        <SafeAreaView style={{ backgroundColor: 'white', flex: 1, }} >
-            <TopBar backarrow progress={0.7} />
-            <ScrollView className="flex container px-7">
-                <TitleSubtitle title={'Add a personal touch'} subtitle={"To enhance your travel journey, we'd love to know more about you."} />
-                <View className="container">
-                    <View style={styles.imageContainer}>
-                        <View>
-                            <Image style={[styles.image, {
-                                padding: 20
-                            }]} source={require('../../assets/images/icon.png')} />
-                            <Image style={styles.imageEditIcon} source={require('../../assets/images/edit-icon.png')} />
-                        </View>
-                    </View>
-                    <Text style={styles.label}>First Name</Text>
-                    <View>
-                        <Controller
-                            control={control}
-                            rules={{
-                                required: true,
-                            }}
-                            render={({ field: { onChange, onBlur, value } }) => (
-                                <TextInput
-                                    onBlur={onBlur}
-                                    onChangeText={onChange}
-                                    value={value}
-                                    style={styles.input}
-                                />
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    );
+  }
 
-                            )}
-                            name="firstName"
-                        />
-                    </View>
-                    {errors.firstName && <Text style={styles.error}>This is required.</Text>}
-                    <Text style={styles.label}>Email</Text>
-                    <View>
-                        <MaterialIcons name="alternate-email" size={16} color="#8f8f8f" style={{ position: "absolute", left: 15, bottom: 37, zIndex: 1 }} />
-                        <Controller
-                            control={control}
-                            rules={{
-                                maxLength: 100,
-                            }}
-                            render={({ field: { onChange, onBlur, value } }) => (
-                                <TextInput
-                                    onBlur={onBlur}
-                                    onChangeText={onChange}
-                                    value={value}
-                                    style={styles.input}
-                                    className="px-10"
-                                />
-                            )}
-                            name="email"
-                        />
-                    </View>
-                    <Text style={styles.label}>Nationality</Text>
-                    <View>
-                        <Controller
-                            control={control}
-                            render={({ field: { onChange, onBlur, value } }) => (
-                                <View style={[styles.input]} >
-                                    <CountryPickerComponent
-                                        onSelect={handleCountrySelect}
-                                        value={value}
-                                        onBlur={onBlur}
-                                        onChangeText={onChange}
-                                    />
-                                </View>
-                            )}
-                            name="country"
-                        />
-                    </View>
-                    {countryCode && <View style={[{ flexDirection: 'row', alignItems: "center", width:'100%' }]}>
-                        <Controller
-                            control={control}
-                            render={({ field: { onChange, onBlur, value } }) => (
-                                <View  >
-                                    <TextInput style={[styles.input, { flex: 1, width: "85" }]} onBlur={onBlur}
-                                        onChangeText={onChange}
-                                        value={value}>+{country?.callingCode}</TextInput>
-                                </View>
-                            )}
-                            name="countryCallingCode"
-                        />
-                        <Controller
-                            control={control}
-                            render={({ field: { onChange, onBlur, value } }) => (
-                                <View style={[ { flex: 2, width: "100%", marginLeft: 5 }]}>
+  return (
+    <SafeAreaView style={{ backgroundColor: "white", flex: 1 }}>
+      <TopBar backarrow progress={0.5} />
+      <ScrollView className="flex container px-7">
+        <TitleSubtitle
+          title={"Add a personal touch"}
+          subtitle={
+            "To enhance your travel journey, we'd love to know more about you."
+          }
+        />
+        <View className="container">
+          <View style={styles.imageContainer}>
+            <View>
+              <Image
+                style={styles.image}
+                source={require("../../assets/images/icon.png")}
+              />
+              <Image
+                style={styles.imageEditIcon}
+                source={require("../../assets/images/edit-icon.png")}
+              />
+            </View>
+          </View>
 
-                                    <TextInput style={styles.input} onBlur={onBlur}
-                                        onChangeText={onChange}
-                                        value={value} ></TextInput>
-                                </View>
-                            )}
-                            name="phoneNumber"
-                        />
-                    </View>}
+          <Text style={styles.label}>First Name</Text>
+          <Controller
+            control={control}
+            rules={{ required: "First name is required" }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.input}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Enter your first name"
+              />
+            )}
+            name="firstName"
+          />
+          {errors.firstName && (
+            <Text style={styles.error}>{errors.firstName.message}</Text>
+          )}
 
+          <Text style={styles.label}>Last Name</Text>
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.input}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Enter your last name"
+              />
+            )}
+            name="lastName"
+          />
 
-                    {/* <Button title="Submit" onPress={handleSubmit(onSubmit)} /> */}
-                </View>
-            </ScrollView>
-            <BottomBarContinueBtn handleDone={handleDone} />
+          <Text style={styles.label}>Email</Text>
+          <View style={{ position: "relative" }}>
+            <MaterialIcons
+              name="alternate-email"
+              size={16}
+              color="#8f8f8f"
+              style={{ position: "absolute", left: 15, top: 15, zIndex: 1 }}
+            />
+            <Controller
+              control={control}
+              render={({ field: { value } }) => (
+                <TextInput
+                  style={[styles.input, { paddingLeft: 40 }]}
+                  value={value}
+                  editable={false}
+                />
+              )}
+              name="email"
+            />
+          </View>
 
-        </SafeAreaView>
-    )
-}
+          <Text style={styles.label}>Nationality</Text>
+          <View style={styles.input}>
+            <CountryPickerComponent
+              onSelect={handleCountrySelect}
+              value={country}
+            />
+          </View>
+
+          {country && (
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <View
+                style={[
+                  styles.input,
+                  { flex: 0.3, marginRight: 10, justifyContent: "center" },
+                ]}
+              >
+                <Text>+{country.callingCode}</Text>
+              </View>
+              <View style={{ flex: 0.7 }}>
+                <Controller
+                  control={control}
+                  rules={{ required: "Phone number is required" }}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      style={styles.input}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      placeholder="Phone number"
+                      keyboardType="phone-pad"
+                    />
+                  )}
+                  name="phoneNumber"
+                />
+                {errors.phoneNumber && (
+                  <Text style={styles.error}>{errors.phoneNumber.message}</Text>
+                )}
+              </View>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+      <BottomBarContinueBtn handleDone={handleSubmit(onSubmit)} />
+    </SafeAreaView>
+  );
+};
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center', // Centers vertically
-        alignItems: 'center',
-        backgroundColor: 'white'
-    },
+  container: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  imageContainer: {
+    alignItems: "center",
+    marginVertical: 20,
+  },
+  image: {
+    height: 150,
+    width: 150,
+    borderRadius: 100,
+    borderColor: "#f1f1f1",
+    borderWidth: 1,
+  },
+  imageEditIcon: {
+    position: "absolute",
+    height: 25,
+    width: 25,
+    right: 10,
+    bottom: 10,
+    borderRadius: 100,
+  },
+  input: {
+    borderColor: "#f1f1f1",
+    borderWidth: 1,
+    borderRadius: 15,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    height: 50,
+    fontSize: 15,
+  },
+  label: {
+    fontSize: 13,
+    marginBottom: 5,
+    color: "black",
+  },
+  error: {
+    color: "red",
+    fontSize: 12,
+    marginBottom: 15,
+    marginTop: -10,
+  },
+});
 
-    imageContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-
-    },
-    imageEditIcon: {
-        position: "absolute",
-        height: 25,
-        width: 25,
-        right: 20,
-        bottom: 35,
-        borderRadius: 100,
-
-    },
-    image: {
-        height: 150,
-        width: 150,
-        marginBottom: 15,
-        borderRadius: 100,
-        // borderWidth:2,
-        borderColor: '#f1f1f1',
-        // padding: 20
-    },
-    input: {
-        justifyContent: "center",
-        // backgroundColor: '#f9f9f9',
-        borderColor: '#f1f1f1', // Light gray background
-        borderWidth: 1,
-        borderRadius: 15, // Rounded corners
-        paddingHorizontal: 17,
-        marginBottom: 20,
-        fontSize: 15,
-        fontWeight: 500,
-        height: 50,
-    },
-    label: {
-        fontSize: 13,
-        marginBottom: 5,
-        color: 'black', // Adjust the color as needed
-    },
-    error: {
-        color: 'red',
-        fontSize: 12,
-    },
-})
-
-export default PersonalTouch
+export default PersonalTouch;
