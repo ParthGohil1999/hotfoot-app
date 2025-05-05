@@ -50,9 +50,9 @@ const HotelPricingScreen = ({ hotelData }) => {
       {/* Title */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Hotel Pricing</Text>
-        <TouchableOpacity style={styles.filterButton}>
+        {/* <TouchableOpacity style={styles.filterButton}>
           <Feather name="sliders" size={20} color="#000" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {/* Tab Selector */}
@@ -108,6 +108,17 @@ const HotelPricingScreen = ({ hotelData }) => {
 // Individual price card component
 const PriceCard = ({ data, showRooms }) => {
   const [modalVisible, setModalVisible] = useState(false);
+
+  // Function to handle redirect to booking site
+  const handleBookNow = (link) => {
+    Linking.canOpenURL(link).then((supported) => {
+      if (supported) {
+        Linking.openURL(link);
+      } else {
+        console.log("Don't know how to open URI: " + link);
+      }
+    });
+  };
 
   return (
     <View style={styles.card}>
@@ -238,7 +249,11 @@ const PriceCard = ({ data, showRooms }) => {
       </Modal>
 
       {/* Book now button */}
-      <TouchableOpacity style={styles.bookButton} activeOpacity={0.8}>
+      <TouchableOpacity
+        style={styles.bookButton}
+        activeOpacity={0.8}
+        onPress={() => handleBookNow(data.link)}
+      >
         <Text style={styles.bookButtonText}>Book Now</Text>
         <Feather
           name="arrow-right"

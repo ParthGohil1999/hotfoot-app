@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  ActivityIndicator,
   Image,
   ScrollView,
 } from "react-native";
@@ -13,6 +12,10 @@ import { StatusBar } from "expo-status-bar";
 import { Grip, Trash2 } from "lucide-react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import useItineraryStore from "../../app/store/itineraryZustandStore";
+import { db } from "../../config/firebaseConfig";
+import { doc, setDoc } from "firebase/firestore";
+import SkeletonLoading from "../../components/skeletonLoading/skeletonLoading";
 
 export default function Edit() {
   const router = useRouter();
@@ -23,6 +26,9 @@ export default function Edit() {
   const [hasChanges, setHasChanges] = useState(false);
   const initialTripData = useRef(null);
 
+  const { generatedItinerary, setGeneratedItinerary, updateDailyPlan } =
+    useItineraryStore();
+
   useEffect(() => {
     if (tripData) {
       try {
@@ -30,6 +36,7 @@ export default function Edit() {
           const parsedTrip = JSON.parse(tripData);
           initialTripData.current = JSON.parse(JSON.stringify(parsedTrip));
           setTrip(parsedTrip);
+          setGeneratedItinerary(parsedTrip);
         } else {
           throw new Error("Invalid trip data format");
         }
@@ -43,20 +50,45 @@ export default function Edit() {
       setError("No trip data provided");
       setLoading(false);
     }
-  }, [tripData]);
+  }, [tripData, setGeneratedItinerary]);
 
-  const handleDayPlanChange = (dayKey, newPlaces) => {
+  useEffect(() => {
+    if (generatedItinerary) {
+      setTrip(generatedItinerary);
+    }
+  }, [generatedItinerary]);
+
+  const handleDayPlanChange = async (dayKey, newPlaces) => {
     setTrip((prevTrip) => {
-      const updatedTrip = {
-        ...prevTrip,
-        dailyPlan: {
-          ...prevTrip.dailyPlan,
-          [dayKey]: {
-            ...prevTrip.dailyPlan[dayKey],
-            places: newPlaces,
-          },
+      const updatedDailyPlan = {
+        ...prevTrip.dailyPlan,
+        [dayKey]: {
+          ...prevTrip.dailyPlan[dayKey],
+          places: newPlaces,
         },
       };
+
+      const updatedTrip = {
+        ...prevTrip,
+        dailyPlan: updatedDailyPlan,
+      };
+
+      updateDailyPlan(dayKey, newPlaces);
+
+      const updateFirebase = async () => {
+        try {
+          const tripDocRef = doc(db, "itineraries", updatedTrip.id);
+          await setDoc(
+            tripDocRef,
+            { dailyPlan: updatedDailyPlan },
+            { merge: true }
+          );
+          console.log("Firebase updated successfully with new place order");
+        } catch (error) {
+          console.error("Error updating Firebase:", error);
+        }
+      };
+      updateFirebase();
 
       const hasChanges =
         JSON.stringify(updatedTrip.dailyPlan) !==
@@ -82,16 +114,35 @@ export default function Edit() {
         (_, i) => i !== index
       );
 
-      const updatedTrip = {
-        ...prevTrip,
-        dailyPlan: {
-          ...prevTrip.dailyPlan,
-          [dayKey]: {
-            ...prevTrip.dailyPlan[dayKey],
-            places: newPlaces,
-          },
+      const updatedDailyPlan = {
+        ...prevTrip.dailyPlan,
+        [dayKey]: {
+          ...prevTrip.dailyPlan[dayKey],
+          places: newPlaces,
         },
       };
+
+      const updatedTrip = {
+        ...prevTrip,
+        dailyPlan: updatedDailyPlan,
+      };
+
+      updateDailyPlan(dayKey, newPlaces);
+
+      const updateFirebase = async () => {
+        try {
+          const tripDocRef = doc(db, "itineraries", updatedTrip.id);
+          await setDoc(
+            tripDocRef,
+            { dailyPlan: updatedDailyPlan },
+            { merge: true }
+          );
+          console.log("Firebase updated successfully after deleting place");
+        } catch (error) {
+          console.error("Error updating Firebase:", error);
+        }
+      };
+      updateFirebase();
 
       const hasChanges =
         JSON.stringify(updatedTrip.dailyPlan) !==
@@ -105,7 +156,7 @@ export default function Edit() {
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
+        <SkeletonLoading />
       </View>
     );
   }
@@ -150,6 +201,10 @@ export default function Edit() {
         >
           {Object.entries(trip.dailyPlan).map(([dayKey, dayPlan]) => {
             const dayPlaces = dayPlan.places || [];
+            console.log(
+              `Day ${dayKey} places:`,
+              JSON.stringify(dayPlaces, null, 2)
+            );
             return (
               <View key={dayKey} className="mb-8">
                 <Text className="text-xl font-semibold mb-4">
@@ -162,6 +217,10 @@ export default function Edit() {
                   onDragEnd={({ data }) => handleDayPlanChange(dayKey, data)}
                   renderItem={({ item, drag, isActive, getIndex }) => {
                     const index = getIndex();
+                    console.log(
+                      `Rendering item at index ${index}:`,
+                      JSON.stringify(item, null, 2)
+                    );
                     return (
                       <TouchableOpacity
                         onLongPress={drag}
@@ -173,17 +232,25 @@ export default function Edit() {
                         <View className="mr-3">
                           <Grip size={20} color="black" />
                         </View>
-                        {item.image && (
+                        {item.image ? (
                           <Image
                             source={{ uri: item.image }}
                             className="w-20 h-16 rounded-lg mr-3"
                             resizeMode="cover"
                           />
+                        ) : (
+                          <View className="w-20 h-16 rounded-lg mr-3 bg-gray-200" />
                         )}
                         <View className="flex-1">
-                          <Text className="text-lg font-bold">{item.name}</Text>
+                          <Text
+                            className="text-lg font-bold"
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                          >
+                            {item.title || "No Name"}
+                          </Text>
                           <Text className="text-gray-500 text-sm">
-                            {item.time}
+                            {item.duration || "No Time"}
                           </Text>
                         </View>
                         <TouchableOpacity
@@ -211,9 +278,9 @@ export default function Edit() {
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity className="bg-green-100 rounded-full py-3 items-center justify-center">
+          {/* <TouchableOpacity className="bg-green-100 rounded-full py-3 items-center justify-center">
             <Text className="text-green-500 font-medium">Add More Events</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         <StatusBar style="light" backgroundColor="black" />

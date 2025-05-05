@@ -58,6 +58,8 @@ export const searchOutboundFlights = async (params) => {
     travel_class: travelClassMap[params.travelClass?.toLowerCase()] || 1,
     currency: params.currency || "USD",
     type: typeClassMap[params.tripType] || 1,
+    show_hidden: true,
+    deep_search: true,
   };
 
   if (params.tripType === "Round Trip" && params.returnDate) {
@@ -76,6 +78,8 @@ export const getReturnFlights = async (params) => {
     outbound_date: params.outboundDate,
     return_date: params.returnDate,
     departure_token: params.departureToken,
+    show_hidden: true,
+    deep_search: true,
   });
 };
 
@@ -99,6 +103,7 @@ export const getJourneyDetails = async (params) => {
 };
 
 export const formatFlightSearchParams = (searchData) => {
+  console.log("CONSOLE LOG FROM formatFlightSearchParams: ", searchData);
   const parseDateString = (dateStr) => {
     if (!dateStr) return null;
 
@@ -131,13 +136,13 @@ export const formatFlightSearchParams = (searchData) => {
     return `${year}-${month}-${day}`;
   };
 
-  if (!searchData.fromLocation?.code || !searchData.toLocation?.code) {
+  if (!searchData.fromLocation || !searchData.toLocation) {
     throw new Error("Please select valid departure and arrival locations");
   }
 
   const params = {
-    departureId: searchData.fromLocation.code,
-    arrivalId: searchData.toLocation.code,
+    departureId: searchData.fromLocation,
+    arrivalId: searchData.toLocation,
     outboundDate: parseDateString(searchData.dates.startDate),
     adults: searchData.travelers.adults || 1,
     children: searchData.travelers.children || 0,
@@ -185,7 +190,7 @@ export const getHotel = async (params) => {
 };
 
 export const formatHotelSearchParams = (searchData) => {
-  console.log(searchData);
+  console.log("searchData from serpAPI: ", searchData);
   const parseDateString = (dateStr) => {
     if (!dateStr) return null;
 
@@ -218,12 +223,12 @@ export const formatHotelSearchParams = (searchData) => {
     return `${year}-${month}-${day}`;
   };
 
-  if (!searchData.toLocation?.name) {
+  if (!searchData.toLocation) {
     throw new Error("Please select valid destination location");
   }
 
   const params = {
-    q: searchData.toLocation.name.toLowerCase(),
+    q: searchData.toLocation.toLowerCase(),
     outboundDate: parseDateString(searchData.dates.startDate),
     returnDate: parseDateString(searchData.dates.endDate),
     adults: searchData.travelers.adults || 1,
@@ -233,4 +238,28 @@ export const formatHotelSearchParams = (searchData) => {
   };
 
   return params;
+};
+
+/* ------------------------------------- REVIEWS FUNCTIONS ------------------------------------- */
+export const getGoogleMapsPlace = async (params) => {
+  const apiParams = {
+    engine: "google_maps",
+    type: "search",
+    google_domain: "google.com",
+    q: params.query,
+    ll: `@${params.latitude},${params.longitude},14z`,
+    hl: "en",
+  };
+
+  return makeApiCall(apiParams);
+};
+
+export const getGoogleMapsReviews = async (params) => {
+  const apiParams = {
+    engine: "google_maps_reviews",
+    hl: "en",
+    place_id: params.placeId,
+  };
+
+  return makeApiCall(apiParams);
 };

@@ -1,4 +1,4 @@
-import { SafeAreaView, ScrollView } from "react-native";
+import { SafeAreaView, ScrollView, Alert } from "react-native";
 import React, { useEffect } from "react";
 import ButtonMultiselect, {
   ButtonLayout,
@@ -15,19 +15,14 @@ import useTravelPreferencesStore from "../store/travelPreferencesZustandStore";
 const TravelPreferences = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { userId, getToken } = useAuth();
+  const { userId } = useAuth();
   const { updatePreferences, userData, fetchUserData } = useUserStore();
-
   const { selectedButtons, setSelectedButtons } = useTravelPreferencesStore();
-
-  // const [selectedButtons, setSelectedButtons] = useState(
-  //   userData?.preferences?.activities || []
-  // );
 
   useEffect(() => {
     const loadUserData = async () => {
       if (userId) {
-        await fetchUserData(userId, getToken);
+        await fetchUserData(userId);
       }
     };
     loadUserData();
@@ -35,27 +30,36 @@ const TravelPreferences = () => {
 
   useEffect(() => {
     if (userData?.preferences?.activities) {
-      const storedSelections = userData.preferences.activities.map(
-        (activity) => {
-          return activity.toLowerCase();
-        }
+      const storedSelections = userData.preferences.activities.map((activity) =>
+        activity.toLowerCase()
       );
       setSelectedButtons(storedSelections);
     }
   }, [userData]);
 
-  const handleButtonSelected = (selectedValues) => {
+  const handleButtonSelected = async (selectedValues) => {
     setSelectedButtons(selectedValues);
+    try {
+      await updatePreferences(userId, {
+        activities: selectedValues.map((activity) => activity.toLowerCase()),
+      });
+    } catch (error) {
+      console.error("Error saving partial preferences:", error);
+    }
   };
 
   const handleDone = async () => {
     try {
-      if (!selectedButtons || selectedButtons.length === 0) {
-        alert("Please select at least one preference");
+      if (!selectedButtons || selectedButtons.length < 5) {
+        Alert.alert(
+          "Selection Required",
+          "Please select at least 5 preferences to continue.",
+          [{ text: "OK" }]
+        );
         return;
       }
 
-      const result = await updatePreferences(userId, getToken, {
+      const result = await updatePreferences(userId, {
         activities: selectedButtons.map((activity) => activity.toLowerCase()),
       });
 
@@ -75,7 +79,7 @@ const TravelPreferences = () => {
       }
     } catch (error) {
       console.error("Error saving preferences:", error);
-      alert("Failed to save preferences. Please try again.");
+      Alert.alert("Error", "Failed to save preferences. Please try again.");
     }
   };
 
@@ -97,7 +101,14 @@ const TravelPreferences = () => {
           multiselect={true}
         />
       </ScrollView>
-      <BottomBarContinueBtn handleDone={handleDone} />
+      <BottomBarContinueBtn
+        handleDone={handleDone}
+        disabled={selectedButtons?.length < 5}
+        showCounter={true}
+        currentCount={selectedButtons?.length || 0}
+        minRequired={5}
+        buttonText="Continue"
+      />
     </SafeAreaView>
   );
 };

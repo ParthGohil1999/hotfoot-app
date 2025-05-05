@@ -1,41 +1,31 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, PixelRatio, Switch } from "react-native";
+import React from "react";
+import { View, StyleSheet } from "react-native";
 import CountryPicker from "react-native-country-picker-modal";
 
-const CountryPickerComponent = (props) => {
-  const [countryCode, setCountryCode] = useState("");
-  const [country, setCountry] = useState(null);
-  const [withCountryNameButton, setWithCountryNameButton] = useState(true);
-  const [withFlag, setWithFlag] = useState(true);
-  const [withEmoji, setWithEmoji] = useState(true);
-  const [withFilter, setWithFilter] = useState(true);
-  const [withCurrency, setWithCurrency] = useState(true);
-  const [withCurrencyButton, setWithCurrencyButton] = useState(true);
-  const [withAlphaFilter, setWithAlphaFilter] = useState(true);
-  const [withCallingCode, setWithCallingCode] = useState(true);
-  const onSelect = (country) => {
-    setCountryCode(country.cca2);
-    setCountry(country);
-    props.onSelect(country);
-  };
+const CountryPickerComponent = ({ onSelect, value, countryCode }) => {
+  console.log("CountryPickerComponent props:", { value, countryCode });
 
   return (
     <View style={styles.container}>
       <CountryPicker
-        {...{
-          countryCode,
-          withFilter,
-          withFlag,
-          withCountryNameButton,
-          withAlphaFilter,
-          withCallingCode,
-          withEmoji,
-          withCurrency,
-          withCurrencyButton,
-          onSelect,
+        countryCode={countryCode || value?.cca2 || undefined}
+        withFilter
+        withFlag
+        withCountryNameButton
+        withAlphaFilter
+        withCallingCode
+        withEmoji
+        withCurrency
+        withCurrencyButton
+        onSelect={(country) => {
+          console.log("CountryPicker selected:", country);
+          onSelect({
+            cca2: country.cca2,
+            callingCode: country.callingCode[0],
+            name: country.name.common,
+          });
         }}
-        flagSize="15"
-        // visible
+        flagSize={15}
       />
     </View>
   );
@@ -45,11 +35,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-  },
-  countryPicker: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
 });
 

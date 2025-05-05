@@ -14,7 +14,7 @@ import CalendarPicker from 'react-native-calendar-picker';
 interface DatePickerModalProps {
   visible: boolean;
   onClose: () => void;
-  onSelectDates: (dates: { startDate: any; endDate: any | null; totalDays: number }) => void;
+  onSelectDates: (dates: { startDate: string; endDate: string | null; totalDays: number }) => void;
   activeTab: string;
   tripType: string;
   initialDates: {
@@ -31,18 +31,24 @@ export default function DatePickerModal({
   tripType,
   initialDates,
 }: DatePickerModalProps) {
+  const today = new Date();
+  const tomorrow = addDays(today, 1);
+
   const [startDate, setStartDate] = React.useState<Date>(
-    initialDates?.startDate ? new Date(initialDates.startDate) : new Date()
+    initialDates?.startDate ? new Date(initialDates.startDate) : tomorrow
   );
   const [endDate, setEndDate] = React.useState<Date | null>(
     initialDates?.endDate ? new Date(initialDates.endDate) : null
   );
 
   const isEndDateRequired = () => {
+    if (activeTab === 'Hotels' || activeTab === 'Places') {
+      return true;
+    }
     if (activeTab === 'Flights') {
       return tripType !== 'One Way';
     }
-    return activeTab === 'Hotels';
+    return true;
   };
 
   const handleConfirm = () => {
@@ -65,8 +71,6 @@ export default function DatePickerModal({
       setEndDate(date);
     }
   };
-
-  // const minEndDate = addDays(startDate, 1);
 
   return (
     <Modal
@@ -93,81 +97,16 @@ export default function DatePickerModal({
                   selectedEndDate={endDate || undefined}
                   restrictMonthNavigation={true}
                   onDateChange={(date, type) => handleDateChange(date, type)}
-                  allowRangeSelection={tripType === 'Round Trip' ? true : false}
-                  minDate={new Date()}
-                  maxRangeDuration={7}
+                  allowRangeSelection={activeTab !== 'Flights' || tripType === 'Round Trip'}
+                  minDate={tomorrow}
+                  maxRangeDuration={(activeTab === 'Flights' ? 9 : undefined) || (activeTab === 'Places' ? 13 : undefined)}
                   selectedRangeStyle={{
-                    backgroundColor: '#32B37D'
+                    backgroundColor: 'black'
                   }}
                   selectedDayTextStyle={{ color: 'white' }}
                 />
               </View>
-              {/* <Pressable
-                style={[
-                  styles.dateField,
-                  activeField === 'start' && styles.activeDateField,
-                ]}
-                onPress={() => {
-                  setActiveField('start')
-                  setShowDatePicker(true)
-                }
-                }
-              >
-                <Text style={styles.dateLabel}>Start Date</Text>
-                <View style={styles.dateValueContainer}>
-                  <Calendar size={20} color="#666" />
-                  <Text style={styles.dateValue}>
-                    {format(startDate, 'MMM dd, yyyy')}
-                  </Text>
-                </View>
-              </Pressable> */}
-
-              {/* {(isEndDateRequired() || activeTab !== 'Flights') && (
-                <Pressable
-                  style={[
-                    styles.dateField,
-                    activeField === 'end' && styles.activeDateField,
-                  ]}
-                  onPress={() => {
-                    setActiveField('end')
-                    setShowDatePicker(true)
-                  }
-                  }
-                >
-                  <Text style={styles.dateLabel}>End Date</Text>
-                  <View style={styles.dateValueContainer}>
-                    <Calendar size={20} color="#666" />
-                    <Text style={styles.dateValue}>
-                      {endDate ? format(endDate, 'MMM dd, yyyy') : 'Select date'}
-                    </Text>
-                  </View>
-                </Pressable>
-              )} */}
             </View>
-
-            {/* {Platform.OS !== 'web' && (
-              <DateTimePicker
-                value={activeField === 'start' ? startDate : endDate || new Date()}
-                onChange={handleDateChange}
-                minimumDate={activeField === 'end' ? minEndDate : new Date()}
-                mode="date"
-              />
-            )} */}
-
-            {/* {Platform.OS === 'web' && (
-              <input
-                type="date"
-                value={format(activeField === 'start' ? startDate : endDate || new Date(), 'yyyy-MM-dd')}
-                onChange={(e) => {
-                  const date = new Date(e.target.value);
-                  handleDateChange(null, date);
-                }}
-                min={activeField === 'end'
-                  ? format(minEndDate, 'yyyy-MM-dd')
-                  : format(new Date(), 'yyyy-MM-dd')}
-                style={styles.webDateInput}
-              />
-            )} */}
 
             <Pressable
               style={[
@@ -221,29 +160,6 @@ const styles = StyleSheet.create({
     gap: 16,
     marginBottom: 20,
   },
-  dateField: {
-    backgroundColor: '#f1f1f1',
-    padding: 16,
-    borderRadius: 12,
-  },
-  activeDateField: {
-    backgroundColor: '#e0e0e0',
-  },
-  dateLabel: {
-    color: '#666',
-    fontSize: 12,
-    marginBottom: 4,
-  },
-  dateValue: {
-    color: 'black',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  dateValueContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
   confirmButton: {
     backgroundColor: 'black',
     padding: 16,
@@ -258,14 +174,5 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
-  },
-  webDateInput: {
-    width: '100%',
-    padding: 12,
-    marginTop: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    fontSize: 16,
   },
 });

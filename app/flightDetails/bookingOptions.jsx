@@ -9,11 +9,11 @@ import {
   SafeAreaView,
   Image,
   Linking,
-  ActivityIndicator,
   Alert,
 } from "react-native";
 import TopBar from "../../components/topBar";
 import { getJourneyDetails } from "../../services/SerpApi";
+import SkeletonLoading from "../../components/skeletonLoading/skeletonLoading";
 
 const BookingOptions = () => {
   const router = useRouter();
@@ -219,7 +219,7 @@ const BookingOptions = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color="#0066cc" />
+        <SkeletonLoading />
       </SafeAreaView>
     );
   }

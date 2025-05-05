@@ -1,7 +1,6 @@
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -13,6 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopBar from "../../components/topBar";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
+import SkeletonLoading from "../../components/skeletonLoading/skeletonLoading";
 
 const FlightDetails = () => {
   const router = useRouter();
@@ -31,7 +31,10 @@ const FlightDetails = () => {
           parsedData = params.flightResults;
         } else if (typeof params.flightResults === "string") {
           parsedData = JSON.parse(params.flightResults);
-          console.log("Parsed flight results:", parsedData);
+          console.log(
+            "Parsed flight results:",
+            JSON.stringify(parsedData, null, 2)
+          );
         } else {
           throw new Error("Invalid flight results format");
         }
@@ -197,7 +200,7 @@ const FlightDetails = () => {
     return (
       <SafeAreaView style={styles.container}>
         <TopBar logo text={"Available Flights"} />
-        <ActivityIndicator size="large" color="#0066cc" style={styles.loader} />
+        <SkeletonLoading />
       </SafeAreaView>
     );
   }

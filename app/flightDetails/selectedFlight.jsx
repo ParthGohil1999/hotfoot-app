@@ -1,7 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -13,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import TopBar from "../../components/topBar";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { getReturnFlights } from "../../services/SerpApi";
+import SkeletonLoading from "../../components/skeletonLoading/skeletonLoading";
 
 const SelectedFlight = () => {
   const router = useRouter();
@@ -292,7 +292,7 @@ const SelectedFlight = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color="#0066cc" style={styles.loader} />
+        <SkeletonLoading />
       </SafeAreaView>
     );
   }

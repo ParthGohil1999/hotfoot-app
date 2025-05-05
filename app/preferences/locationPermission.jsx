@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Alert } from "react-native";
+import { View, Text, StyleSheet, Alert, TouchableOpacity } from "react-native";
 import * as Location from "expo-location";
 import useUserStore from "../store/userZustandStore";
 import { useNavigation } from "expo-router";
@@ -8,10 +8,13 @@ import TopBar from "../../components/topBar";
 import BottomBarContinueBtn from "../../components/buttons/bottomBarContinueBtn";
 import { MapPin } from "lucide-react-native";
 import { ActivityIndicator } from "react-native";
+import { useAuth } from "@clerk/clerk-expo";
 
 const LocationPermission = () => {
   const navigation = useNavigation();
-  const { setUserLocation, setLocationPermission } = useUserStore();
+  const { userId, getToken } = useAuth();
+  const { setUserLocation, setLocationPermission, updateUserLocation } =
+    useUserStore();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleDone = async () => {
@@ -40,18 +43,20 @@ const LocationPermission = () => {
         longitude: location.coords.longitude,
       });
 
-      if (address.length > 0) {
-        const firstAddress = address[0];
-        setUserLocation({
-          coordinates: {
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          },
-          city: firstAddress.city || "Unknown city",
-          country: firstAddress.country || "Unknown country",
-        });
-        navigation.navigate("preferences/allSet");
-      }
+      const userLocation = {
+        coordinates: {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        },
+        city: address[0]?.city || "Unknown city",
+        country: address[0]?.country || "Unknown country",
+      };
+
+      // Save to Zustand store and Firestore
+      setUserLocation(userLocation);
+      await updateUserLocation(userId, getToken, userLocation);
+
+      navigation.navigate("preferences/allSet");
     } catch (error) {
       console.error("Error getting location:", error);
       Alert.alert(
@@ -63,6 +68,11 @@ const LocationPermission = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSkip = () => {
+    setLocationPermission("denied");
+    navigation.navigate("preferences/allSet");
   };
 
   return (
@@ -105,6 +115,22 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     color: "#666",
     paddingHorizontal: 20,
+  },
+  buttonContainer: {
+    paddingHorizontal: 20,
+  },
+  skipButton: {
+    padding: 15,
+    borderRadius: 15,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#000",
+    marginVertical: 2,
+  },
+  skipButtonText: {
+    fontSize: 16,
+    color: "#000",
+    fontWeight: "600",
   },
 });
 

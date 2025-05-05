@@ -4,7 +4,6 @@ import {
   View,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
 import { MotiView } from "moti";
 import { LinearGradient } from "expo-linear-gradient";
@@ -12,8 +11,9 @@ import { Star } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
+import SkeletonLoading from "../skeletonLoading/skeletonLoading";
 
-export const HotelCardResults = ({ hotel, searchParams }) => {
+export const HotelCardResults = ({ hotel, searchParams, amenities }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
@@ -36,12 +36,13 @@ export const HotelCardResults = ({ hotel, searchParams }) => {
         image: hotel?.images?.[0]?.original_image || "",
         location: `${hotel?.nearby_places?.[0]?.name || "City Centre"}`,
         searchParams: JSON.stringify(searchParams || {}),
+        amenities: JSON.stringify(amenities || []),
       },
     });
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
+    return <SkeletonLoading />;
   }
 
   if (!hotel) {

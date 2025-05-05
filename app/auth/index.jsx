@@ -5,6 +5,7 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import React, { useCallback, useEffect } from "react";
 import * as WebBrowser from "expo-web-browser";
@@ -28,17 +29,15 @@ const LoginScreen = () => {
   const router = useRouter();
   const { startSSOFlow } = useSSO();
 
-  const onPressGoogle = useCallback(async () => {
-    try {
-      const { createdSessionId, setActive, signIn, signUp } =
-        await startSSOFlow({
-          strategy: "oauth_google",
+  const handleAuth = useCallback(
+    async (strategy) => {
+      try {
+        const { createdSessionId, setActive } = await startSSOFlow({
+          strategy,
           redirectUrl: AuthSession.makeRedirectUri(),
         });
 
-      // If sign in was successful, set the active session
-      if (createdSessionId) {
-        if (setActive) {
+        if (createdSessionId && setActive) {
           setActive({ session: createdSessionId });
           router.push({
             pathname: "/preferences/travelPreferences",
@@ -47,22 +46,48 @@ const LoginScreen = () => {
               returnPath: null,
             },
           });
+        } else {
+          Alert.alert(
+            "Authentication Failed",
+            "Could not sign in. Please try again."
+          );
         }
-      } else {
+      } catch (err) {
+        console.error(`Error in ${strategy}:`, JSON.stringify(err, null, 2));
+        Alert.alert(
+          "Authentication Error",
+          "An error occurred during sign-in. Please try again."
+        );
       }
-    } catch (err) {
-      console.log(err);
-      console.error(JSON.stringify(err, null, 2));
-    }
-  }, []);
+    },
+    [router, startSSOFlow]
+  );
+
+  const onPressGoogle = useCallback(
+    () => handleAuth("oauth_google"),
+    [handleAuth]
+  );
+  const onPressApple = useCallback(
+    () => handleAuth("oauth_apple"),
+    [handleAuth]
+  );
+  const onPressMicrosoft = useCallback(
+    () => handleAuth("oauth_microsoft"),
+    [handleAuth]
+  );
+  const onPressSlack = useCallback(
+    () => handleAuth("oauth_slack"),
+    [handleAuth]
+  );
 
   return (
     <SafeAreaView style={styles.container}>
-      <View>
+      <View style={styles.logoContainer}>
         <Image
           style={styles.image}
           source={require("../../assets/images/logo.png")}
         />
+        <Text style={styles.companyName}>Hotfoot AI</Text>
       </View>
       <Text style={styles.title}>Let's Get Started!</Text>
       <Text style={styles.subtitle}>Your Passport to Adventure Awaits</Text>
@@ -78,7 +103,7 @@ const LoginScreen = () => {
         </TouchableOpacity>
       </View>
       <View>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={onPressApple}>
           <Image
             source={require("../../assets/images/apple-icon.png")}
             style={styles.icon}
@@ -89,7 +114,7 @@ const LoginScreen = () => {
         </TouchableOpacity>
       </View>
       <View>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={onPressMicrosoft}>
           <Image
             source={require("../../assets/images/microsoft-icon.png")}
             style={styles.icon}
@@ -100,7 +125,7 @@ const LoginScreen = () => {
         </TouchableOpacity>
       </View>
       <View>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={onPressSlack}>
           <Image
             source={require("../../assets/images/slack-icon.png")}
             style={styles.icon}
@@ -117,20 +142,29 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center", // Centers vertically
-    alignItems: "center", // Centers horizontally
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "white",
   },
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 40,
+  },
   image: {
-    height: 150,
-    width: 150,
-    marginBottom: 15,
+    height: 120,
+    width: 120,
+  },
+  companyName: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#111",
+    letterSpacing: 0.5,
   },
   title: {
-    fontSize: 25,
+    fontSize: 22,
     color: "black",
-    fontWeight: 700,
-    marginBottom: 15,
+    fontWeight: 600,
+    marginBottom: 4,
   },
   subtitle: {
     fontSize: 15,
@@ -158,7 +192,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 20,
     height: 20,
-    position: "absolute", // This will position the icon to the left
+    position: "absolute",
     left: 20,
   },
   text: {

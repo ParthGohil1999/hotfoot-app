@@ -1,34 +1,7 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import React from "react";
+import { View, Text, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 
-const ReviewBreakdown = () => {
-  const reviewData = [
-    {
-      "name": "Service",
-      "description": "Service",
-      "total_mentioned": 1327,
-      "positive": 823,
-      "negative": 436,
-      "neutral": 68
-    },
-    {
-      "name": "Property",
-      "description": "Property",
-      "total_mentioned": 1325,
-      "positive": 752,
-      "negative": 461,
-      "neutral": 112
-    },
-    {
-      "name": "Bathroom",
-      "description": "Bathroom and toiletries",
-      "total_mentioned": 385,
-      "positive": 84,
-      "negative": 263,
-      "neutral": 38
-    }
-  ];
-
+const ReviewBreakdown = ({ reviewsBreakdown }) => {
   const calculatePercentage = (value, total) => {
     return ((value / total) * 100).toFixed(1);
   };
@@ -37,7 +10,7 @@ const ReviewBreakdown = () => {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Review Breakdown</Text>
       <ScrollView>
-        {reviewData.map((category, index) => (
+        {reviewsBreakdown.map((category, index) => (
           <View key={index} style={styles.categoryContainer}>
             <View style={styles.headerRow}>
               <Text style={styles.categoryName}>{category.name}</Text>
@@ -45,28 +18,43 @@ const ReviewBreakdown = () => {
                 {category.total_mentioned} mentions
               </Text>
             </View>
-            <Text style={styles.categoryDescription}>{category.description}</Text>
-            
-            
-            
+            <Text style={styles.categoryDescription}>
+              {category.description}
+            </Text>
+
             {/* Legend and statistics */}
             <View style={styles.statsContainer}>
               <View style={styles.statItem}>
                 <View style={[styles.legendBox, styles.positiveBox]} />
                 <Text style={styles.statText}>
-                  Positive: {category.positive} ({calculatePercentage(category.positive, category.total_mentioned)}%)
+                  Positive: {category.positive} (
+                  {calculatePercentage(
+                    category.positive,
+                    category.total_mentioned
+                  )}
+                  %)
                 </Text>
               </View>
               <View style={styles.statItem}>
                 <View style={[styles.legendBox, styles.neutralBox]} />
                 <Text style={styles.statText}>
-                  Neutral: {category.neutral} ({calculatePercentage(category.neutral, category.total_mentioned)}%)
+                  Neutral: {category.neutral} (
+                  {calculatePercentage(
+                    category.neutral,
+                    category.total_mentioned
+                  )}
+                  %)
                 </Text>
               </View>
               <View style={styles.statItem}>
                 <View style={[styles.legendBox, styles.negativeBox]} />
                 <Text style={styles.statText}>
-                  Negative: {category.negative} ({calculatePercentage(category.negative, category.total_mentioned)}%)
+                  Negative: {category.negative} (
+                  {calculatePercentage(
+                    category.negative,
+                    category.total_mentioned
+                  )}
+                  %)
                 </Text>
               </View>
             </View>
@@ -84,35 +72,34 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 16,
-    color: '#333',
+    color: "#333",
   },
   categoryContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
-    
   },
   headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 4,
   },
   categoryName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   totalMentions: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
   categoryDescription: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginBottom: 16,
   },
   barContainer: {
@@ -120,25 +107,25 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 10,
-    flexDirection: 'row',
+    flexDirection: "row",
     borderRadius: 12,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   positiveBar: {
-    backgroundColor: '#4CAF50', // Green
+    backgroundColor: "#4CAF50", // Green
   },
   neutralBar: {
-    backgroundColor: '#9E9E9E', // Gray
+    backgroundColor: "#9E9E9E", // Gray
   },
   negativeBar: {
-    backgroundColor: 'red', // Red
+    backgroundColor: "red", // Red
   },
   statsContainer: {
     marginTop: 8,
   },
   statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginVertical: 4,
   },
   legendBox: {
@@ -148,17 +135,17 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   positiveBox: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
   },
   neutralBox: {
-    backgroundColor: '#9E9E9E',
+    backgroundColor: "#9E9E9E",
   },
   negativeBox: {
-    backgroundColor: '#F44336',
+    backgroundColor: "#F44336",
   },
   statText: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
   },
 });
 

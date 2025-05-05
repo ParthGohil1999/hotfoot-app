@@ -7,9 +7,11 @@ import {
   Pressable,
   SafeAreaView,
   StatusBar,
+  Alert,
 } from "react-native";
 import { Calendar, ChevronDown, Users } from "lucide-react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
+import LottieView from "lottie-react-native";
 import PlaceAutocomplete from "../googleAutocomplete/placeAutocomplete";
 import useTripSearchStore from "../../app/store/trpiSearchZustandStore";
 import { useNavigation } from "expo-router";
@@ -20,8 +22,8 @@ import {
   searchHotels,
   searchOutboundFlights,
 } from "../../services/SerpApi";
+import TravelersDropdown from "../travelersDropdown";
 
-// Main tabs component
 const TabBar = ({ activeTab, setActiveTab }) => {
   const tabs = ["Places", "Flights", "Hotels"];
 
@@ -44,154 +46,11 @@ const TabBar = ({ activeTab, setActiveTab }) => {
   );
 };
 
-// Travelers dropdown component
-const TravelersDropdown = ({ travelers, setTravelers }) => {
-  const updateTravelerCount = (type, increment) => {
-    const newCount = increment ? travelers[type] + 1 : travelers[type] - 1;
-    if (newCount < 0) return;
-    if (type === "adults" && newCount === 0) return;
-    if (type === "infants" && newCount > travelers.adults) return;
-
-    setTravelers({
-      ...travelers,
-      [type]: newCount,
-    });
-  };
-
-  return (
-    <View style={styles.travelersDropdown}>
-      <View style={styles.travelerContent}>
-        <View style={styles.travelerType}>
-          <View>
-            <Text style={styles.travelerTitle}>Adults</Text>
-            <Text style={styles.travelerSubtitle}>Age 13+</Text>
-          </View>
-          <View style={styles.counter}>
-            <Pressable
-              style={[
-                styles.counterButton,
-                travelers.adults <= 1 && styles.buttonDisabled,
-              ]}
-              onPress={() => updateTravelerCount("adults", false)}
-              disabled={travelers.adults <= 1}
-            >
-              <Text
-                style={
-                  travelers.adults <= 1
-                    ? styles.counterButtonTextDisabled
-                    : styles.counterButtonText
-                }
-              >
-                -
-              </Text>
-            </Pressable>
-            <Text style={styles.count}>{travelers.adults}</Text>
-            <Pressable
-              style={styles.counterButton}
-              onPress={() => updateTravelerCount("adults", true)}
-            >
-              <Text style={styles.counterButtonText}>+</Text>
-            </Pressable>
-          </View>
-        </View>
-
-        <View style={styles.travelerType}>
-          <View>
-            <Text style={styles.travelerTitle}>Children</Text>
-            <Text style={styles.travelerSubtitle}>Age 2-12</Text>
-          </View>
-          <View style={styles.counter}>
-            <Pressable
-              style={[
-                styles.counterButton,
-                travelers.children === 0 && styles.buttonDisabled,
-              ]}
-              onPress={() => updateTravelerCount("children", false)}
-              disabled={travelers.children === 0}
-            >
-              <Text
-                style={
-                  travelers.children === 0
-                    ? styles.counterButtonTextDisabled
-                    : styles.counterButtonText
-                }
-              >
-                -
-              </Text>
-            </Pressable>
-            <Text style={styles.count}>{travelers.children}</Text>
-            <Pressable
-              style={styles.counterButton}
-              onPress={() => updateTravelerCount("children", true)}
-            >
-              <Text style={styles.counterButtonText}>+</Text>
-            </Pressable>
-          </View>
-        </View>
-
-        <View style={styles.travelerType}>
-          <View>
-            <Text style={styles.travelerTitle}>Infants</Text>
-            <Text style={styles.travelerSubtitle}>Under 2</Text>
-          </View>
-          <View style={styles.counter}>
-            <Pressable
-              style={[
-                styles.counterButton,
-                travelers.infants === 0 && styles.buttonDisabled,
-              ]}
-              onPress={() => updateTravelerCount("infants", false)}
-              disabled={travelers.infants === 0}
-            >
-              <Text
-                style={
-                  travelers.infants === 0
-                    ? styles.counterButtonTextDisabled
-                    : styles.counterButtonText
-                }
-              >
-                -
-              </Text>
-            </Pressable>
-            <Text style={styles.count}>{travelers.infants}</Text>
-            <Pressable
-              style={[
-                styles.counterButton,
-                travelers.infants >= travelers.adults && styles.buttonDisabled,
-              ]}
-              onPress={() => updateTravelerCount("infants", true)}
-              disabled={travelers.infants >= travelers.adults}
-            >
-              <Text
-                style={
-                  travelers.infants >= travelers.adults
-                    ? styles.counterButtonTextDisabled
-                    : styles.counterButtonText
-                }
-              >
-                +
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </View>
-    </View>
-  );
-};
-
 // Unified Search Form Component
 const UnifiedSearchForm = ({ activeTab, onClose }) => {
   // Common state for all tabs
-  // const [fromLocation, setFromLocation] = useState(null);
-  // const [toLocation, setToLocation] = useState(null);
-  const [fromLocation, setFromLocation] = useState({
-    name: "London",
-    code: "LHR",
-  });
-  const [toLocation, setToLocation] = useState({
-    name: "Mumbai",
-    code: "BOM",
-  });
+  const [fromLocation, setFromLocation] = useState(null);
+  const [toLocation, setToLocation] = useState(null);
   const [dates, setDates] = useState({ startDate: null, endDate: null });
   const [travelers, setTravelers] = useState({
     adults: 1,
@@ -202,6 +61,23 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
   const [tripType, setTripType] = useState("Round Trip");
   const [isTravelersDropdownOpen, setIsTravelersDropdownOpen] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const { setTripTypeToStore, setDatesToStore } = useTripSearchStore();
+
+  // Use Zustand store, rename selectedTripType to storeTripType
+  const {
+    setFromLocationToStore,
+    setToLocationToStore,
+    setTravelersToStore,
+    setCabinClassToStore,
+    fromLocation: selectedFromLocation,
+    toLocation: selectedToLocation,
+    dates: { startDate, endDate },
+    travelers: { adults, children, infants },
+    cabinClass: selectedCabinClass,
+    tripType: storeTripType,
+  } = useTripSearchStore();
 
   useEffect(() => {
     setTripTypeToStore(tripType);
@@ -212,10 +88,17 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
   }, [tripType]);
 
   useEffect(() => {
-    if (selectedTripType && selectedTripType !== tripType) {
-      setTripType(selectedTripType);
+    if (storeTripType && storeTripType !== tripType) {
+      setTripType(storeTripType);
     }
-  }, [selectedTripType]);
+  }, [storeTripType]);
+
+  useEffect(() => {
+    if (activeTab === "Hotels" || activeTab === "Places") {
+      setTripType("Round Trip");
+      setTripTypeToStore("Round Trip");
+    }
+  }, [activeTab]);
 
   const handleDateSelect = () => {
     setIsTravelersDropdownOpen(false);
@@ -236,29 +119,13 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
 
   const navigation = useNavigation();
 
-  // Use Zustand store
-  const {
-    setFromLocationToStore,
-    setToLocationToStore,
-    setDatesToStore,
-    setTravelersToStore,
-    setCabinClassToStore,
-    setTripTypeToStore,
-    fromLocation: selectedFromLocation,
-    toLocation: selectedToLocation,
-    dates: { startDate, endDate },
-    travelers: { adults, children, infants },
-    cabinClass: selectedCabinClass,
-    tripType: selectedTripType,
-  } = useTripSearchStore();
-
   useEffect(() => {
     console.log("Selected From Location:", selectedFromLocation);
     console.log("Selected To Location:", selectedToLocation);
     console.log("Selected Dates:", { startDate, endDate });
     console.log("Selected Travelers:", { adults, children, infants });
     console.log("Selected Cabin Class:", selectedCabinClass);
-    console.log("Selected Trip Type:", selectedTripType);
+    console.log("Selected Trip Type:", storeTripType);
   }, [
     selectedFromLocation,
     selectedToLocation,
@@ -268,18 +135,15 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
     children,
     infants,
     selectedCabinClass,
-    selectedTripType,
+    storeTripType,
   ]);
 
-  // New state to control PlaceAutocomplete modal
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentField, setCurrentField] = useState(null); // 'from' or 'to'
 
-  // Trip types and cabin classes
-  const tripTypes = ["Round Trip", "One Way", "Multi-City"];
+  const tripTypes = ["One Way", "Round Trip"];
   const cabinClasses = ["Economy", "Business", "First"];
 
-  // Reset end date when switching to one-way trip
   useEffect(() => {
     if (tripType === "One Way" && dates.endDate) {
       setDates({ ...dates, endDate: null });
@@ -292,45 +156,31 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
     };
   }, []);
 
-  // Get total travelers
   const getTotalTravelers = () => {
     return travelers.adults + travelers.children + travelers.infants;
   };
 
-  // Handle location selection
   const handleLocationSelect = (cityData) => {
     console.log(`Selected ${currentField}:`, cityData);
     if (currentField === "from") {
       setFromLocation(cityData);
+      console.log("From Location (handleLocationSelect): ", cityData);
     } else if (currentField === "to") {
       setToLocation(cityData);
+      console.log("To Location (handleLocationSelect): ", cityData);
     }
-    // Modal will be closed by the PlaceAutocomplete component
   };
 
-  // Handle opening modal for location selection
   const openLocationModal = (field) => {
     setCurrentField(field);
     setIsModalVisible(true);
     setIsTravelersDropdownOpen(false);
   };
 
-  // Handle date selection (simulated)
-  // const handleDateSelect = () => {
-  //     setIsTravelersDropdownOpen(false);
-  //     if (tripType === 'One Way') {
-  //         setDates({ startDate: 'Mar 25, 2025', endDate: null });
-  //     } else {
-  //         setDates({ startDate: 'Mar 25, 2025', endDate: 'Apr 01, 2025' });
-  //     }
-  // };
-
-  // Toggle travelers dropdown
   const handleTravelersPress = () => {
     setIsTravelersDropdownOpen(!isTravelersDropdownOpen);
   };
 
-  // Check if search is disabled based on active tab
   const isSearchDisabled = () => {
     const commonRequirements =
       !toLocation ||
@@ -338,26 +188,16 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
       (tripType === "Round Trip" && !dates.endDate);
 
     if (activeTab === "Flights") {
-      // For Flights, require both from and to locations
       return !fromLocation || !toLocation || commonRequirements;
     } else if (activeTab === "Places") {
-      // For Places, from location is optional
-      return (
-        !fromLocation ||
-        !toLocation ||
-        !dates.startDate ||
-        !dates.endDate ||
-        !travelers
-      );
+      return !toLocation || !dates.startDate || !dates.endDate || !travelers;
     } else if (activeTab === "Hotels") {
-      // For Hotels, require destination and dates
       return !toLocation || !dates.startDate || !dates.endDate || !travelers;
     }
 
     return true;
   };
 
-  // Get search button text based on active tab
   const getSearchButtonText = () => {
     switch (activeTab) {
       case "Places":
@@ -371,15 +211,14 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
     }
   };
 
-  // Determine which form fields to show based on active tab
   const shouldShowField = (fieldName) => {
     switch (fieldName) {
       case "tripType":
-        return activeTab === "Flights" || activeTab === "Places";
+        return activeTab === "Flights";
       case "from":
         return activeTab === "Flights" || activeTab === "Places";
       case "cabinClass":
-        return activeTab === "Flights" || activeTab === "Places";
+        return activeTab === "Flights";
       default:
         return true;
     }
@@ -388,7 +227,8 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
   // Handle search button press
   const handleSearch = async () => {
     setIsTravelersDropdownOpen(false);
-    // alert(`${activeTab} search initiated!`);
+    setIsSearching(true);
+
     // Set all parameters in the Zustand store
     setFromLocationToStore(fromLocation);
     setToLocationToStore(toLocation);
@@ -402,18 +242,21 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
       case "Places":
         try {
           const apiParamsFlights = formatFlightSearchParams({
-            fromLocation,
-            toLocation,
+            fromLocation: fromLocation
+              ? fromLocation.airportIataCodes.join(",")
+              : "",
+            toLocation: toLocation.airportIataCodes.join(","),
             dates,
             travelers,
             cabinClass,
             tripType,
           });
           const apiParamsHotels = formatHotelSearchParams({
-            toLocation,
+            toLocation: toLocation.formattedAddress,
             dates,
             travelers,
           });
+          console.log("API Params Flights:", apiParamsFlights);
           const flightResults = await searchOutboundFlights(apiParamsFlights);
           const hotelResults = await searchHotels(apiParamsHotels);
           navigation.navigate("place/cityDetails", {
@@ -427,20 +270,23 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
           console.error("Flight or Hotel search error:", error);
           Alert.alert(
             "Error",
-            "Failed to search for flights or Hotels. Please try again."
+            "Failed to search for flights or hotels. Please try again."
           );
+        } finally {
+          setIsSearching(false);
         }
         break;
 
       case "Flights":
         const searchData = {
-          fromLocation,
-          toLocation,
+          fromLocation: fromLocation.airportIataCodes.join(","),
+          toLocation: toLocation.airportIataCodes.join(","),
           dates,
           travelers,
           cabinClass,
           tripType,
         };
+        console.log("Search Data:", searchData);
         try {
           const apiParams = formatFlightSearchParams(searchData);
           const flightResults = await searchOutboundFlights(apiParams);
@@ -455,12 +301,14 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
             "Error",
             "Failed to search for flights. Please try again."
           );
+        } finally {
+          setIsSearching(false);
         }
         break;
 
       case "Hotels":
         const searchDataHotels = {
-          toLocation,
+          toLocation: toLocation.formattedAddress,
           dates,
           travelers,
         };
@@ -478,10 +326,14 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
             "Error",
             "Failed to search for hotels. Please try again."
           );
+        } finally {
+          setIsSearching(false);
         }
         break;
+
       default:
         console.warn("Unknown tab:", activeTab);
+        setIsSearching(false);
     }
   };
 
@@ -552,7 +404,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
               <Text style={styles.searchLabel}>From</Text>
               <Text style={styles.searchValue}>
                 {fromLocation
-                  ? `${fromLocation.name} (${fromLocation.code})`
+                  ? `${fromLocation.name} (${fromLocation.cityCode})`
                   : "Select departure"}
               </Text>
             </Pressable>
@@ -565,7 +417,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
             <Text style={styles.searchLabel}>To</Text>
             <Text style={styles.searchValue}>
               {toLocation
-                ? `${toLocation.name} (${toLocation.code})`
+                ? `${toLocation.name} (${toLocation.cityCode})`
                 : "Select destination"}
             </Text>
           </Pressable>
@@ -661,21 +513,32 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
           <Pressable
             style={[
               styles.searchButton,
-              isSearchDisabled()
+              isSearchDisabled() || isSearching
                 ? styles.searchButtonDisabled
                 : styles.searchButtonEnabled,
             ]}
-            disabled={isSearchDisabled()}
+            disabled={isSearchDisabled() || isSearching}
             onPress={handleSearch}
           >
-            <Text
-              style={[
-                styles.searchButtonText,
-                isSearchDisabled() && styles.searchButtonTextDisabled,
-              ]}
-            >
-              {getSearchButtonText()}
-            </Text>
+            <View style={styles.searchButtonContent}>
+              <Text
+                style={[
+                  styles.searchButtonText,
+                  (isSearchDisabled() || isSearching) &&
+                    styles.searchButtonTextDisabled,
+                ]}
+              >
+                {getSearchButtonText()}
+              </Text>
+              {isSearching && (
+                <LottieView
+                  source={require("../../constants/loading-lottie.json")}
+                  autoPlay
+                  loop
+                  style={styles.lottieAnimation}
+                />
+              )}
+            </View>
           </Pressable>
         </Animated.View>
       </ScrollView>
@@ -705,7 +568,6 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
   );
 };
 
-// Main app component
 const TripSearchPage = ({ tabName, onClose }) => {
   const [activeTab, setActiveTab] = useState(tabName);
   console.log("Active Tab:", activeTab);
@@ -719,7 +581,6 @@ const TripSearchPage = ({ tabName, onClose }) => {
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -775,6 +636,7 @@ const styles = StyleSheet.create({
   },
   tripTypeContainer: {
     flexDirection: "row",
+    justifyContent: "center",
     padding: 20,
     gap: 10,
   },
@@ -803,9 +665,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#f1f1f1",
     padding: 16,
     borderRadius: 12,
-  },
-  searchFieldActive: {
-    backgroundColor: "#333",
   },
   searchLabel: {
     color: "#666",
@@ -888,82 +747,15 @@ const styles = StyleSheet.create({
   searchButtonTextDisabled: {
     color: "#666",
   },
-  travelersDropdown: {
-    marginTop: 8,
-    position: "relative",
-    zIndex: 4,
-  },
-  travelerContent: {
-    backgroundColor: "#f1f1f1",
-    borderRadius: 12,
-    padding: 16,
-    gap: 16,
-  },
-  travelerType: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  travelerTitle: {
-    color: "black",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  travelerSubtitle: {
-    color: "black",
-    fontSize: 14,
-    marginTop: 4,
-  },
-  counter: {
+  searchButtonContent: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
-    zIndex: 5,
-  },
-  counterButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    // backgroundColor: 'white',
     justifyContent: "center",
-    alignItems: "center",
+    gap: 8,
   },
-  buttonDisabled: {
-    // backgroundColor: '#f1f1f1',
-  },
-  counterButtonText: {
-    color: "black",
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  counterButtonTextDisabled: {
-    color: "#999",
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  count: {
-    color: "black",
-    fontSize: 16,
-    fontWeight: "600",
-    minWidth: 24,
-    textAlign: "center",
-  },
-  autocompleteContainer: {
-    position: "absolute",
-    top: 200,
-    left: 20,
-    right: 20,
-    zIndex: 10,
-    backgroundColor: "white",
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+  lottieAnimation: {
+    width: 24,
+    height: 24,
   },
 });
 

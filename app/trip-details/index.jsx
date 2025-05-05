@@ -1,19 +1,17 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import {
-  Text,
-  View,
-  ScrollView,
-  ActivityIndicator,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { Text, View, ScrollView, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { format, parse, addDays, isWithinInterval, isDate } from "date-fns";
 import TripHeader from "../../components/trip-details/TripHeader";
 import DayLocationCard from "../../components/trip-details/DayLocationCard";
 import { PencilLine } from "lucide-react-native";
+import MapView, { Marker } from "react-native-maps";
+import { db } from "../../config/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
+import useItineraryStore from "../../app/store/itineraryZustandStore";
+import SkeletonLoading from "../../components/skeletonLoading/skeletonLoading";
 
 const formatDate = (date) => {
   if (!isDate(date)) return "";
@@ -21,7 +19,7 @@ const formatDate = (date) => {
 };
 
 const parseTripDate = (dateString) => {
-  if (!dateString) return new Date(NaN);
+  if (!dateString || dateString === "N/A") return new Date(NaN);
   return parse(dateString, "MMMM d, yyyy", new Date());
 };
 
@@ -34,7 +32,7 @@ const getDateRange = (startDate, endDate) => {
   const dates = [];
   let currentDate = start;
 
-  while (isWithinInterval(currentDate, { start, end })) {
+  while (isWithinInterval(currentDate, { start, end }) || currentDate <= end) {
     dates.push(currentDate);
     currentDate = addDays(currentDate, 1);
   }
@@ -44,39 +42,103 @@ const getDateRange = (startDate, endDate) => {
 
 const TripDetails = () => {
   const router = useRouter();
-
-  const { tripData } = useLocalSearchParams();
+  const { tripData: tripDataParam } = useLocalSearchParams();
   const [trip, setTrip] = useState(null);
+  const [fullTripData, setFullTripData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedDay, setSelectedDay] = useState("day1");
+  const [selectedDay, setSelectedDay] = useState(null);
+
+  const { generatedItinerary, setGeneratedItinerary } = useItineraryStore();
 
   useEffect(() => {
-    if (tripData) {
+    const fetchTripData = async () => {
+      setLoading(true);
       try {
-        const parsedTrip = JSON.parse(tripData);
-        setTrip(parsedTrip);
-        if (parsedTrip.dailyPlan) {
-          setSelectedDay(Object.keys(parsedTrip.dailyPlan)[0]);
+        const parsedTrip = JSON.parse(tripDataParam);
+
+        const tripId = parsedTrip.id;
+        const tripDocRef = doc(db, "itineraries", tripId);
+        const tripDoc = await getDoc(tripDocRef);
+
+        if (tripDoc.exists()) {
+          const tripDataFromDB = tripDoc.data();
+          console.log(
+            "Fetched trip data from Firestore:",
+            JSON.stringify(tripDataFromDB)
+          );
+
+          const updatedTrip = {
+            ...parsedTrip,
+            parameters: tripDataFromDB.parameters,
+            dailyPlan: tripDataFromDB.dailyPlan || parsedTrip.dailyPlan,
+          };
+
+          setFullTripData(tripDataFromDB);
+          setTrip(updatedTrip);
+          setGeneratedItinerary(updatedTrip);
+
+          if (
+            updatedTrip.dailyPlan &&
+            Object.keys(updatedTrip.dailyPlan).length > 0
+          ) {
+            setSelectedDay(Object.keys(updatedTrip.dailyPlan)[0]);
+          }
+        } else {
+          console.error("Trip not found in Firestore");
+          setTrip(parsedTrip);
+          setGeneratedItinerary(parsedTrip);
+          if (
+            parsedTrip.dailyPlan &&
+            Object.keys(parsedTrip.dailyPlan).length > 0
+          ) {
+            setSelectedDay(Object.keys(parsedTrip.dailyPlan)[0]);
+          }
         }
       } catch (error) {
-        console.error("Error parsing trip data:", error);
+        console.error("Error fetching trip data from Firestore:", error);
+        const parsedTrip = JSON.parse(tripDataParam);
+        setTrip(parsedTrip);
+        setGeneratedItinerary(parsedTrip);
+        if (
+          parsedTrip.dailyPlan &&
+          Object.keys(parsedTrip.dailyPlan).length > 0
+        ) {
+          setSelectedDay(Object.keys(parsedTrip.dailyPlan)[0]);
+        }
       } finally {
         setLoading(false);
       }
+    };
+
+    if (tripDataParam) {
+      fetchTripData();
     }
-  }, [tripData]);
+  }, [tripDataParam, setGeneratedItinerary]);
+
+  useEffect(() => {
+    if (generatedItinerary) {
+      setTrip(generatedItinerary);
+      if (
+        generatedItinerary.dailyPlan &&
+        Object.keys(generatedItinerary.dailyPlan).length > 0 &&
+        !selectedDay
+      ) {
+        setSelectedDay(Object.keys(generatedItinerary.dailyPlan)[0]);
+      }
+    }
+  }, [generatedItinerary, selectedDay]);
 
   if (loading) {
     return (
       <SafeAreaView className="w-full flex-1 bg-white">
         <View className="m-4">
-          <ActivityIndicator size="large" color="#0000ff" />
+          <SkeletonLoading />
         </View>
       </SafeAreaView>
     );
   }
 
-  if (!trip) {
+  if (!trip || !trip.tripData) {
     return (
       <SafeAreaView className="flex-1 bg-white">
         <TripHeader title="Itinerary" onBack={() => router.back()} />
@@ -88,7 +150,10 @@ const TripDetails = () => {
   }
 
   const renderDateButtons = () => {
-    if (!trip || !trip.dailyPlan || !trip.tripData) return null;
+    if (!trip.dailyPlan) {
+      console.log("No dailyPlan available");
+      return null;
+    }
 
     const dayKeys = Object.keys(trip.dailyPlan);
     const dates = getDateRange(trip.tripData.startDate, trip.tripData.endDate);
@@ -140,18 +205,31 @@ const TripDetails = () => {
   };
 
   const renderSelectedDayItinerary = () => {
-    if (!trip || !trip.dailyPlan || !selectedDay) return null;
+    if (!trip.dailyPlan || !selectedDay) {
+      console.log("No dailyPlan or selectedDay");
+      return null;
+    }
 
     const dayPlan = trip.dailyPlan[selectedDay];
-    if (!dayPlan) return null;
+    if (!dayPlan) {
+      console.log("No dayPlan for selectedDay:", selectedDay);
+      return null;
+    }
 
-    return dayPlan.places.map((place, index) => (
-      <DayLocationCard
-        key={`${selectedDay}-${index}`}
-        place={place}
-        isLast={index === dayPlan.places.length - 1}
-      />
-    ));
+    return dayPlan.places.map((place, index) => {
+      return (
+        <DayLocationCard
+          key={`${selectedDay}-${index}`}
+          place={place}
+          isLast={index === dayPlan.places.length - 1}
+        />
+      );
+    });
+  };
+
+  const coordinates = trip.parameters?.coordinates || {
+    latitude: 45.764043,
+    longitude: 4.835659,
   };
 
   return (
@@ -162,7 +240,7 @@ const TripDetails = () => {
         contentContainerStyle={{ paddingBottom: 24 }}
       >
         <TripHeader
-          title={trip.tripData.city.name}
+          title={trip.tripData.city.name || "Unknown City"}
           coverImage={trip.tripData.city.coverImage}
           onBack={() => router.back()}
         />
@@ -170,43 +248,70 @@ const TripDetails = () => {
         {/* Trip Overview */}
         <View className="px-6 pt-4">
           <Text className="text-2xl font-bold">
-            {trip.tripData.city.name}, {trip.tripData.city.country}
+            {trip.tripData.city.name || "Unknown City"}
+            {trip.tripData.city.country
+              ? `, ${trip.tripData.city.country}`
+              : ""}
           </Text>
           <Text className="text-gray-500 mt-1">
             {trip.tripData.startDate} - {trip.tripData.endDate} •{" "}
-            {trip.tripData.totalNoOfDays} days
+            {trip.tripData.totalNoOfDays || "N/A"} days
           </Text>
 
           <View className="flex-row mt-4 gap-x-2">
-            <View className="bg-gray-100 px-3 py-1 rounded-full">
-              <Text className="text-sm">{trip.tripData.traveler.title}</Text>
-            </View>
-            <View className="bg-gray-100 px-3 py-1 rounded-full">
-              <Text className="text-sm">{trip.tripData.budget.title}</Text>
-            </View>
+            {trip.tripData.traveler && (
+              <View className="bg-gray-100 px-3 py-1 rounded-full">
+                <Text className="text-sm">
+                  {trip.tripData.traveler.title || "Unknown Traveler"}
+                </Text>
+              </View>
+            )}
+            {trip.tripData.budget && (
+              <View className="bg-gray-100 px-3 py-1 rounded-full">
+                <Text className="text-sm">
+                  {trip.tripData.budget.title || "Unknown Budget"}
+                </Text>
+              </View>
+            )}
           </View>
         </View>
 
+        {/* MapView Section */}
         <View className="mt-4 w-96 h-72 mx-auto rounded-xl overflow-hidden">
-          <Image
-            className="w-full h-full rounded-xl"
-            source={{
-              uri: "https://qrszukeatofpziaxfmpy.supabase.co/storage/v1/object/sign/images/map/mapImage.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJpbWFnZXMvbWFwL21hcEltYWdlLnBuZyIsImlhdCI6MTc0Mzc4NTY2MSwiZXhwIjoxNzc1MzIxNjYxfQ.jjYYSrNx4O24jEdA9J8NV7D3uOpvNBEAyWUqqx8Skmo",
+          <MapView
+            style={{ width: "100%", height: "100%" }}
+            initialRegion={{
+              latitude: coordinates.latitude,
+              longitude: coordinates.longitude,
+              latitudeDelta: 0.05,
+              longitudeDelta: 0.05,
             }}
-            resizeMode="cover"
-          />
+          >
+            <Marker
+              coordinate={{
+                latitude: coordinates.latitude,
+                longitude: coordinates.longitude,
+              }}
+              title={trip.tripData.city.name || "Destination"}
+              description={`Trip to ${trip.tripData.city.name}`}
+            />
+          </MapView>
         </View>
 
         {/* Daily Itinerary */}
-        <View className="mt-8">
-          <ScrollView className="mb-4" horizontal>
-            <View className="flex-row mx-6 gap-x-3">{renderDateButtons()}</View>
-          </ScrollView>
+        {trip.dailyPlan && (
+          <View className="mt-8">
+            <ScrollView className="mb-4" horizontal>
+              <View className="flex-row mx-6 gap-x-3">
+                {renderDateButtons()}
+              </View>
+            </ScrollView>
 
-          <View className="py-2 w-full">
-            <View className="mx-5">{renderSelectedDayItinerary()}</View>
+            <View className="py-2 w-full">
+              <View className="mx-5">{renderSelectedDayItinerary()}</View>
+            </View>
           </View>
-        </View>
+        )}
       </ScrollView>
 
       <TouchableOpacity

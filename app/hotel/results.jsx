@@ -1,15 +1,27 @@
-import { View, Text, ScrollView, StyleSheet, FlatList } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import TopBar from "../../components/topBar";
-import { HotelCardResults } from "../../components/hotelCard/hotelCardResults";
+import { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  StyleSheet,
+  SafeAreaView,
+} from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { HotelCardResults } from "../../components/hotelCard/hotelCardResults";
+import TopBar from "../../components/topBar";
+
+const PAGE_SIZE = 10;
 
 export default function HotelSearchResultsScreen() {
   const { hotelResults, searchData } = useLocalSearchParams();
   const [searchResults, setSearchResults] = useState([]);
   const [searchParams, setSearchParams] = useState({});
+  const [allHotels, setAllHotels] = useState([]);
+  const [displayedHotels, setDisplayedHotels] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -18,10 +30,15 @@ export default function HotelSearchResultsScreen() {
         const parsedResults = JSON.parse(hotelResults);
         setSearchResults(parsedResults.properties || []);
         setSearchParams(parsedResults.search_parameters || {});
-      }
-      if (searchData) {
-        const parsedSearchData = JSON.parse(searchData);
-        setSearchParams((prev) => ({ ...prev, ...parsedSearchData }));
+        setAllHotels(parsedResults.properties || []);
+        setDisplayedHotels(
+          (parsedResults.properties || []).slice(0, PAGE_SIZE)
+        );
+        setHasMore((parsedResults.properties || []).length > PAGE_SIZE);
+        if (searchData) {
+          const parsedSearchData = JSON.parse(searchData);
+          setSearchParams((prev) => ({ ...prev, ...parsedSearchData }));
+        }
       }
     } catch (err) {
       setError("Failed to parse hotel results");
@@ -56,16 +73,54 @@ export default function HotelSearchResultsScreen() {
     ? searchParams.q.charAt(0).toUpperCase() + searchParams.q.slice(1)
     : "Search Results";
 
+  const loadMoreHotels = useCallback(() => {
+    if (loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+
+    setTimeout(() => {
+      const nextBatch = allHotels.slice(
+        displayedHotels.length,
+        displayedHotels.length + PAGE_SIZE
+      );
+
+      setDisplayedHotels((prev) => [...prev, ...nextBatch]);
+      setHasMore(displayedHotels.length + nextBatch.length < allHotels.length);
+      setLoadingMore(false);
+    }, 1000);
+  }, [loadingMore, hasMore, displayedHotels.length, allHotels]);
+
+  const handleEndReached = () => {
+    if (!loadingMore && hasMore) {
+      loadMoreHotels();
+    }
+  };
+
   const renderHotelItem = ({ item }) => (
-    <HotelCardResults hotel={item} searchParams={searchParams} />
+    <HotelCardResults
+      hotel={item}
+      searchParams={JSON.parse(searchData)}
+      amenities={item.amenities || []}
+    />
   );
+
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+
+    return (
+      <View style={styles.footer}>
+        <ActivityIndicator size="small" color="#000" />
+        <Text style={styles.footerText}>Loading more hotels...</Text>
+      </View>
+    );
+  };
 
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
         <TopBar logo text="Hotels" />
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading hotels...</Text>
+          <ActivityIndicator size="large" />
         </View>
       </SafeAreaView>
     );
@@ -102,45 +157,14 @@ export default function HotelSearchResultsScreen() {
         </Text>
       </View>
 
-      {/* Filters */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filterContainer}
-      >
-        <View style={styles.filterPill}>
-          <Text style={styles.filterText}>Price</Text>
-        </View>
-        <View style={styles.filterPill}>
-          <Text style={styles.filterText}>Rating</Text>
-        </View>
-        <View style={styles.filterPill}>
-          <Text style={styles.filterText}>Type</Text>
-        </View>
-        <View style={styles.filterPill}>
-          <Text style={styles.filterText}>Amenities</Text>
-        </View>
-        <View style={styles.filterPill}>
-          <Text style={styles.filterText}>Distance</Text>
-        </View>
-      </ScrollView>
-
-      {/* Results List */}
       <FlatList
-        data={searchResults}
+        data={displayedHotels}
         renderItem={renderHotelItem}
-        keyExtractor={(item, index) =>
-          `${item.property_token || item.name}-${index}`
-        }
-        contentContainerStyle={styles.listContainer}
-        ListEmptyComponent={
-          <View style={styles.noResultsContainer}>
-            <Text style={styles.noResultsText}>No hotels found</Text>
-            <Text style={styles.noResultsSubtext}>
-              Try adjusting your search criteria
-            </Text>
-          </View>
-        }
+        keyExtractor={(item, index) => `${item.property_token}-${index}`}
+        contentContainerStyle={styles.listContent}
+        ListFooterComponent={renderFooter}
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.1}
       />
     </SafeAreaView>
   );
@@ -176,41 +200,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
   },
-  filterContainer: {
-    marginBottom: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    backgroundColor: "white",
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  },
-  filterPill: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginRight: 8,
-    height: 32,
-    justifyContent: "center",
-  },
-  filterText: {
-    fontSize: 14,
-    color: "#333",
-  },
-  listContainer: {
+  listContent: {
     padding: 16,
   },
-  noResultsContainer: {
-    padding: 32,
+  footer: {
+    padding: 16,
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
   },
-  noResultsText: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  noResultsSubtext: {
+  footerText: {
+    marginLeft: 10,
     fontSize: 14,
     color: "#666",
   },
@@ -218,10 +218,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  loadingText: {
-    fontSize: 16,
-    color: "#666",
   },
   errorContainer: {
     flex: 1,

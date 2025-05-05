@@ -14,7 +14,19 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 const DayLocationCard = ({ place, isLast }) => {
   const renderIcon = () => {
-    switch (place.type) {
+    const typeMap = {
+      Lunch: "eat",
+      Restaurant: "eat",
+      Museum: "explore",
+      Garden: "explore",
+      Park: "explore",
+      "Museum/Monument": "explore",
+      "Shopping Mall": "explore",
+      Activity: "explore",
+    };
+    const mappedType = typeMap[place.type] || "explore";
+
+    switch (mappedType) {
       case "eat":
         return <Utensils size={24} color="#000" />;
       case "explore":
@@ -27,6 +39,8 @@ const DayLocationCard = ({ place, isLast }) => {
   };
 
   const renderStars = (rating) => {
+    if (!rating) return null;
+
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
@@ -53,7 +67,7 @@ const DayLocationCard = ({ place, isLast }) => {
   return (
     <View className="my-4">
       {/* Location Card */}
-      <View className="flex-row w-full h-[490px]">
+      <View className="flex-row w-full h-[520px]">
         <View className="w-[10%] overflow-hidden">
           {renderIcon()}
           <View className="mt-2 h-full ml-4 border-l-2 border-neutral-200"></View>
@@ -71,14 +85,20 @@ const DayLocationCard = ({ place, isLast }) => {
             </View>
             {/* Title and Rating */}
             <View className="mx-4 my-2 pb-6 pt-4 flex-1 border-b-2 border-neutral-100">
-              <Text className="text-xl font-bold mb-3">{place.name}</Text>
+              <Text className="text-xl font-bold mb-3">
+                {place.title || "Unknown Place"}
+              </Text>
               <View className="flex-row items-center">
-                <View className="flex-row mr-2">
-                  {renderStars(place.rating)}
-                </View>
+                {place.rating && (
+                  <View className="flex-row mr-2">
+                    {renderStars(place.rating)}
+                  </View>
+                )}
                 <Text className="text-gray-600 text-sm">
-                  ({place.rating.toFixed(1)}) {place.reviews?.toLocaleString()}{" "}
-                  reviews
+                  {place.rating ? `(${place.rating.toFixed(1)})` : "No rating"}{" "}
+                  {place.reviews
+                    ? `${place.reviews.toLocaleString()} reviews`
+                    : "No reviews"}
                 </Text>
               </View>
             </View>
@@ -87,14 +107,34 @@ const DayLocationCard = ({ place, isLast }) => {
             <View className="mb-4 p-4">
               <View className="flex-row items-center mb-2">
                 <MaterialIcons name="schedule" size={16} color="#555" />
-                <Text className="ml-2 text-lg text-gray-800">{place.time}</Text>
-              </View>
-              <View className="flex-row items-center mb-2">
-                <MaterialIcons name="attach-money" size={16} color="#555" />
                 <Text className="ml-2 text-lg text-gray-800">
-                  {place.price}
+                  {place.duration || "N/A"}
                 </Text>
               </View>
+              {place.description && (
+                <View className="flex-row items-center mb-2">
+                  <MaterialIcons name="info" size={16} color="#555" />
+                  <Text
+                    className="ml-2 text-lg text-gray-800"
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {place.description}
+                  </Text>
+                </View>
+              )}
+              {place.notes && (
+                <View className="flex-row items-center mb-2">
+                  <MaterialIcons name="note" size={16} color="#555" />
+                  <Text
+                    className="ml-2 text-lg text-gray-800"
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {place.notes}
+                  </Text>
+                </View>
+              )}
               <TouchableOpacity className="flex-row items-center">
                 <MaterialIcons name="location-pin" size={16} color="#16a34a" />
                 <Text className="ml-2 text-lg text-green-600 font-medium">
@@ -118,7 +158,7 @@ const DayLocationCard = ({ place, isLast }) => {
                 <View className="justify-center items-center">
                   <CarFront size={20} color="#000" />
                   <Text className="text-xs px-2 py-1 rounded">
-                    {place.transportTimes?.car || "-"}
+                    {place.transportTimes?.car || place.travelTime || "-"}
                   </Text>
                 </View>
                 <View className="justify-center items-center">
@@ -136,7 +176,7 @@ const DayLocationCard = ({ place, isLast }) => {
                 <View className="justify-center items-center">
                   <PersonStanding size={20} color="#000" />
                   <Text className="text-xs px-2 py-1 rounded">
-                    {place.transportTimes?.walk || "-"}
+                    {place.transportTimes?.walk || place.travelTime || "-"}
                   </Text>
                 </View>
                 <View className="justify-center items-center">
