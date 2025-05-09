@@ -6,6 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Platform,
+  Linking,
 } from "react-native";
 import React, { useCallback, useEffect } from "react";
 import * as WebBrowser from "expo-web-browser";
@@ -135,6 +137,20 @@ const LoginScreen = () => {
           </View>
         </TouchableOpacity>
       </View>
+      <View
+        className={`${
+          Platform.OS === "ios" ? "flex" : "absolute"
+        } bottom-5 flex flex-row gap-x-2 pt-20`}
+      >
+        <TouchableOpacity onPress={() => Linking.openURL("https://www.hotfoot.ai/privacy-policy")}>
+          <Text className="text-sm text-gray-500">Privacy Policy</Text>
+        </TouchableOpacity>
+        <Text className="text-gray-500">{"•"}</Text>
+        <TouchableOpacity onPress={() => Linking.openURL("https://www.hotfoot.ai/terms-of-service")}>
+          <Text className="text-sm text-gray-500">Terms of Service</Text>
+        </TouchableOpacity>
+      </View>
+
     </SafeAreaView>
   );
 };

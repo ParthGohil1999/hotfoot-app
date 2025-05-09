@@ -159,8 +159,13 @@ const PersonalTouch = () => {
 
   const handleCountrySelect = (selectedCountry) => {
     console.log("Selected country:", selectedCountry);
-    setCountryCode(selectedCountry?.cca2);
-    setCountry(selectedCountry);
+    const name =
+      selectedCountry.name ||
+      findCountryByCode(selectedCountry.cca2)?.name ||
+      selectedCountry.cca2 ||
+      "Unknown";
+    setCountryCode(selectedCountry.cca2);
+    setCountry({ ...selectedCountry, name });
   };
 
   const onSubmit = async (data) => {
