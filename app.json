@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Hotfoot.ai",
-    "slug": "Hotfoot.ai",
+    "name": "Hotfoot AI",
+    "slug": "hotfoot-ai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -14,13 +14,21 @@
     },
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "ai.hotfoot.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": ["fetch"],
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to provide better travel recommendations",
+        "NSPhotoLibraryUsageDescription": "This app uses photos to enhance your trip planning experience"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "ai.hotfoot.app"
     },
     "web": {
       "bundler": "metro",
@@ -32,6 +40,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "ecbcdfe0-56cb-4c58-a349-f77cadce5f17"
+      }
+    },
+    "owner": "hotfoot-ai"
   }
 }

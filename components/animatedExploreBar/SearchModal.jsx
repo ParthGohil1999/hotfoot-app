@@ -136,7 +136,7 @@ export function SearchModal({ visible, onClose, tabName }) {
                   key={index}
                   style={styles.suggestionCard}
                   onPress={() => {
-                    setQuery(suggestion.text);
+                    // setQuery(suggestion.text);
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   }}
                 >
@@ -186,9 +186,9 @@ export function SearchModal({ visible, onClose, tabName }) {
                   key={index}
                   style={styles.destinationCard}
                   onPress={() => {
-                    setQuery(
-                      `Exploring ${destination.name}, ${destination.country}`
-                    );
+                    // setQuery(
+                    //   `Exploring ${destination.name}, ${destination.country}`
+                    // );
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                   }}
                 >
@@ -235,7 +235,7 @@ export function SearchModal({ visible, onClose, tabName }) {
                   key={index}
                   style={styles.recentItem}
                   onPress={() => {
-                    setQuery(item);
+                    // setQuery(item);
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   }}
                 >

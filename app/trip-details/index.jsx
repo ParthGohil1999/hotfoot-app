@@ -12,6 +12,7 @@ import { db } from "../../config/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import useItineraryStore from "../../app/store/itineraryZustandStore";
 import SkeletonLoading from "../../components/skeletonLoading/skeletonLoading";
+import { Platform } from 'react-native';
 
 const formatDate = (date) => {
   if (!isDate(date)) return "";
@@ -41,6 +42,10 @@ const getDateRange = (startDate, endDate) => {
 };
 
 const TripDetails = () => {
+  if (Platform.OS !== 'web') {
+  const MapView = require('react-native-maps').default;
+  // or use dynamic import inside a component
+}
   const router = useRouter();
   const { tripData: tripDataParam } = useLocalSearchParams();
   const [trip, setTrip] = useState(null);
