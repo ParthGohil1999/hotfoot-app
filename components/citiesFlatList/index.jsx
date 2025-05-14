@@ -538,7 +538,7 @@ export const ExploreFlatList = ({ category, onLoading }) => {
   const { travelers } = useTripSearchStore();
   const width = Dimensions.get("window").width;
 
-  const centerCoordinates = userLocation?.coordinates || fallbackCoordinates;
+  const centerCoordinates = userLocation?.coordinates;
 
   const body = {
     includedPrimaryTypes: [category],
@@ -546,8 +546,8 @@ export const ExploreFlatList = ({ category, onLoading }) => {
     locationRestriction: {
       circle: {
         center: {
-          latitude: centerCoordinates.latitude,
-          longitude: centerCoordinates.longitude,
+          latitude: centerCoordinates?.latitude,
+          longitude: centerCoordinates?.longitude,
         },
         radius: 15000,
       },
