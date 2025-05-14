@@ -4,13 +4,14 @@ import * as Progress from 'react-native-progress';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Feather from '@expo/vector-icons/Feather';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { router } from 'expo-router';
 
 const TopBar = ({backarrow, logo, progress, text, rightIcons}) => {
     return (
         <View>
             <View style={styles.topBar}>
                 <View style={styles.leftButtonContainer}>
-                    {backarrow && <Ionicons name="arrow-back" size={25} color="black" />}
+                    {backarrow && <Ionicons name="arrow-back" size={25} color="black" onPress={() =>router.back()} />}
                     {logo && <Image style={[styles.image]} source={require('../../assets/images/icon.png')} />}
                 </View>
                 {progress && <Progress.Bar progress={progress} width={180} height={9} backgroundColor='#ddd' borderWidth={0} color="black" />}

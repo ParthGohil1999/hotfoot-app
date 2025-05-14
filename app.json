@@ -49,6 +49,7 @@
         "projectId": "ecbcdfe0-56cb-4c58-a349-f77cadce5f17"
       }
     },
-    "owner": "hotfoot-ai"
+    "owner": "hotfoot-ai",
+     "jsEngine": "jsc"
   }
 }

@@ -1,4 +1,4 @@
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Image, Linking, Text, TouchableOpacity, View } from "react-native";
 import {
   Bike,
   CarFront,
@@ -13,6 +13,14 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 
 const DayLocationCard = ({ place, isLast }) => {
+  const handlePlacePress = () => {
+    // console.log("Opening Google Maps for:", JSON.stringify(place, null, 2));
+    const url = `https://www.google.com/maps/search/?api=1&query=${place?.title}`;
+    Linking.openURL(url).catch((err) =>
+      console.error("Failed to open Google Maps:", err)
+    );
+
+  };
   const renderIcon = () => {
     const typeMap = {
       Lunch: "eat",
@@ -135,7 +143,7 @@ const DayLocationCard = ({ place, isLast }) => {
                   </Text>
                 </View>
               )}
-              <TouchableOpacity className="flex-row items-center">
+              <TouchableOpacity className="flex-row items-center" onPress={handlePlacePress}>
                 <MaterialIcons name="location-pin" size={16} color="#16a34a" />
                 <Text className="ml-2 text-lg text-green-600 font-medium">
                   View on Google Maps

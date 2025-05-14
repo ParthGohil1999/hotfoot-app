@@ -22,7 +22,7 @@ const TripHeader = ({ coverImage, onBack }) => {
       </View>
 
       {/* Right Side */}
-      <View className="absolute top-14 right-20 flex-row justify-between px-4">
+      {/* <View className="absolute top-14 right-20 flex-row justify-between px-4">
         <TouchableOpacity
           className="w-10 h-10 items-center justify-center bg-white rounded-full"
           onPress={onBack}
@@ -41,7 +41,7 @@ const TripHeader = ({ coverImage, onBack }) => {
             <EllipsisVertical size={24} color="#000" />
           </View>
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View>
   );
 };

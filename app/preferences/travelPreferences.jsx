@@ -17,6 +17,7 @@ const TravelPreferences = () => {
   const params = useLocalSearchParams();
   const { userId } = useAuth();
   const { updatePreferences, userData, fetchUserData } = useUserStore();
+  console.log("updatePreferences, userData, fetchUserData", updatePreferences, userData, fetchUserData)
   const { selectedButtons, setSelectedButtons } = useTravelPreferencesStore();
 
   useEffect(() => {

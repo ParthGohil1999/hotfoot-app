@@ -79,7 +79,7 @@ const HomeScreen = () => {
 
           <View>
             <ExploreHeader onCategoryChanged={onDataChanged} />
-            <ExploreFlatList category={category} />
+            {/* <ExploreFlatList category={category} /> */}
           </View>
         </ScrollView>
       </View>

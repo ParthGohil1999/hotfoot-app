@@ -181,6 +181,7 @@ const Trips = () => {
   };
 
   const handleCitySelect = () => {
+    console.log("City selected");
     setSearchModalVisible(true);
   };
 
@@ -206,6 +207,7 @@ const Trips = () => {
       <ScrollView
         className="flex-1 bg-white mx-6"
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1 }}
       >
         {loading ? (
           <View className="mx-4">
@@ -242,6 +244,7 @@ const Trips = () => {
                 <TouchableOpacity
                   className="border px-6 py-2 bg-black h-12 rounded-lg items-center justify-center mt-10"
                   onPress={handleCitySelect}
+                  
                 >
                   <Text className="text-white">Start a Trip</Text>
                 </TouchableOpacity>
@@ -275,7 +278,7 @@ const Trips = () => {
                           : ""}
                       </Text>
                       <View className="items-center justify-center my-2">
-                        <EllipsisVertical size={24} color="#000" />
+                        {/* <EllipsisVertical size={24} color="#000" /> */}
                       </View>
                     </View>
                     <View className="mt-2">

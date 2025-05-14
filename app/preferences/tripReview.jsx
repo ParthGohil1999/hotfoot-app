@@ -187,9 +187,9 @@ const ReviewSummaryScreen = () => {
               <Text style={styles.sectionLabel}>Destination</Text>
             </View>
             <TouchableOpacity
-              onPress={() => router.push("/search/destination")}
+              // onPress={() => router.push("/search/destination")}
             >
-              <AntDesign name="edit" size={24} color="black" />
+              {/* <AntDesign name="edit" size={24} color="black" /> */}
             </TouchableOpacity>
           </View>
 

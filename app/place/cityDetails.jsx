@@ -240,7 +240,7 @@ export default function ExploreScreen() {
           </AnimatedLinearGradient>
         </Animated.View>
 
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity style={styles.backButton} onPress={() =>router.back()}>
           <ChevronLeft size={24} color="#fff" />
         </TouchableOpacity>
 
@@ -303,7 +303,7 @@ export default function ExploreScreen() {
           >
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Stays</Text>
-              <Info size={20} color="#666" />
+              {/* <Info size={20} color="#666" /> */}
             </View>
 
             <Text style={styles.stayDates}>
