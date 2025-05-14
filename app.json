@@ -14,7 +14,7 @@
     },
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "ai.hotfoot.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,

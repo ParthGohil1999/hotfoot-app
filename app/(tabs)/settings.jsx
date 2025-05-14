@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Linking,
+  Alert,
 } from "react-native";
 import React from "react";
 import { useRouter } from "expo-router";
@@ -15,6 +16,7 @@ import {
   LogOut,
   Siren,
   Handshake,
+  Wrench,
 } from "lucide-react-native";
 import { useAuth } from "@clerk/clerk-expo";
 import TopBar from "../../components/topBar";
@@ -42,12 +44,20 @@ const Settings = () => {
     });
   };
 
+  const handleAccountManagement = () => {
+    router.push({
+      pathname: "/preferences/accountManagement",
+      params: {
+        returnPath: "/(tabs)/settings",
+      },
+    });
+  };
+
   const handleLogout = async () => {
     try {
       console.log("Logging out...");
       await signOut();
       useUserStore.getState().clearUserData();
-
       console.log("User logged out successfully");
       router.replace("/auth");
     } catch (err) {
@@ -79,6 +89,19 @@ const Settings = () => {
               <User size={22} color="#000" />
             </View>
             <Text style={styles.menuItemText}>Personal Info</Text>
+          </View>
+          <ChevronRight size={20} color="#666" />
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={handleAccountManagement}
+        >
+          <View style={styles.menuItemLeft}>
+            <View style={styles.iconContainer}>
+              <Wrench size={22} color="#000" />
+            </View>
+            <Text style={styles.menuItemText}>Account Management</Text>
           </View>
           <ChevronRight size={20} color="#666" />
         </TouchableOpacity>
@@ -130,18 +153,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: "600",
-    marginLeft: 12,
   },
   menuItem: {
     flexDirection: "row",

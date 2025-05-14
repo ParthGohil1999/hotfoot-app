@@ -28,7 +28,7 @@ export default function RootLayout() {
   }
 
   return (
-    <ClerkProvider tokenCache={tokenCache} publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}>
+    <ClerkProvider tokenCache={tokenCache}>
       <Stack
         initialRouteName="onboarding/index"
         options={{ headerShown: false }}
@@ -61,6 +61,10 @@ export default function RootLayout() {
         />
         <Stack.Screen
           name="preferences/allSet"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="preferences/accountManagement"
           options={{ headerShown: false }}
         />
         <Stack.Screen
