@@ -1,24 +1,15 @@
 import axios from "axios";
 
-const BASE_URL = "https://serpapi.com/search.json";
-const API_KEY = process.env.EXPO_PUBLIC_SERP_API_KEY;
+const BASE_URL = "https://dhu7rma17e.execute-api.us-east-1.amazonaws.com/serpapi-calls";
+
 
 // Main function to make API calls
 const makeApiCall = async (params) => {
-  const fullParams = {
-    ...params,
-    api_key: API_KEY,
-    gl: "us",
-    hl: "en",
-  };
-
-  const queryString = new URLSearchParams(fullParams).toString();
-  console.log("Final API Request URL:", `${BASE_URL}?${queryString}`);
 
   try {
-    const response = await axios.get(BASE_URL, { params: fullParams });
-    console.log("API Response Data:", response.data);
-    return response.data;
+    const response = await axios.post(BASE_URL, params);
+    console.log("API Response Data dfdfdf:", response);
+    return response.data.data;
   } catch (error) {
     if (error.response) {
       console.error("API Response Error:", error.response.data);

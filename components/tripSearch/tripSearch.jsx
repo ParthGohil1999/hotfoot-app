@@ -23,6 +23,7 @@ import {
   searchOutboundFlights,
 } from "../../services/SerpApi";
 import TravelersDropdown from "../travelersDropdown";
+import { GetCityAndAirportIataCodes } from "../../services/AmadeusApi";
 
 const TabBar = ({ activeTab, setActiveTab }) => {
   const tabs = ["Places", "Flights", "Hotels"];
@@ -160,14 +161,56 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
     return travelers.adults + travelers.children + travelers.infants;
   };
 
-  const handleLocationSelect = (cityData) => {
+  const handleLocationSelect = async (cityData) => {
     console.log(`Selected ${currentField}:`, cityData);
     if (currentField === "from") {
-      setFromLocation(cityData);
-      console.log("From Location (handleLocationSelect): ", cityData);
+      try {
+        setFromLocation({cityData:cityData});
+        console.log("GetCityAndAirportIataCodes started:", cityData?.name, cityData?.countryCode);
+
+        const response = await GetCityAndAirportIataCodes({
+          keyword: cityData?.name,
+          countryCode: cityData?.countryCode,
+        });
+
+        console.log("API Response:", response);
+
+        const cityIataCode = response.data?.[0]?.iataCode;
+        const airportData = response.included?.airports;
+        const airportIataCodes = airportData ? Object.keys(airportData) : [];
+
+        console.log("City IATA Code:", cityIataCode);
+        console.log("Airport IATA Codes:", airportIataCodes);
+        console.log("finally setFromLocation:", { cityData, cityIataCode, airportIataCodes });
+
+        setFromLocation({ cityData, cityIataCode, airportIataCodes });
+      } catch (err) {
+        console.error("Error fetching IATA codes (fromLocation):", err);
+      }
     } else if (currentField === "to") {
-      setToLocation(cityData);
-      console.log("To Location (handleLocationSelect): ", cityData);
+      try {
+        setToLocation({cityData});
+        console.log("GetCityAndAirportIataCodes started:", cityData?.name, cityData?.countryCode);
+
+        const response = await GetCityAndAirportIataCodes({
+          keyword: cityData?.name,
+          countryCode: cityData?.countryCode,
+        });
+
+        console.log("API Response:", response);
+
+        const cityIataCode = response.data?.[0]?.iataCode;
+        const airportData = response.included?.airports;
+        const airportIataCodes = airportData ? Object.keys(airportData) : [];
+
+        console.log("City IATA Code:", cityIataCode);
+        console.log("Airport IATA Codes:", airportIataCodes);
+        console.log("finally setFromLocation:", { cityData, cityIataCode, airportIataCodes });
+
+        setToLocation({ cityData, cityIataCode, airportIataCodes });
+      } catch (err) {
+        console.error("Error fetching IATA codes (toLocation):", err);
+      }
     }
   };
 
@@ -243,16 +286,16 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
         try {
           const apiParamsFlights = formatFlightSearchParams({
             fromLocation: fromLocation
-              ? fromLocation.airportIataCodes.join(",")
+              ? fromLocation?.airportIataCodes.join(",")
               : "",
-            toLocation: toLocation.airportIataCodes.join(","),
+            toLocation: toLocation?.airportIataCodes.join(","),
             dates,
             travelers,
             cabinClass,
             tripType,
           });
           const apiParamsHotels = formatHotelSearchParams({
-            toLocation: toLocation.formattedAddress,
+            toLocation: toLocation?.cityData?.formattedAddress,
             dates,
             travelers,
           });
@@ -308,7 +351,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
 
       case "Hotels":
         const searchDataHotels = {
-          toLocation: toLocation.formattedAddress,
+          toLocation: toLocation?.cityData?.formattedAddress,
           dates,
           travelers,
         };
@@ -404,7 +447,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
               <Text style={styles.searchLabel}>From</Text>
               <Text style={styles.searchValue}>
                 {fromLocation
-                  ? `${fromLocation.name} (${fromLocation.cityCode})`
+                  ? `${fromLocation?.cityData?.name} (${fromLocation?.cityData?.countryCode})`
                   : "Select departure"}
               </Text>
             </Pressable>
@@ -417,7 +460,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
             <Text style={styles.searchLabel}>To</Text>
             <Text style={styles.searchValue}>
               {toLocation
-                ? `${toLocation.name} (${toLocation.cityCode})`
+                ? `${toLocation?.cityData?.name} (${toLocation?.cityData?.countryCode})`
                 : "Select destination"}
             </Text>
           </Pressable>
@@ -433,11 +476,11 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
                   ? tripType === "One Way"
                     ? dates.startDate
                     : dates.endDate
-                    ? `${dates.startDate} - ${dates.endDate}`
-                    : dates.startDate
+                      ? `${dates.startDate} - ${dates.endDate}`
+                      : dates.startDate
                   : tripType === "One Way"
-                  ? "Select departure"
-                  : "Select dates"}
+                    ? "Select departure"
+                    : "Select dates"}
               </Text>
             </View>
           </Pressable>
@@ -456,9 +499,8 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
               <View style={styles.searchValueContainer}>
                 <Users size={20} color="#666" />
                 <Text style={styles.searchValue}>
-                  {`${getTotalTravelers()} Traveler${
-                    getTotalTravelers() > 1 ? "s" : ""
-                  }`}
+                  {`${getTotalTravelers()} Traveler${getTotalTravelers() > 1 ? "s" : ""
+                    }`}
                 </Text>
                 <ChevronDown
                   size={20}
@@ -525,7 +567,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
                 style={[
                   styles.searchButtonText,
                   (isSearchDisabled() || isSearching) &&
-                    styles.searchButtonTextDisabled,
+                  styles.searchButtonTextDisabled,
                 ]}
               >
                 {getSearchButtonText()}

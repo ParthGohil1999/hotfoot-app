@@ -47,28 +47,29 @@ const PlaceAutocomplete = ({
 
       console.log("Country Code:", countryCode);
 
-      const response = await GetCityAndAirportIataCodes({
-        keyword: details.name,
-        countryCode: countryCode,
-      });
+      // const response = await GetCityAndAirportIataCodes({
+      //   keyword: details.name,
+      //   countryCode: countryCode,
+      // });
 
-      // Check if response is valid
-      console.log("API Response:", response);
+      // // Check if response is valid
+      // console.log("API Response:", response);
 
-      // Get city IATA code
-      const cityIataCode = response.data?.[0]?.iataCode;
+      // // Get city IATA code
+      // const cityIataCode = response.data?.[0]?.iataCode;
 
-      // Get airport IATA codes
-      const airportData = response.included?.airports;
-      const airportIataCodes = airportData ? Object.keys(airportData) : [];
+      // // Get airport IATA codes
+      // const airportData = response.included?.airports;
+      // const airportIataCodes = airportData ? Object.keys(airportData) : [];
 
-      console.log("City IATA Code:", cityIataCode);
-      console.log("Airport IATA Codes:", airportIataCodes);
+      // console.log("City IATA Code:", cityIataCode);
+      // console.log("Airport IATA Codes:", airportIataCodes);
 
       const cityDetails = {
         name: details.name,
-        cityCode: cityIataCode,
-        airportIataCodes: airportIataCodes,
+        // cityCode: cityIataCode,
+        countryCode: countryCode,
+        // airportIataCodes: airportIataCodes,
         placeId: details.place_id,
         formattedAddress: details.formatted_address,
         coordinates: {

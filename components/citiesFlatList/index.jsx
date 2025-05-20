@@ -47,7 +47,7 @@ const fetchCitiesWithImages = async (data) => {
         try {
           const imageResponse = await GetPixabayImageByCityName(city.name);
           const parsedData = await JSON.parse(imageResponse);
-          const image = parsedData.hits?.[0]?.largeImageURL || null;
+          const image = parsedData.hits?.[0]?.webformatURL?.replace('_640', '_340') || null;
           // console.log("citiesWithImages: ", parsedData)
           return { ...city, imageUrl: image };
         } catch (error) {
@@ -563,7 +563,10 @@ export const ExploreFlatList = ({ category, onLoading }) => {
     try {
       if (category === "hotel") {
 
-        const today =  new Date().toLocaleDateString("en-US", {
+
+
+
+        const today = new Date().toLocaleDateString("en-US", {
           year: "numeric",
           month: "short",
           day: "2-digit",
@@ -605,10 +608,10 @@ export const ExploreFlatList = ({ category, onLoading }) => {
     return category?.toString() === "hotel" ? (
       <View>
         <HotelCardResults
-              hotel={item}
-              searchParams={searchParams}
-              amenities={item.amenities || []}
-            />
+          hotel={item}
+          searchParams={searchParams}
+          amenities={item.amenities || []}
+        />
       </View>
     ) : (
       <View>

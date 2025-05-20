@@ -25,17 +25,18 @@ export const generateItinerary = async (
   setGeneratedItinerary,
   setTripParameters
 ) => {
+  console.log("Trip Data:", tripData);
   if (!user) {
     throw new Error("User not authenticated");
   }
 
   if (
     !(
-      (tripData.coordinates?.latitude && tripData.coordinates?.longitude) ||
+      (tripData?.coordinates?.latitude && tripData?.coordinates?.longitude) ||
       (tripData.geoCode?.latitude && tripData.geoCode?.longitude)
     )
   ) {
-    throw new Error("Destination location not set");
+    throw new Error("Destination location not set --");
   }
 
   if (!tripData.dates.startDate || !tripData.dates.endDate) {
@@ -108,11 +109,12 @@ export const generateItinerary = async (
 };
 
 const fetchNearbyPlaces = async (tripData) => {
+  console.log("Fetching nearby places for tripData:", tripData);
   try {
     const latitude =
-      tripData.geoCode?.latitude || tripData.coordinates?.latitude;
+      tripData.geoCode?.latitude || tripData?.coordinates?.latitude;
     const longitude =
-      tripData.geoCode?.longitude || tripData.coordinates?.longitude;
+      tripData.geoCode?.longitude || tripData?.coordinates?.longitude;
 
     if (!latitude || !longitude) {
       throw new Error("Destination location not set");

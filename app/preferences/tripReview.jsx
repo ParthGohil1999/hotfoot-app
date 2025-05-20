@@ -44,8 +44,8 @@ const ReviewSummaryScreen = () => {
     if (
       !(
         (toLocation?.geoCode?.latitude && toLocation?.geoCode?.longitude) ||
-        (toLocation?.coordinates?.latitude &&
-          toLocation?.coordinates?.longitude)
+        (toLocation?.cityData?.coordinates?.latitude &&
+          toLocation?.cityData?.coordinates?.longitude)
       )
     ) {
       console.warn("Invalid toLocation on mount:", toLocation);
@@ -72,8 +72,8 @@ const ReviewSummaryScreen = () => {
     if (
       !(
         (toLocation?.geoCode?.latitude && toLocation?.geoCode?.longitude) ||
-        (toLocation?.coordinates?.latitude &&
-          toLocation?.coordinates?.longitude)
+        (toLocation?.cityData?.coordinates?.latitude &&
+          toLocation?.cityData?.coordinates?.longitude)
       )
     ) {
       Alert.alert("Error", "Please select a destination");
@@ -88,9 +88,9 @@ const ReviewSummaryScreen = () => {
 
     try {
       const tripData = {
-        destination: toLocation?.name || "",
+        destination: toLocation?.cityData?.name || toLocation.name || "",
         geoCode: toLocation?.geoCode || {},
-        coordinates: toLocation?.coordinates || {},
+        coordinates: toLocation?.cityData?.coordinates || {},
         dates: {
           startDate: dates.startDate,
           endDate: dates.endDate,
@@ -164,7 +164,7 @@ const ReviewSummaryScreen = () => {
       <View style={styles.loadingContainer}>
         <SkeletonLoading />
         <Text style={styles.loadingText}>
-          Finding the best places in {toLocation?.name}...
+          Finding the best places in {toLocation?.name || toLocation?.cityData?.name}...
         </Text>
         <Text>We're creating your perfect itinerary based on:</Text>
         <Text>- {selectedButtons.join(", ")}</Text>
@@ -187,16 +187,16 @@ const ReviewSummaryScreen = () => {
               <Text style={styles.sectionLabel}>Destination</Text>
             </View>
             <TouchableOpacity
-              // onPress={() => router.push("/search/destination")}
+              onPress={() => router.push("/search/destination")}
             >
-              {/* <AntDesign name="edit" size={24} color="black" /> */}
+              <AntDesign name="edit" size={24} color="black" />
             </TouchableOpacity>
           </View>
 
           {toLocation && (
             <View style={styles.destinationContent}>
               <View style={styles.destinationDetails}>
-                <Text style={styles.destinationName}>{toLocation.name}</Text>
+                <Text style={styles.destinationName}>{toLocation.name || toLocation?.cityData?.name}</Text>
                 <View style={styles.countryContainer}>
                   <Text style={styles.countryName}>
                     {toLocation.country || tripType}

@@ -13,6 +13,7 @@ const home = () => {
 
         {userLocation ? (
           <Redirect href="/(tabs)/home" />
+          // <Redirect href="/preferences/personalTouch" />
         ) : (
           <Redirect href="/preferences/locationPermission" />
         )}

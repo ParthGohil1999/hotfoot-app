@@ -14,7 +14,7 @@ import CalendarPicker from 'react-native-calendar-picker';
 interface DatePickerModalProps {
   visible: boolean;
   onClose: () => void;
-  onSelectDates: (dates: { startDate: string; endDate: string | null; totalDays: number }) => void;
+  onSelectDates: (dates: { startDate: string | null; endDate: string | null; totalDays: number }) => void;
   activeTab: string;
   tripType: string;
   initialDates: {
@@ -34,8 +34,8 @@ export default function DatePickerModal({
   const today = new Date();
   const tomorrow = addDays(today, 1);
 
-  const [startDate, setStartDate] = React.useState<Date>(
-    initialDates?.startDate ? new Date(initialDates.startDate) : tomorrow
+  const [startDate, setStartDate] = React.useState<Date | null>(
+    initialDates?.startDate ? new Date(initialDates.startDate) : null
   );
   const [endDate, setEndDate] = React.useState<Date | null>(
     initialDates?.endDate ? new Date(initialDates.endDate) : null
@@ -52,7 +52,7 @@ export default function DatePickerModal({
   };
 
   const handleConfirm = () => {
-    const formattedStartDate = format(startDate, 'MMM dd, yyyy');
+    const formattedStartDate = startDate ? format(startDate, 'MMM dd, yyyy') : null ;
     const formattedEndDate = endDate ? format(endDate, 'MMM dd, yyyy') : null;
     const totalDays = endDate ? differenceInDays(endDate, startDate) + 1 : 1;
 

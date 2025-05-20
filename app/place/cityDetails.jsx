@@ -226,7 +226,7 @@ export default function ExploreScreen() {
             style={[styles.headerGradient, headerTextStyle]}
           >
             <Animated.Text style={[styles.cityName, headerTextStyle]}>
-              {toLocation.name}
+              {toLocation?.name || toLocation?.cityData?.name}
             </Animated.Text>
             <Animated.Text style={[styles.countryName, headerTextStyle]}>
               It's a {dates.totalDays} days trip
@@ -255,7 +255,7 @@ export default function ExploreScreen() {
           >
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>
-                Travel from {fromLocation.name}
+                Travel from {fromLocation?.name || fromLocation?.cityData?.name}
               </Text>
               {/* <Info size={20} color="#666" /> */}
             </View>

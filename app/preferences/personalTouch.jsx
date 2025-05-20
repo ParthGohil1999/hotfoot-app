@@ -7,6 +7,11 @@ import {
   TextInput,
   Image,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  InputAccessoryView,
+  Keyboard,
+  Button,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -18,6 +23,7 @@ import BottomBarContinueBtn from "../../components/buttons/bottomBarContinueBtn"
 import TitleSubtitle from "../../components/titleSubtitle";
 import useUserStore from "../store/userZustandStore";
 import { useAuth, useUser } from "@clerk/clerk-expo";
+
 
 const countryData = [
   { cca2: "IN", name: "India", callingCode: "91" },
@@ -35,6 +41,7 @@ const findCountryByCode = (cca2) => {
 // };
 
 const PersonalTouch = () => {
+  const inputAccessoryViewID = "uniqueID";
   const router = useRouter();
   const params = useLocalSearchParams();
   const { userId, getToken } = useAuth();
@@ -225,14 +232,25 @@ const PersonalTouch = () => {
   return (
     <SafeAreaView style={{ backgroundColor: "white", flex: 1 }}>
       <TopBar backarrow progress={0.5} />
-      <ScrollView className="flex container px-7">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1, justifyContent: "center" }}
+          // keyboardVerticalOffset={10}
+        >
+      <ScrollView contentContainerStyle={{
+        flexGrow: 1,
+        justifyContent: "flex-start",
+        paddingHorizontal: 28,
+        // paddingBottom: 30,
+      }}
+      keyboardShouldPersistTaps="handled" >
         <TitleSubtitle
           title={"Add a personal touch"}
           subtitle={
             "To enhance your travel journey, we'd love to know more about you."
           }
         />
-        <View className="container">
+        <View  className="container">
           <View style={styles.imageContainer}>
             <Image
               style={styles.image}
@@ -330,6 +348,7 @@ const PersonalTouch = () => {
                       value={value}
                       placeholder="Phone number"
                       keyboardType="phone-pad"
+                      inputAccessoryViewID={inputAccessoryViewID}
                     />
                   )}
                   name="phoneNumber"
@@ -340,8 +359,24 @@ const PersonalTouch = () => {
               </View>
             </View>
           )}
+          {Platform.OS === 'ios' && (
+        <InputAccessoryView nativeID={inputAccessoryViewID}>
+          <View
+            style={{
+              backgroundColor: '#f1f1f1',
+              padding: 10,
+              alignItems: 'flex-end',
+              borderTopWidth: 1,
+              borderColor: '#ddd',
+            }}
+          >
+            <Button title="Done" onPress={Keyboard.dismiss} />
+          </View>
+        </InputAccessoryView>
+      )}
         </View>
       </ScrollView>
+        </KeyboardAvoidingView>
       <BottomBarContinueBtn
         handleDone={handleSubmit(onSubmit)}
         disabled={!isValid || !country}

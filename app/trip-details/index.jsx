@@ -80,6 +80,10 @@ const TripDetails = () => {
 
           setFullTripData(tripDataFromDB);
           setTrip(updatedTrip);
+          console.log(
+            "Updated trip data with Firestore data:",
+            JSON.stringify(updatedTrip)
+          );
           setGeneratedItinerary(updatedTrip);
 
           if (

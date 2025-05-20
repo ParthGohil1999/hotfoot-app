@@ -150,7 +150,7 @@ const Trips = () => {
           dailyPlan,
         };
       });
-      console.log("Fetched trips:", JSON.stringify(trips, null, 2));
+      // console.log("Fetched trips:", JSON.stringify(trips, null, 2));
       setUserTrips(trips);
     } catch (err) {
       console.error("Error fetching user trips from Firestore:", err);

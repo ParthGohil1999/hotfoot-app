@@ -20,7 +20,7 @@ export const HotelCardResults = ({ hotel, searchParams, amenities }) => {
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
-    }, 1000);
+    }, 10000);
   }, []);
 
   const handlePress = () => {
