@@ -73,7 +73,7 @@ const DayLocationCard = ({ place, isLast }) => {
   };
 
   return (
-    <View className="my-4">
+    <View className="my-6">
       {/* Location Card */}
       <View className="flex-row w-full h-[520px]">
         <View className="w-[10%] overflow-hidden">

@@ -53,6 +53,7 @@ export const HotelCard = ({ hotel }) => {
         },
         toLocation: toLocation.name,
         travelers,
+        currency: userLocation?.currency || "USD",
       };
 
       // console.log("searchDataHotels:", searchDataHotels);

@@ -14,8 +14,10 @@ import {
 import TopBar from "../../components/topBar";
 import { getJourneyDetails } from "../../services/SerpApi";
 import SkeletonLoading from "../../components/skeletonLoading/skeletonLoading";
+import useUserStore from "../store/userZustandStore";
 
 const BookingOptions = () => {
+  const {userLocation} = useUserStore();
   const router = useRouter();
   const params = useLocalSearchParams();
   const [bookingData, setBookingData] = useState(null);
@@ -42,6 +44,7 @@ const BookingOptions = () => {
           returnDate: searchParams.return_date,
           bookingToken: params.bookingToken,
           type: searchParams.type,
+          currency: userLocation?.currency || "USD",
         });
 
         if (!response || !response.booking_options) {
@@ -211,7 +214,7 @@ const BookingOptions = () => {
         <Text style={styles.totalDuration}>
           Total: {formatDuration(flight.total_duration)}
         </Text>
-        <Text style={styles.price}>${flight.price}</Text>
+        <Text style={styles.price}>{userLocation.currencySymbol}{flight.price}</Text>
       </View>
     </View>
   );
@@ -294,7 +297,7 @@ const BookingOptions = () => {
                     {displayOption.book_with || "Multiple Airlines"}
                   </Text>
                 </View>
-                <Text style={styles.optionPrice}>${price}</Text>
+                <Text style={styles.optionPrice}>{userLocation.currencySymbol}{price}</Text>
               </View>
 
               {displayOption.marketed_as && (

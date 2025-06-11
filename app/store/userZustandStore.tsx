@@ -6,7 +6,7 @@ import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
 interface UserState {
     userData: any | null;
-    userLocation: { city: string; country: string; coordinates: { latitude: number; longitude: number } } | null;
+    userLocation: { city: string; country: string; coordinates: { latitude: number; longitude: number }; currency: string; currencySymbol: string } | null;
     locationPermission: string | null;
     onboardingStep: string | null;
     loading: boolean;

@@ -18,7 +18,9 @@
       "bundleIdentifier": "ai.hotfoot.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": ["fetch"],
+        "UIBackgroundModes": [
+          "fetch"
+        ],
         "NSLocationWhenInUseUsageDescription": "This app uses your location to provide better travel recommendations",
         "NSPhotoLibraryUsageDescription": "This app uses photos to enhance your trip planning experience"
       }
@@ -51,6 +53,6 @@
       }
     },
     "owner": "hotfoot-ai",
-     "jsEngine": "jsc"
+    "jsEngine": "jsc"
   }
 }

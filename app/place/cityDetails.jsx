@@ -32,6 +32,7 @@ import useTripSearchStore from "../store/trpiSearchZustandStore";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { HotelCardResults } from "../../components/hotelCard/hotelCardResults";
 import SkeletonLoading from "../../components/skeletonLoading/skeletonLoading";
+import useUserStore from "../store/userZustandStore";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const HEADER_HEIGHT = 350;
@@ -54,6 +55,7 @@ export default function ExploreScreen() {
   const scrollY = useSharedValue(0);
   const router = useRouter();
   const { toLocation, fromLocation, dates } = useTripSearchStore();
+  const { userLocation } = useUserStore()
 
   const formatDuration = (minutes) => {
     if (!minutes) return "";
@@ -172,9 +174,8 @@ export default function ExploreScreen() {
             <Text style={styles.flightDetails}>
               {flight.flights?.length === 0
                 ? "Non-stop"
-                : `${flight.flights?.length} stop${
-                    flight.flights?.length > 1 ? "s" : ""
-                  }`}{" "}
+                : `${flight.flights?.length} stop${flight.flights?.length > 1 ? "s" : ""
+                }`}{" "}
               · {formatDuration(flight.total_duration)}
             </Text>
             {flight.departureTime && flight.arrivalTime && (
@@ -185,7 +186,7 @@ export default function ExploreScreen() {
           </View>
         </View>
         <View style={styles.priceInfo}>
-          <Text style={styles.priceText}>${flight.price}</Text>
+          <Text style={styles.priceText}>{userLocation?.currencySymbol}{flight.price}</Text>
           <Text style={styles.priceSubtext}>{flight.type}</Text>
         </View>
       </MotiView>
@@ -240,7 +241,7 @@ export default function ExploreScreen() {
           </AnimatedLinearGradient>
         </Animated.View>
 
-        <TouchableOpacity style={styles.backButton} onPress={() =>router.back()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <ChevronLeft size={24} color="#fff" />
         </TouchableOpacity>
 

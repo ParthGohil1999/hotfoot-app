@@ -1,4 +1,6 @@
+import useUserStore from "@/app/store/userZustandStore";
 import axios from "axios";
+// const { userLocation } = useUserStore();
 
 const BASE_URL = "https://dhu7rma17e.execute-api.us-east-1.amazonaws.com/serpapi-calls";
 
@@ -11,13 +13,22 @@ const makeApiCall = async (params) => {
     console.log("API Response Data dfdfdf:", response);
     return response.data.data;
   } catch (error) {
-    if (error.response) {
-      console.error("API Response Error:", error.response.data);
-      console.error("Status:", error.response.status);
-    } else {
-      console.error("API Request Failed:", error.message);
+    console.warn("First attempt failed. Retrying once...");
+    try {
+      const retryResponse = await axios.post(BASE_URL, params);
+      return retryResponse.data.data;
+    } catch (finalError) {
+      console.error("Retry failed.");
+      if (finalError.response) {
+        console.error("API Response Error:", finalError.response.data);
+        console.error("Status:", finalError.response.status);
+      } else {
+        console.error("API Request Failed:", finalError.message);
+      }
+      throw finalError;
     }
-    throw error;
+
+
   }
 };
 
@@ -25,6 +36,7 @@ const makeApiCall = async (params) => {
 
 // Search for flights from "from" location to "to" location
 export const searchOutboundFlights = async (params) => {
+  // const { userLocation } = useUserStore();
   const travelClassMap = {
     economy: 1,
     business: 3,
@@ -69,6 +81,7 @@ export const getReturnFlights = async (params) => {
     outbound_date: params.outboundDate,
     return_date: params.returnDate,
     departure_token: params.departureToken,
+    currency: params.currency || "USD",
     show_hidden: true,
     deep_search: true,
   });
@@ -82,6 +95,7 @@ export const getJourneyDetails = async (params) => {
     arrival_id: params.arrivalId,
     outbound_date: params.outboundDate,
     return_date: params.returnDate,
+    currency: params.currency || "USD",
     booking_token: params.bookingToken,
     type: params.type,
   };
@@ -94,6 +108,7 @@ export const getJourneyDetails = async (params) => {
 };
 
 export const formatFlightSearchParams = (searchData) => {
+  // const { userLocation } = useUserStore();
   console.log("CONSOLE LOG FROM formatFlightSearchParams: ", searchData);
   const parseDateString = (dateStr) => {
     if (!dateStr) return null;
@@ -139,7 +154,7 @@ export const formatFlightSearchParams = (searchData) => {
     children: searchData.travelers.children || 0,
     infants: searchData.travelers.infants || 0,
     travelClass: (searchData.cabinClass || "economy").toLowerCase(),
-    currency: "USD",
+    currency: searchData.currency || "USD",
     tripType: searchData.tripType || "Round Trip",
   };
 
@@ -152,6 +167,7 @@ export const formatFlightSearchParams = (searchData) => {
 
 /* ------------------------------------- HOTEL FUNCTIONS ------------------------------------- */
 export const searchHotels = async (params) => {
+  // const { userLocation } = useUserStore();
   const apiParams = {
     engine: "google_hotels",
     q: params.q,
@@ -166,6 +182,7 @@ export const searchHotels = async (params) => {
 };
 
 export const getHotel = async (params) => {
+  // const { userLocation } = useUserStore();
   const apiParams = {
     engine: "google_hotels",
     q: params.q,
@@ -181,6 +198,7 @@ export const getHotel = async (params) => {
 };
 
 export const formatHotelSearchParams = (searchData) => {
+  // const { userLocation } = useUserStore();
   console.log("searchData from serpAPI: ", searchData);
   const parseDateString = (dateStr) => {
     if (!dateStr) return null;
@@ -225,7 +243,7 @@ export const formatHotelSearchParams = (searchData) => {
     adults: searchData.travelers.adults || 1,
     children: searchData.travelers.children || 0,
     infants: searchData.travelers.infants || 0,
-    currency: "USD",
+    currency: searchData.currency || "USD",
   };
 
   return params;

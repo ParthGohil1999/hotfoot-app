@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { BookmarkIcon, EllipsisVertical } from "lucide-react-native";
+import { BookmarkIcon } from "lucide-react-native";
 import { SearchModal } from "../../components/animatedExploreBar/SearchModal";
 import TopBar from "../../components/topBar/index.js";
 import { useRouter } from "expo-router";
@@ -62,7 +69,10 @@ const Trips = () => {
                   place.displayName?.text === activity.place ||
                   place.name === activity.place
               );
-              console.log("Photo Reference:", matchingPlace?.photos?.[0]?.name.split("/photos/")[1]);
+              console.log(
+                "Photo Reference:",
+                matchingPlace?.photos?.[0]?.name.split("/photos/")[1]
+              );
               return {
                 title: activity.place,
                 type: activity.type,
@@ -73,7 +83,9 @@ const Trips = () => {
                 rating: matchingPlace?.rating || null,
                 reviews: matchingPlace?.userRatingCount || null,
                 image: matchingPlace?.photos?.[0]?.name
-                  ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${matchingPlace.photos[0].name.split("/photos/")[1]}&key=${process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}`
+                  ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${matchingPlace.photos[0].name.split(
+                      "/photos/"
+                    )[1]}&key=${process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}`
                   : "https://via.placeholder.com/400",
                 transportTimes: matchingPlace?.transportTimes || null,
               };
@@ -128,7 +140,9 @@ const Trips = () => {
               name: data.parameters.destination || "",
               country: data.parameters.toLocation?.country || "",
               coverImage: data.places[0]?.photos?.[0]?.name
-                ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${data.places[0].photos[0].name.split("/photos/")[1]}&key=${process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}`
+                ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${data.places[0].photos[0].name.split(
+                    "/photos/"
+                  )[1]}&key=${process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}`
                 : "https://via.placeholder.com/400",
             },
             startDate: data.parameters.dates.start || "N/A",
@@ -150,7 +164,6 @@ const Trips = () => {
           dailyPlan,
         };
       });
-      // console.log("Fetched trips:", JSON.stringify(trips, null, 2));
       setUserTrips(trips);
     } catch (err) {
       console.error("Error fetching user trips from Firestore:", err);
@@ -186,10 +199,7 @@ const Trips = () => {
   };
 
   const handleTripPress = (trip) => {
-    console.log(
-      "Navigating to trip-details with:",
-      JSON.stringify(trip, null, 2)
-    );
+    console.log("Navigating to trip-details with:", JSON.stringify(trip, null, 2));
     router.push({
       pathname: "/trip-details",
       params: { tripData: JSON.stringify(trip) },
@@ -202,51 +212,45 @@ const Trips = () => {
   }, [user]);
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={styles.safeArea}>
       <TopBar logo text={"My Trips"} />
       <ScrollView
-        className="flex-1 bg-white mx-6"
+        style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1 }}
+        contentContainerStyle={styles.scrollViewContent}
       >
         {loading ? (
-          <View className="mx-4">
+          <View style={styles.skeletonWrapper}>
             <SkeletonLoading />
           </View>
         ) : error ? (
-          <View className="min-h-[95%] mx-4 my-2 items-center justify-center">
-            <Text className="text-lg text-red-500">{error}</Text>
-            <TouchableOpacity
-              className="border px-6 py-2 bg-black h-12 rounded-lg items-center justify-center mt-10"
-              onPress={getUserTrips}
-            >
-              <Text className="text-white">Retry</Text>
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+            <TouchableOpacity style={styles.retryButton} onPress={getUserTrips}>
+              <Text style={styles.retryButtonText}>Retry</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <>
             {userTrips?.length === 0 ? (
-              <View className="min-h-[95%] mx-4 my-2 items-center justify-center">
-                <View className="w-24 h-24 items-center justify-center rounded-full bg-white border border-neutral-300">
-                  <View className="items-center justify-center">
-                    <BookmarkIcon size={48} color="#000" />
-                  </View>
+              <View style={styles.noTripsContainer}>
+                <View style={styles.noTripsIconWrapper}>
+                  <BookmarkIcon size={48} color="#000" />
                 </View>
-                <View className="flex-row justify-between items-center mt-4">
-                  <Text className="text-2xl font-semibold">No Trips</Text>
+                <View style={styles.noTripsTitleWrapper}>
+                  <Text style={styles.noTripsTitle}>No Trips</Text>
                 </View>
-                <View className="mt-2 w-4/5">
-                  <Text className="font-light text-neutral-500 text-center">
+                <View style={styles.noTripsDescriptionWrapper}>
+                  <Text style={styles.noTripsDescription}>
                     Let our AI create personalized trip plans just for you.
                     Start planning now!
                   </Text>
                 </View>
                 <TouchableOpacity
-                  className="border px-6 py-2 bg-black h-12 rounded-lg items-center justify-center mt-10"
+                  style={styles.startTripButton}
                   onPress={handleCitySelect}
-                  
                 >
-                  <Text className="text-white">Start a Trip</Text>
+                  <Text style={styles.startTripButtonText}>Start a Trip</Text>
                 </TouchableOpacity>
 
                 <SearchModal
@@ -256,33 +260,33 @@ const Trips = () => {
                 />
               </View>
             ) : (
-              <View className="w-full">
+              <View style={styles.tripsList}>
                 {userTrips.map((trip, index) => (
                   <TouchableOpacity
                     onPress={() => handleTripPress(trip)}
                     key={index}
-                    className="w-full mb-4 rounded-lg py-2"
+                    style={styles.tripItem}
                   >
-                    <View className="relative">
+                    <View style={styles.imageWrapper}>
                       <Image
                         source={{ uri: trip.tripData.city.coverImage }}
-                        className="h-72 rounded-lg"
+                        style={styles.tripImage}
                         resizeMode="cover"
                       />
                     </View>
-                    <View className="flex-row justify-between items-center mt-2">
-                      <Text className="text-lg font-semibold">
+                    <View style={styles.tripHeader}>
+                      <Text style={styles.tripTitle}>
                         {trip.tripData.city.name}
                         {trip.tripData.city.country
                           ? `, ${trip.tripData.city.country}`
                           : ""}
                       </Text>
-                      <View className="items-center justify-center my-2">
+                      <View style={styles.tripEllipsis}>
                         {/* <EllipsisVertical size={24} color="#000" /> */}
                       </View>
                     </View>
-                    <View className="mt-2">
-                      <Text className="font-light">
+                    <View style={styles.tripDatesWrapper}>
+                      <Text style={styles.tripDates}>
                         {trip.tripData.startDate} - {trip.tripData.endDate}
                       </Text>
                     </View>
@@ -296,5 +300,135 @@ const Trips = () => {
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: "white",
+    marginHorizontal: 24,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+  },
+  skeletonWrapper: {
+    marginHorizontal: 16,
+  },
+  errorContainer: {
+    minHeight: "95%",
+    marginHorizontal: 16,
+    marginVertical: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  errorText: {
+    fontSize: 18,
+    color: "red",
+  },
+  retryButton: {
+    borderWidth: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 8,
+    backgroundColor: "black",
+    height: 48,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 40,
+  },
+  retryButtonText: {
+    color: "white",
+  },
+  noTripsContainer: {
+    minHeight: "95%",
+    marginHorizontal: 16,
+    marginVertical: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  noTripsIconWrapper: {
+    width: 96,
+    height: 96,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 48,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#d1d5db", // neutral-300
+  },
+  noTripsTitleWrapper: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 16,
+  },
+  noTripsTitle: {
+    fontSize: 24,
+    fontWeight: "600",
+  },
+  noTripsDescriptionWrapper: {
+    marginTop: 8,
+    width: "80%",
+  },
+  noTripsDescription: {
+    fontWeight: "300",
+    color: "#6b7280", // neutral-500
+    textAlign: "center",
+  },
+  startTripButton: {
+    borderWidth: 1,
+    paddingHorizontal: 24,
+    paddingVertical: 8,
+    backgroundColor: "black",
+    height: 48,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 40,
+  },
+  startTripButtonText: {
+    color: "white",
+  },
+  tripsList: {
+    width: "100%",
+  },
+  tripItem: {
+    width: "100%",
+    marginBottom: 16,
+    borderRadius: 12,
+    paddingVertical: 8,
+  },
+  imageWrapper: {
+    position: "relative",
+  },
+  tripImage: {
+    height: 288, // 72 * 4 px
+    borderRadius: 12,
+  },
+  tripHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  tripTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  tripEllipsis: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 8,
+  },
+  tripDatesWrapper: {
+    marginTop: 8,
+  },
+  tripDates: {
+    fontWeight: "300",
+  },
+});
 
 export default Trips;

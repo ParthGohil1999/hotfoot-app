@@ -122,6 +122,8 @@ const PlaceAutocomplete = ({
               ? "Enter departure city"
               : "Enter destination city"
           }
+          predefinedPlaces={[]}
+          textInputProps={{}}
           minLength={2}
           autoFocus={true}
           returnKeyType={"search"}

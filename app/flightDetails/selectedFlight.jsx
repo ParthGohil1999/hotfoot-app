@@ -13,6 +13,7 @@ import TopBar from "../../components/topBar";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { getReturnFlights } from "../../services/SerpApi";
 import SkeletonLoading from "../../components/skeletonLoading/skeletonLoading";
+import useUserStore from "../store/userZustandStore";
 
 const SelectedFlight = () => {
   const router = useRouter();
@@ -22,6 +23,7 @@ const SelectedFlight = () => {
   const [returnFlights, setReturnFlights] = useState([]);
   const [activeReturnTab, setActiveReturnTab] = useState("best");
   const [expandedAmenities, setExpandedAmenities] = useState({});
+  const {userLocation} = useUserStore()
 
   useEffect(() => {
     if (params.flightData) {
@@ -64,6 +66,7 @@ const SelectedFlight = () => {
         outboundDate: searchParams.outbound_date,
         returnDate: searchParams.return_date,
         departureToken: departureToken,
+        currency: userLocation?.currency || "USD",
       };
 
       const response = await getReturnFlights(apiParams);
@@ -222,6 +225,7 @@ const SelectedFlight = () => {
   );
 
   const renderReturnFlightOption = (returnFlight, index) => (
+    
     <TouchableOpacity
       key={index}
       onPress={() => handleBookFlight(returnFlight)}
@@ -276,7 +280,7 @@ const SelectedFlight = () => {
         <Text style={styles.totalDuration}>
           Total: {formatDuration(returnFlight.total_duration)}
         </Text>
-        <Text style={styles.price}>${returnFlight.price}</Text>
+        <Text style={styles.price}>{userLocation?.currencySymbol}{returnFlight.price}</Text>
       </View>
 
       <View style={styles.carbonInfo}>
@@ -320,7 +324,7 @@ const SelectedFlight = () => {
           <Text style={styles.totalDuration}>
             Total Duration: {formatDuration(flight.total_duration)}
           </Text>
-          <Text style={styles.priceText}>${flight.price}</Text>
+          <Text style={styles.priceText}>{userLocation?.currencySymbol}{flight.price}</Text>
         </View>
 
         <View style={styles.sectionHeader}>

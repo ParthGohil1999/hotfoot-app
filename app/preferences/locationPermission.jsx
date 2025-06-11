@@ -9,6 +9,8 @@ import BottomBarContinueBtn from "../../components/buttons/bottomBarContinueBtn"
 import { MapPin } from "lucide-react-native";
 import { ActivityIndicator } from "react-native";
 import { useAuth } from "@clerk/clerk-expo";
+import { getAllInfoByISO } from "iso-country-currency";
+import { googleTravelCurrencies } from "@/constants/google-travel-currencies";
 
 const LocationPermission = () => {
   const navigation = useNavigation();
@@ -43,6 +45,15 @@ const LocationPermission = () => {
         longitude: location.coords.longitude,
       });
 
+      console.log("my fulll address:", address[0].isoCountryCode);
+
+      const countryInfo = getAllInfoByISO(address[0].isoCountryCode); 
+
+      const userCurrency = googleTravelCurrencies[countryInfo.currency] ? countryInfo.currency : "USD";
+      const userCurrencySymbol = googleTravelCurrencies[countryInfo.currency] ? countryInfo.symbol : "$";
+
+      console.log("========>>>Country Info:", userCurrency);
+
       const userLocation = {
         coordinates: {
           latitude: location.coords.latitude,
@@ -50,6 +61,8 @@ const LocationPermission = () => {
         },
         city: address[0]?.city || "Unknown city",
         country: address[0]?.country || "Unknown country",
+        currency: userCurrency,
+        currencySymbol: userCurrencySymbol,
       };
 
       // Save to Zustand store and Firestore

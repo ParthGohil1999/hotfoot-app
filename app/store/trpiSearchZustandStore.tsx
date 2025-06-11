@@ -89,6 +89,7 @@ const useTripSearchStore = create<TripSearchState>()(
       setCabinClassToStore: (cabinClass) => set({ cabinClass }),
 
       setTripTypeToStore: (tripType) => set((state) => {
+        if (state.tripType === tripType) return {};
         // Reset end date when switching to one-way trip
         if (tripType === 'One Way') {
           const updatedDates = {

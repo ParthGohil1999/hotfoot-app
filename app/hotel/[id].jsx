@@ -32,6 +32,7 @@ import {
 } from "../../services/SerpApi";
 import HotelLoadingSkeleton from "../../components/skeletonLoading/hotelLoadingSkeleton";
 import MapView, { Marker } from "react-native-maps";
+import useUserStore from "../store/userZustandStore";
 
 const { width, height } = Dimensions.get("window");
 
@@ -39,6 +40,7 @@ const BASE_URL = "https://serpapi.com/search.json";
 const API_KEY = process.env.EXPO_PUBLIC_SERP_API_KEY;
 
 export default function Page() {
+  const { userLocation } = useUserStore();
   const router = useRouter();
   const { id, searchParams, amenities } = useLocalSearchParams();
 
@@ -192,7 +194,7 @@ export default function Page() {
             parsedSearchParams.check_out_date || parsedSearchParams.returnDate,
           adults: parsedSearchParams.adults || 1,
           children: parsedSearchParams.children || 0,
-          currency: parsedSearchParams.currency || "USD",
+          currency: userLocation?.currency || "USD",
         };
 
         const hotelData = await getHotel(params);

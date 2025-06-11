@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import LottieView from "lottie-react-native";
 import PlaceAutocomplete from "../googleAutocomplete/placeAutocomplete";
 import useTripSearchStore from "../../app/store/trpiSearchZustandStore";
+import useUserStore from "../../app/store/userZustandStore";
 import { useNavigation } from "expo-router";
 import DatePickerModal from "../datePickerModal/datePickerModal";
 import {
@@ -78,7 +79,9 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
     travelers: { adults, children, infants },
     cabinClass: selectedCabinClass,
     tripType: storeTripType,
+    resetSearch,
   } = useTripSearchStore();
+  const { userLocation } = useUserStore();
 
   useEffect(() => {
     setTripTypeToStore(tripType);
@@ -165,7 +168,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
     console.log(`Selected ${currentField}:`, cityData);
     if (currentField === "from") {
       try {
-        setFromLocation({cityData:cityData});
+        setFromLocation({ cityData: cityData });
         console.log("GetCityAndAirportIataCodes started:", cityData?.name, cityData?.countryCode);
 
         const response = await GetCityAndAirportIataCodes({
@@ -189,7 +192,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
       }
     } else if (currentField === "to") {
       try {
-        setToLocation({cityData});
+        setToLocation({ cityData });
         console.log("GetCityAndAirportIataCodes started:", cityData?.name, cityData?.countryCode);
 
         const response = await GetCityAndAirportIataCodes({
@@ -269,6 +272,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
 
   // Handle search button press
   const handleSearch = async () => {
+    
     setIsTravelersDropdownOpen(false);
     setIsSearching(true);
 
@@ -293,11 +297,13 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
             travelers,
             cabinClass,
             tripType,
+            currency: userLocation?.currency || "USD",
           });
           const apiParamsHotels = formatHotelSearchParams({
             toLocation: toLocation?.cityData?.formattedAddress,
             dates,
             travelers,
+            currency: userLocation?.currency || "USD",
           });
           console.log("API Params Flights:", apiParamsFlights);
           const flightResults = await searchOutboundFlights(apiParamsFlights);
@@ -308,6 +314,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
             searchDataFlights: JSON.stringify(apiParamsFlights),
             searchDataHotels: JSON.stringify(apiParamsHotels),
           });
+          // resetSearch()
           onClose();
         } catch (error) {
           console.error("Flight or Hotel search error:", error);
@@ -328,6 +335,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
           travelers,
           cabinClass,
           tripType,
+          currency: userLocation?.currency || "USD",
         };
         console.log("Search Data:", searchData);
         try {
@@ -337,6 +345,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
             flightResults: JSON.stringify(flightResults),
             searchData: JSON.stringify(apiParams),
           });
+          resetSearch()
           onClose();
         } catch (error) {
           console.error("Flight search error:", error);
@@ -354,6 +363,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
           toLocation: toLocation?.cityData?.formattedAddress,
           dates,
           travelers,
+          currency: userLocation?.currency || "USD",
         };
         try {
           const apiParams = formatHotelSearchParams(searchDataHotels);
@@ -362,6 +372,7 @@ const UnifiedSearchForm = ({ activeTab, onClose }) => {
             hotelResults: JSON.stringify(hotelResults),
             searchData: JSON.stringify(apiParams),
           });
+          resetSearch()
           onClose();
         } catch (error) {
           console.error("Hotel search error:", error);

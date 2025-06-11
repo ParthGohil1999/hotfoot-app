@@ -25,6 +25,7 @@ import useUserStore from "../store/userZustandStore";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 
 
+
 const countryData = [
   { cca2: "IN", name: "India", callingCode: "91" },
   { cca2: "US", name: "United States", callingCode: "1" },
@@ -196,6 +197,7 @@ const PersonalTouch = () => {
         nationality: country.name,
         phoneNumber: fullPhoneNumber,
         countryCode: country.cca2,
+        // currency: country.currency || "USD",
       };
 
       console.log("Saving personalInfo:", personalInfo);

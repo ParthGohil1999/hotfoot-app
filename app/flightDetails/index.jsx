@@ -13,8 +13,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import TopBar from "../../components/topBar";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import SkeletonLoading from "../../components/skeletonLoading/skeletonLoading";
+import useUserStore from "../store/userZustandStore";
 
 const FlightDetails = () => {
+  const { userLocation } = useUserStore();
   const router = useRouter();
   const params = useLocalSearchParams();
   const [flightData, setFlightData] = useState(null);
@@ -89,6 +91,7 @@ const FlightDetails = () => {
           departureToken: flight.departure_token,
           searchParams: JSON.stringify(flightData.search_parameters),
           isOneWay: "false",
+          currency: userLocation?.currency || "USD",
         },
       });
     }
@@ -164,7 +167,7 @@ const FlightDetails = () => {
             </Text>
             <Text style={styles.flightType}>{flight.type}</Text>
           </View>
-          <Text style={styles.price}>${flight.price}</Text>
+          <Text style={styles.price}>{userLocation?.currencySymbol}{flight.price}</Text>
         </View>
 
         {flight.flights.map((segment, idx) =>
@@ -248,8 +251,8 @@ const FlightDetails = () => {
           <Text style={styles.priceInsightsTitle}>Price Insights</Text>
           <View style={styles.priceRangeContainer}>
             <Text style={styles.priceRangeText}>
-              Typical price: ${flightData.price_insights.typical_price_range[0]}{" "}
-              - ${flightData.price_insights.typical_price_range[1]}
+              Typical price: {userLocation?.currencySymbol}{flightData.price_insights.typical_price_range[0]}{" "}
+              - {userLocation?.currencySymbol}{flightData.price_insights.typical_price_range[1]}
             </Text>
             <Text
               style={[

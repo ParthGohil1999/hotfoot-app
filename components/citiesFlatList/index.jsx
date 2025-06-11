@@ -64,7 +64,7 @@ const fetchCitiesWithImages = async (data) => {
   }
 };
 
-export const CityList = ({ data }) => {
+export const CityList = () => {
   const [places, setPlaces] = useState([]);
   const navigation = useNavigation();
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
@@ -116,6 +116,7 @@ export const CityList = ({ data }) => {
         },
         toLocation: toLocation.name,
         travelers,
+        currency: userLocation.currency || "USD",
       };
 
       // console.log("searchDataHotels:", searchDataHotels);
@@ -130,6 +131,7 @@ export const CityList = ({ data }) => {
         travelers,
         tripType: "Round Trip",
         cabinClass: "economy",
+        currency: userLocation.currency || "USD",
       };
 
       console.log("searchDataFlights:", searchDataFlights);
@@ -234,7 +236,7 @@ export const CityList = ({ data }) => {
           />
         </View>
       )}
-      <View style={{ marginVertical: 5, marginLeft: 2 }}>
+      <View style={{ marginVertical: 5, textAlign: "center" }}>
         <Text className="font-normal text-lg text-gray-900">{item.name}</Text>
       </View>
     </TouchableOpacity>
@@ -248,6 +250,7 @@ export const CityList = ({ data }) => {
         keyExtractor={(item) => item.place_id}
         horizontal={true}
         showsHorizontalScrollIndicator={false}
+        removeClippedSubviews={false}
       />
       <TravelLoadingModal visible={isLoading} />
       <DatePickerModal
@@ -315,6 +318,7 @@ export const TopPicksCityList = ({ data }) => {
         },
         toLocation: toLocation.name,
         travelers,
+        currency: userLocation.currency || "USD",
       };
 
       // console.log("searchDataHotels:", searchDataHotels);
@@ -329,6 +333,7 @@ export const TopPicksCityList = ({ data }) => {
         travelers,
         tripType: "Round Trip",
         cabinClass: "economy",
+        currency: userLocation.currency || "USD",
       };
 
       console.log("searchDataFlights:", searchDataFlights);
@@ -439,6 +444,7 @@ export const TopPicksCityList = ({ data }) => {
         keyExtractor={(item) => item.name}
         horizontal={true}
         showsHorizontalScrollIndicator={false}
+        removeClippedSubviews={false}
       />
       <TravelLoadingModal visible={isLoading} />
       <DatePickerModal
@@ -578,6 +584,7 @@ export const ExploreFlatList = ({ category, onLoading }) => {
           },
           toLocation: userLocation.city,
           travelers,
+          currency: userLocation?.currency || "USD",
         };
         const hotelResults = await searchHotels(formatHotelSearchParams(searchDataHotels))
 
@@ -627,7 +634,7 @@ export const ExploreFlatList = ({ category, onLoading }) => {
                   width: Dimensions.get("window").width - 35,
                   height: 200,
                   borderRadius: 10,
-                  objectFit: "none",
+                  objectFit: "fit",
                 }}
                 className="object-contain"
               />
@@ -665,6 +672,7 @@ export const ExploreFlatList = ({ category, onLoading }) => {
         vertical={true}
         showsVerticalScrollIndicator={false}
         className="mr-5"
+        removeClippedSubviews={false}
       />
     </View>
   );
