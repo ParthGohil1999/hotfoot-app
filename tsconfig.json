@@ -4,7 +4,9 @@
     "strict": true,
     "allowJs": true,
     "noEmit": true,
-    "types": ["nativewind/types"],
+    "types": [
+      "nativewind/types"
+    ],
     "paths": {
       "@/*": [
         "./*"
@@ -16,8 +18,6 @@
     "**/*.tsx",
     "**/*.js",
     "**/*.jsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts",
     "app/_layout.jsx",
     "nativewind-env.d.ts",
     "app/hotel/[id].jsx",

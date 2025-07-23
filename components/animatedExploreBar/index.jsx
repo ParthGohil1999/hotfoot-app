@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     View,
     TextInput,
@@ -26,6 +26,8 @@ import {
 } from 'lucide-react-native';
 import ExploreCategory from './exploreCategory';
 import TripSearchPage from '../tripSearch/tripSearch';
+import { AudioModule } from 'expo-audio';
+import AiModal from './AiModal';
 
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -33,22 +35,41 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 export default function AnimatedExploreBar() {
     const inputRef = useRef(null);
     const [modalVisible, setModalVisible] = useState(false);
+    const [micPermission, setMicPermission] = useState(false);
 
     const handlePress = () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         setModalVisible(true);
     };
 
-    const unsplashImages = {
-        maldives: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?q=80&w=1000',
-        bali: 'https://images.unsplash.com/photo-1536599018102-9f803c140fc1?q=80&w=1000',
-        rome: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?q=80&w=1000',
-        greece: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?q=80&w=1000',
-        kyoto: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1000',
-        santorini: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?q=80&w=1000',
-        tulum: 'https://images.unsplash.com/photo-1682553264347-fcb536655475?q=80&w=1000',
+    const requestMicrophonePermission = async () => {
+        try {
+            console.log("Requesting microphone permission from index");
+            const status = await AudioModule.getRecordingPermissionsAsync();
+            console.log("Microphone permission status from index:", status);
+            if (!status.granted) {
+                const newStatus = await AudioModule.requestRecordingPermissionsAsync();
+                console.log("Microphone permission request status from index:", newStatus);
+                setMicPermission(newStatus.granted);
+                return newStatus.granted;
+            }
+            setMicPermission(true);
+            return true;
+        } catch (error) {
+            console.error("Microphone permission error from index:", error);
+            setMicPermission(false);
+            return false;
+        }
     };
 
+    useEffect(() => {
+        requestMicrophonePermission();
+    }, []);
+
+
+    useEffect(() => {
+        console.log('Connection state from index:', { micPermission });
+    }, [micPermission]);
 
 
 
@@ -60,12 +81,12 @@ export default function AnimatedExploreBar() {
                 activeOpacity={0.9}
             >
                 <View style={styles.inputRow}>
-                    <LinearGradient
+                    {/* <LinearGradient
                         colors={['black', 'black']}
                         style={styles.searchIconContainer}
                     >
                         <Search size={22} color="#FFFFFF" />
-                    </LinearGradient>
+                    </LinearGradient> */}
                     <View style={styles.input}>
                         <TextInput
                             ref={inputRef}
@@ -79,10 +100,12 @@ export default function AnimatedExploreBar() {
                 </View>
             </TouchableOpacity>
 
-            <SearchModal
+            <AiModal
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
-                tabName='Places' />
+                requestMicrophonePermission={requestMicrophonePermission}
+                micPermission={micPermission}
+            />
         </>
     );
 }
@@ -144,5 +167,5 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         marginTop: 10,
     },
-   
+
 });

@@ -14,7 +14,7 @@ import NearbyFlatLists from "@/components/nearbyFlatlists/nearbyFlatlists";
 
 const HomeScreen = () => {
   const renderHeader = () => (
-    <View className="flex container pl-5 pb-32">
+    <View className="flex container pl-5 ">
       <View className="mb-5">
         <AnimatedExploreBar />
       </View>
@@ -38,7 +38,7 @@ const HomeScreen = () => {
       <TopPicksCityList />
 
       {/* You can add more sections like NearbyFlatLists, etc., here */}
-       <NearbyFlatLists />
+       {/* <NearbyFlatLists /> */}
     </View>
   );
 

@@ -12,25 +12,13 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true,
-      "ios": {
-        "resourceClass": "default"
-      }
-    },
-    "testflight-debug": {
-      "extends": "production",
-      "channel": "testflight",
-      "env": {
-        "APP_ENV": "testflight",
-        "EXPO_DEBUG": "true"
-      }
+      "autoIncrement": true
     }
   },
   "submit": {
-    "production": {
-      "ios": {
-        "ascAppId": "127822936"
-      }
-    }
+    "production": {}
   }
 }
+
+
+

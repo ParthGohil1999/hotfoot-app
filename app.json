@@ -1,58 +1,53 @@
 {
   "expo": {
-    "name": "Hotfoot AI",
-    "slug": "hotfoot-ai",
-    "version": "1.0.1",
+    "name": "elevenlabs-conversational-ai-expo-react-native",
+    "owner": "parthgohil1999",
+    "slug": "elevenlabs-conversational-ai-expo-react-native",
+    "version": "1.0.0",
+    "scheme": "elevenlabs",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "cover",
+      "image": "./assets/images/icon.png",
+      "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "newArchEnabled": true,
     "ios": {
-      "supportsTablet": false,
-      "bundleIdentifier": "ai.hotfoot.app",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": [
-          "fetch"
-        ],
-        "NSLocationWhenInUseUsageDescription": "This app uses your location to provide better travel recommendations",
-        "NSPhotoLibraryUsageDescription": "This app uses photos to enhance your trip planning experience"
-      }
+        "NSMicrophoneUsageDescription": "This app uses the microphone to record audio.",
+        "NSCameraUsageDescription": "This app uses the camera to record video.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hotfoot.elevenlabs-conversational-ai-expo-react-native",
+      "appleTeamId": "J52PUM363V"
     },
     "android": {
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "softwareKeyboardLayoutMode": "pan",
-      "package": "ai.hotfoot.app"
+      "package": "com.hotfoot.elevenlabsconversationalaiexporeactnative"
     },
     "web": {
-      "bundler": "metro",
-      "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      "expo-router"
-    ],
-    "experiments": {
-      "typedRoutes": true
-    },
     "extra": {
-      "router": {
-        "origin": false
-      },
       "eas": {
-        "projectId": "ecbcdfe0-56cb-4c58-a349-f77cadce5f17"
+        "projectId": "178eaa27-6144-454b-8e63-a6af3b6b3030"
       }
     },
-    "owner": "hotfoot-ai",
-    "jsEngine": "jsc"
+    "runtimeVersion": "1.1.1",
+    "updates": {
+      "url": "https://u.expo.dev/178eaa27-6144-454b-8e63-a6af3b6b3030"
+    }
   }
 }
