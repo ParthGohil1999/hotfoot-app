@@ -20,7 +20,7 @@
         "NSCameraUsageDescription": "This app uses the camera to record video.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.hotfoot.elevenlabs-conversational-ai-expo-react-native",
       "appleTeamId": "J52PUM363V"
     },
