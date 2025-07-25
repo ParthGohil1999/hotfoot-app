@@ -24,6 +24,8 @@ const LocationPermission = () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
 
+      console.log("Location permission status:", status);
+
       if (status !== "granted") {
         setLocationPermission("denied");
         Alert.alert(

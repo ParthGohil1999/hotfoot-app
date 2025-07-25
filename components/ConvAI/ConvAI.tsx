@@ -40,11 +40,11 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
       console.log("Connected to ElevenLabs");
       onConnectionChange?.(true);
       onConnectionStatusChange?.('connected');
-      
+
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
-      
+
       // Start glow animation
       Animated.loop(
         Animated.sequence([
@@ -61,31 +61,31 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
         ])
       ).start();
     },
-    
+
     onDisconnect: () => {
       console.log("Disconnected from ElevenLabs");
       onConnectionChange?.(false);
       onConnectionStatusChange?.('disconnected');
       onListeningChange?.(false);
       setIsListening(false);
-      
+
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       }
-      
+
       // Stop animations
       glowAnim.stopAnimation();
       pulseAnim.stopAnimation();
       glowAnim.setValue(0);
       pulseAnim.setValue(1);
     },
-    
+
     onMessage: (message) => {
       console.log("ElevenLabs message:", message);
-      
+
       // Handle different message types from ElevenLabs
       let processedMessage: Message;
-      
+
       if (message.source === 'user') {
         // User's spoken message
         processedMessage = {
@@ -108,22 +108,22 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
           timestamp: Date.now(),
         };
       }
-      
+
       if (processedMessage.content.trim()) {
         onMessage(processedMessage);
       }
-      
+
       if (Platform.OS !== 'web') {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }
     },
-    
+
     onModeChange: (mode) => {
       console.log("Mode changed:", mode);
       const listening = mode?.mode === 'listening';
       setIsListening(listening);
       onListeningChange?.(listening);
-      
+
       if (listening) {
         // Start pulse animation
         Animated.loop(
@@ -140,7 +140,7 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
             }),
           ])
         ).start();
-        
+
         if (Platform.OS !== 'web') {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         }
@@ -154,11 +154,11 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
         }).start();
       }
     },
-    
+
     onError: (error) => {
       console.error("ElevenLabs error:", error);
       onConnectionStatusChange?.('disconnected');
-      
+
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
@@ -171,47 +171,34 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
       console.log("Cannot send empty message");
       return;
     }
-    
+
     if (conversation.status !== "connected") {
       console.log("Cannot send message - not connected. Status:", conversation.status);
       throw new Error("Not connected to voice service");
     }
-    
+
     try {
       console.log("Sending text message:", text);
-      
+
       // Add the user message to the chat immediately
-      onMessage({
+      await onMessage({
         role: 'user',
         content: text.trim(),
         timestamp: Date.now(),
       });
-      
-      // WORKAROUND: Since sendUserInput doesn't exist, we'll try to use Web Speech API
-      // to convert text to speech and play it as if it were user input
-      if (Platform.OS === 'web' && 'speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(text.trim());
-        utterance.volume = 0.01; // Very low volume to avoid audio feedback
-        utterance.rate = 1.5; // Faster speech
-        
-        // This is a hack and may not work reliably
-        window.speechSynthesis.speak(utterance);
-      } else {
-        // For non-web platforms, we can't send text messages
-        console.warn("Text message sending is not supported on this platform");
-        throw new Error("Text message sending is not supported on this platform");
-      }
-      
+
+      await conversation.sendUserMessage(text.trim());
+
       if (Platform.OS !== 'web') {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }
     } catch (error) {
       console.error("Failed to send text message:", error);
-      
+
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
-      
+
       throw error;
     }
   }, [conversation, onMessage]);
@@ -225,7 +212,7 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
     try {
       console.log("Starting ElevenLabs conversation");
       onConnectionStatusChange?.('connecting');
-      
+
       // Request microphone permission first
       // const hasPermission = await requestMicrophonePermission();
       // if (!hasPermission) {
@@ -233,12 +220,12 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
       //   onConnectionStatusChange?.('disconnected');
       //   return;
       // }
-      
+
       if (Platform.OS !== 'web') {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       }
-      
-      
+
+
       await conversation.startSession({
         agentId: "agent_01k00djfnseh6bd03gyt8d5kgs", //test acc
         // agentId: "agent_01jycqn1p5ek9tjw0erc5r329g", //main acc
@@ -256,7 +243,7 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
     } catch (error) {
       console.error("Failed to start conversation:", error);
       onConnectionStatusChange?.('disconnected');
-      
+
       if (Platform.OS !== 'web') {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
@@ -267,11 +254,11 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
     try {
       console.log("Stopping ElevenLabs conversation");
       onConnectionStatusChange?.('disconnected');
-      
+
       if (Platform.OS !== 'web') {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       }
-      
+
       await conversation.endSession();
     } catch (error) {
       console.error("Failed to stop conversation:", error);
@@ -313,7 +300,7 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
       >
         <View style={[styles.glowRing, isListening && styles.glowRingListening]} />
       </Animated.View>
-      
+
       <Animated.View
         style={[
           styles.buttonContainer,
