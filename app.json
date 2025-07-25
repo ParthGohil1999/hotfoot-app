@@ -18,7 +18,9 @@
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app uses the microphone to record audio.",
         "NSCameraUsageDescription": "This app uses the camera to record video.",
-        "NSLocationUsageDescription": "This app uses your location to provide personalized content.",
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to provide personalized travel recommendations and currency conversion based on your country.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses your location to provide personalized travel recommendations and currency conversion based on your country.",
+        "NSLocationAlwaysUsageDescription": "This app uses your location to provide personalized travel recommendations and currency conversion based on your country.",
         "ITSAppUsesNonExemptEncryption": false
       },
       "supportsTablet": false,
@@ -39,6 +41,8 @@
       "package": "com.hotfoot.elevenlabsconversationalaiexporeactnative"
     },
     "web": {
+      "bundler": "metro",
+      "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "extra": {
@@ -52,7 +56,15 @@
     },
     "plugins": [
       "expo-router",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "This app uses your location to provide personalized travel recommendations and currency conversion based on your country.",
+          "locationAlwaysPermission": "This app uses your location to provide personalized travel recommendations and currency conversion based on your country.",
+          "locationWhenInUsePermission": "This app uses your location to provide personalized travel recommendations and currency conversion based on your country."
+        }
+      ]
     ]
   }
 }
