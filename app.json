@@ -48,6 +48,7 @@
     "runtimeVersion": "1.1.1",
     "updates": {
       "url": "https://u.expo.dev/178eaa27-6144-454b-8e63-a6af3b6b3030"
-    }
+    },
+    "jsEngine": "jsc"
   }
 }
