@@ -1,6 +1,6 @@
 'use dom'
 
-import { useCallback, useEffect, useState, useImperativeHandle, forwardRef } from "react";
+import { useCallback, useEffect, useState, useImperativeHandle, forwardRef, use } from "react";
 import { useConversation } from "@elevenlabs/react";
 import { View, Pressable, StyleSheet, Animated, Platform } from "react-native";
 import { useRef } from "react";
@@ -12,6 +12,7 @@ interface ConvAiComponentProps {
   dom?: import("expo/dom").DOMProps;
   platform: "web" | "ios" | "android" | "windows" | "macos" | "linux";
   onMessage: (message: Message) => void;
+  messages: Message[];
   onConnectionChange?: (connected: boolean) => void;
   onConnectionStatusChange?: (status: 'disconnected' | 'connecting' | 'connected') => void;
   onListeningChange?: (listening: boolean) => void;
@@ -25,6 +26,7 @@ export interface ConvAiComponentRef {
 const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
   platform,
   onMessage,
+  messages,
   onConnectionChange,
   onConnectionStatusChange,
   onListeningChange,
@@ -34,6 +36,13 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
   const [isListening, setIsListening] = useState(false);
+
+  useEffect(() => {
+    // Reset animations on mount
+    if (messages && messages[messages.length - 1]?.type === "text") {
+      sendTextMessage(messages[messages.length - 1].content);
+    }
+  }, [messages]);
 
   const conversation = useConversation({
     onConnect: () => {
@@ -60,6 +69,7 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
           }),
         ])
       ).start();
+
     },
 
     onDisconnect: () => {
@@ -173,8 +183,16 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
     }
 
     if (conversation.status !== "connected") {
+      // try {
+      //   await startConversation(true);
+      // } catch (error) {
+
+      //   console.log("Cannot send message - not connected. Status:", conversation.status);
+      //   throw new Error("Not connected to voice service");
+      // }
+
       console.log("Cannot send message - not connected. Status:", conversation.status);
-      throw new Error("Not connected to voice service");
+        throw new Error("Not connected to voice service");
     }
 
     try {
@@ -204,11 +222,12 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
   }, [conversation, onMessage]);
 
   // Expose sendTextMessage method to parent (with limitations)
-  useImperativeHandle(ref, () => ({
-    sendTextMessage,
-  }), [sendTextMessage]);
+  // useImperativeHandle(ref, () => ({
+  //   sendTextMessage,
+  // }), [sendTextMessage, conversation.status !== "connected"]);
 
-  const startConversation = useCallback(async () => {
+  const startConversation = useCallback(async (textOnly = false) => {
+    
     try {
       console.log("Starting ElevenLabs conversation");
       onConnectionStatusChange?.('connecting');
@@ -238,7 +257,10 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
             console.log("Tool message:", message);
           },
         },
+        // textOnly: true, // Allow text-only mode
       });
+
+
 
     } catch (error) {
       console.error("Failed to start conversation:", error);

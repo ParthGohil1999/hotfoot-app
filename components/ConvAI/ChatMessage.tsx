@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.06)',
-    minWidth: 100,
+    minWidth: 200,
   },
   userVoiceMessage: {
     backgroundColor: '#4A4A4A',

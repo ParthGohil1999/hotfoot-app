@@ -5,18 +5,18 @@ import {
     Text,
     StyleSheet,
     ScrollView,
-    SafeAreaView,
     TextInput,
     TouchableOpacity,
     KeyboardAvoidingView,
     Platform,
     Dimensions,
-    Alert
+    Alert,
+    ActivityIndicator
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { ChatMessage, Message } from "../ConvAI/ChatMessage";
 import { useEffect, useState, useRef } from "react";
-import { Send, MessageSquare, Phone, PhoneOff, ArrowLeft } from "lucide-react-native";
+import { Send, Phone, ArrowLeft } from "lucide-react-native";
 import {
     useFonts,
     Inter_400Regular,
@@ -35,16 +35,79 @@ import Animated, {
     withTiming
 } from 'react-native-reanimated';
 import { BlurView } from "expo-blur";
-import ConvAiDOMComponent from "../ConvAI/ConvAI";
+import ConvAiComponent from "../ConvAI/ConvAI";
+// import { CactusLM, initLlama, LlamaContext, Tools } from 'cactus-react-native';
+import { testInitLlama, TestLlamaContext, Tools } from '@/utils/cactus/tools';
+import RNFS from 'react-native-fs';
+// import { useModelContext } from '@/contexts/modelContext';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export default function AiModal({ visible, onClose, micPermission }) {
     const [modalVisible, setModalVisible] = useState(visible);
+    const [lm, setLM] = useState<TestLlamaContext | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isGenerating, setIsGenerating] = useState(false);
+
+    const tools = new Tools();
+
+    tools.add(
+        async function writeDraftEmail(subject: string) {
+            console.log("<=========Executing function===========>");
+            console.log("Writing draft email with subject:", subject);
+            return { subject: subject, emailWritten: true };
+        },
+        "Suggests to write a draft email. Use this if you think you'll save the user time by writing a draft email. If in doubt, call!",
+        {
+            subject: {
+                type: "string",
+                description: "The subject of the email",
+                required: true
+            }
+        },
+    );
+
+    tools.add(
+        async function setReminder(date: string, message: string) {
+            //   setRecommendedActions([...recommendedActions, {id: uuid.v4(), title: 'Set a reminder', description: message, icon: Calendar, accepted: false}]);
+            console.log("<=========Executing function===========>");
+            console.log("Setting reminder with dat and message: ", date, message);
+            return { date: date, message: message, reminderSet: true };
+        },
+        "Suggests to set a reminder for a specific date. Use this if the user's input indicates that they would want to be reminded of something at a specific date and time. If in doubt, call!",
+        {
+            date: {
+                type: "string",
+                description: "The date and time to set the reminder for",
+                required: true
+            },
+            message: {
+                type: "string",
+                description: "The message to set the reminder for",
+                required: true
+            }
+        }
+    );
+
+
+    // const {
+    //     selectedModel,
+    //     tokenGenerationLimit,
+    //     isReasoningEnabled,
+    //     cactusContext,
+    //     conversationId
+    // } = useModelContext();
 
     useEffect(() => {
         setModalVisible(visible);
     }, [visible]);
+
+    useEffect(() => {
+        initializeModel();
+        return () => {
+            lm?.release();
+        };
+    }, []);
 
     const [micPermissionGranted, setMicPermissionGranted] = useState(micPermission);
     const [messages, setMessages] = useState<Message[]>([]);
@@ -62,6 +125,47 @@ export default function AiModal({ visible, onClose, micPermission }) {
     const chatOpacity = useSharedValue(0);
     const inputOpacity = useSharedValue(0);
     const statusPulse = useSharedValue(0);
+
+    const initializeModel = async () => {
+        try {
+            const modelUrl = 'https://huggingface.co/Cactus-Compute/Qwen3-600m-Instruct-GGUF/resolve/main/Qwen3-0.6B-Q8_0.gguf';
+            const filename = 'Qwen3-0.6B-Q8_0.gguf';
+            const modelPath = await downloadModel(modelUrl, filename);
+            console.log('Initializing Model: =======>', modelPath, filename);
+            const context = await testInitLlama({
+                model: modelPath,
+                use_mlock: true,
+                n_ctx: 2048,
+                n_threads: 4,
+                n_gpu_layers: 99,
+            });
+            // if (error) throw error;
+            setLM(context);
+
+        } catch (error) {
+            console.error('Failed to initialize model:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const downloadModel = async (url: string, filename: string): Promise<string> => {
+        const path = `${RNFS.DocumentDirectoryPath}/${filename}`;
+
+        if (await RNFS.exists(path)) return path;
+
+        console.log('Downloading model...');
+        await RNFS.downloadFile({
+            fromUrl: url,
+            toFile: path,
+            progress: (res) => {
+                const progress = res.bytesWritten / res.contentLength;
+                console.log(`Download progress: ${(progress * 100).toFixed(1)}%`);
+            },
+        }).promise;
+
+        return path;
+    };
 
     const requestMicrophonePermissionAgain = async () => {
         try {
@@ -159,41 +263,115 @@ export default function AiModal({ visible, onClose, micPermission }) {
     };
 
     const handleSendMessage = async () => {
-        if (!textInput.trim()) {
-            console.log("No text to send");
-            return;
-        }
-        
-        if (!convAiRef.current) {
-            console.error("ConvAI ref is not available");
-            Alert.alert("Error", "Voice system not ready");
-            return;
-        }
 
-        if (!isConnected) {
-            console.error("Not connected to voice service");
-            Alert.alert("Error", "Please connect to voice service first");
-            return;
-        }
+        if (textInput.trim() && convAiRef.current && isConnected) {
+            const messageText = textInput.trim();
+            setTextInput('');
 
-        const messageText = textInput.trim();
-        setTextInput('');
+            // Add user message to chat immediately
+            const userMessage: Message = {
+                role: 'user',
+                content: messageText,
+                timestamp: Date.now(),
+                type: 'text'
+            };
+            handleMessage(userMessage);
 
-        try {
-            await convAiRef.current.sendTextMessage(messageText);
-            console.log("Text message sent successfully");
-        } catch (error) {
-            console.error("Failed to send message:", error);
-            Alert.alert("Error", "Failed to send message. Please try again.");
-            
-            // Restore the text input if sending failed
-            setTextInput(messageText);
-        }
+            // Send to ElevenLabs
+            // try {
+            //     await convAiRef.current.sendTextMessage(messageText);
+            // } catch (error) {
+            //     console.error("Failed to send message:", error);
+            //     Alert.alert("Error", "Failed to send message");
+            // }
 
-        if (Platform.OS !== 'web') {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            if (Platform.OS !== 'web') {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }
+        } else {
+            // if (!lm || !textInput.trim() || isGenerating) return;
+
+            const formattedTextInput = textInput.trim();
+
+            const userMessage: Message = { role: 'user', content: `/no_think ${formattedTextInput}\n`, timestamp: Date.now() };
+            const newMessages = [...messages, userMessage];
+            setMessages([...newMessages, { role: 'assistant', content: '', timestamp: Date.now() }]);
+            setTextInput('');
+            // handleMessage(userMessage);
+            setIsGenerating(true);
+
+            const stopWords = ['</s>', '<|end|>', '<|eot_id|>', '<|end_of_text|>',
+                '<|im_end|>', '<|EOT|>', '<|END_OF_TURN_TOKEN|>',
+                '<|end_of_turn|>', '<|endoftext|>', '<end_of_turn>', '<|end_of_sentence|>'];
+
+            const formattedMessages = [
+                {
+                    role: 'system',
+                    content: `Your name is Dora, a very capable AI assistant running locally on a smartphone with with tool calling.}`
+                },
+                // ...newMessages.map(msg => ({ // Use messages instead of newMessages
+                //     role: msg.role,
+                //     content: msg.content
+                // })),
+                userMessage // Add current user message
+            ];
+
+            console.log("Formatted messages for generation:", formattedMessages);
+
+            try {
+                let response = '';
+                let insideThinkTags = false;
+                const result = await lm?.completionWithAutoToolCall({
+                    messages: formattedMessages,
+                    temperature: 0.7,
+                    n_predict: 200,
+                    tools: tools,
+                    jinja: true,
+                    tool_choice: 'auto',
+                    parallel_tool_calls: tools,
+                    stop: stopWords,
+                }, (content) => {
+                    console.log("Token received:", content);
+                    response += content.token;
+                    let cleanedResponse = response
+                        .replace(/<think>.*?<\/think>/gs, '')
+                        .replace(/<tool_call>.*?<\/tool_call>/gs, '')
+                        .trim();
+
+                    setMessages(prev => [
+                        ...prev.slice(0, -1),
+                        { role: 'assistant', content: cleanedResponse }
+                    ]);
+                }
+
+                );
+
+                // if (result.content) {
+                //     const finalContent = result.content.trim();
+                // } else{
+                //     const finalContent = JSON.stringify(result.content.tool_response.trim());
+                // }
+
+                // const finalContent = result.content.trim();
+                // setMessages(prev => [
+                //     ...prev.slice(0, -1),
+                //     { role: 'assistant', content: finalContent }
+                // ]);
+
+                console.log("Response from model:", result);
+            } catch (error) {
+                console.error('Generation failed:', error);
+                setMessages(prev => [
+                    ...prev.slice(0, -1),
+                    { role: 'assistant', content: 'Error generating response' }
+                ]);
+            } finally {
+                setIsGenerating(false);
+            }
         }
     };
+
+
 
     const getStatusText = () => {
         if (isListening) return 'Listening...';
@@ -240,6 +418,15 @@ export default function AiModal({ visible, onClose, micPermission }) {
         return null;
     }
 
+    if (isLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" />
+                <Text style={{ marginTop: 16 }}>Loading model...</Text>
+            </View>
+        );
+    }
+
     return (
         <Modal
             visible={modalVisible}
@@ -251,7 +438,7 @@ export default function AiModal({ visible, onClose, micPermission }) {
             <BlurView intensity={20} tint="light" style={StyleSheet.absoluteFill} />
 
             <View style={styles.header}>
-                
+
             </View>
             {/* Categories section with enhanced UI */}
             {/* <Text style={styles.sectionTitle}>Explore by Category</Text> */}
@@ -336,15 +523,15 @@ export default function AiModal({ visible, onClose, micPermission }) {
                                 onBlur={() => setIsTyping(false)}
                                 onSubmitEditing={handleSendMessage}
                                 returnKeyType="send"
-                                // editable={isConnected}
+                            // editable={isConnected}
                             />
                             <TouchableOpacity
                                 style={[styles.sendButton, textInput.trim() && isConnected && styles.sendButtonActive]}
                                 onPress={handleSendMessage}
-                                disabled={!textInput.trim() || !isConnected}
+                            // disabled={!textInput.trim() || !isConnected}
                             >
                                 <Send
-                                    size={18}
+                                    size={20}
                                     color={textInput.trim() && isConnected ? "#FFFFFF" : "#666666"}
                                     strokeWidth={2}
                                 />
@@ -354,11 +541,12 @@ export default function AiModal({ visible, onClose, micPermission }) {
                         {/* Voice Button */}
                         {micPermissionGranted && (
                             <View style={styles.voiceButtonContainer}>
-                                <ConvAiDOMComponent
+                                <ConvAiComponent
                                     ref={convAiRef}
                                     dom={{ style: styles.domComponent }}
                                     platform={Platform.OS}
                                     onMessage={handleMessage}
+                                    messages={messages}
                                     onConnectionChange={handleConnectionChange}
                                     onConnectionStatusChange={handleConnectionStatusChange}
                                     onListeningChange={handleListeningChange}
