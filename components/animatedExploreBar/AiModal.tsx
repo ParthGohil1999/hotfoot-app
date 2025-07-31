@@ -74,7 +74,7 @@ export default function AiModal({ visible, onClose, micPermission }) {
             console.log("Setting reminder with dat and message: ", date, message);
             return { date: date, message: message, reminderSet: true };
         },
-        "Suggests to set a reminder for a specific date. Use this if the user's input indicates that they would want to be reminded of something at a specific date and time. If in doubt, call!",
+        "Suggests to set a reminder for a specific date and time. Use this if the user's input indicates that they would want to be reminded of something at a specific date and time. if the user have not mentioned the date and time if ask them, if they say set the reminder in 10 mins then use the current date and time and caculate what will after 1omins and set it, If in doubt, call!",
         {
             date: {
                 type: "string",
@@ -128,8 +128,8 @@ export default function AiModal({ visible, onClose, micPermission }) {
 
     const initializeModel = async () => {
         try {
-            const modelUrl = 'https://huggingface.co/Cactus-Compute/Qwen3-600m-Instruct-GGUF/resolve/main/Qwen3-0.6B-Q8_0.gguf';
-            const filename = 'Qwen3-0.6B-Q8_0.gguf';
+            const modelUrl = 'https://huggingface.co/Cactus-Compute/Qwen3-1.7B-Instruct-GGUF/resolve/main/Qwen3-1.7B-Q4_K_M.gguf';
+            const filename = 'Qwen3-1.7B-Q4_K_M.gguf';
             const modelPath = await downloadModel(modelUrl, filename);
             console.log('Initializing Model: =======>', modelPath, filename);
             const context = await testInitLlama({
@@ -293,7 +293,7 @@ export default function AiModal({ visible, onClose, micPermission }) {
 
             const formattedTextInput = textInput.trim();
 
-            const userMessage: Message = { role: 'user', content: `/no_think ${formattedTextInput}\n`, timestamp: Date.now() };
+            const userMessage: Message = { role: 'user', content: formattedTextInput, timestamp: Date.now() };
             const newMessages = [...messages, userMessage];
             setMessages([...newMessages, { role: 'assistant', content: '', timestamp: Date.now() }]);
             setTextInput('');
@@ -307,13 +307,13 @@ export default function AiModal({ visible, onClose, micPermission }) {
             const formattedMessages = [
                 {
                     role: 'system',
-                    content: `Your name is Dora, a very capable AI assistant running locally on a smartphone with with tool calling.}`
+                    content: `Your name is Dora, a very capable AI assistant running locally on a smartphone with with tool calling. Please do not output what you are thinking, you are allowed to think but only output the content nad not the whole token generation like role or any tags like <think>,</think>,<tool_call>,</tool_call>, etc. Output the summary of your response content only.}`
                 },
                 // ...newMessages.map(msg => ({ // Use messages instead of newMessages
                 //     role: msg.role,
                 //     content: msg.content
                 // })),
-                userMessage // Add current user message
+                { role: 'user', content: `/no_think ${formattedTextInput}\n` } // Add current user message
             ];
 
             console.log("Formatted messages for generation:", formattedMessages);
