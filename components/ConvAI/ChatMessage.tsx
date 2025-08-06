@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 export interface Message {
+  id?: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp?: number;
@@ -23,6 +24,7 @@ interface ChatMessageProps {
 }
 
 export function ChatMessage({ message, index }: ChatMessageProps) {
+  
   const isUser = message?.role === 'user';
   const isVoiceMessage = message.type === 'voice' || message.type === 'user_transcript' || message.type === 'agent_response' || message.type === 'audio';
   

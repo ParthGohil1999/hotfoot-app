@@ -36,6 +36,7 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
   const [isListening, setIsListening] = useState(false);
+  
 
   useEffect(() => {
     // Reset animations on mount

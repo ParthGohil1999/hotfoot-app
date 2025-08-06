@@ -42,7 +42,7 @@ const LoginScreen = () => {
         if (createdSessionId && setActive) {
           setActive({ session: createdSessionId });
           router.push({
-            pathname: "/preferences/travelPreferences",
+            pathname: "/preferences/downloadModelsScreen",
             params: {
               flow: "onboarding",
               returnPath: null,

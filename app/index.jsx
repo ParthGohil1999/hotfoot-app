@@ -11,18 +11,19 @@ const home = () => {
     <View>
       <SignedIn>
 
-        {userLocation ? (
+        {/* {userLocation ? (
           <Redirect href="/(tabs)/home" />
           // <Redirect href="/preferences/personalTouch" />
-        ) : (
-          <Redirect href="/preferences/locationPermission" />
-        )}
+          ) : (
+            <Redirect href="/preferences/locationPermission" />
+            )} */}
+        <Redirect href="/(tabs)/home" />
         {/* <Redirect href={"/hotel/dummyPage"} /> */}
         {/* < Redirect href={'/hotel/[id]'} /> */}
         {/* < Redirect href={'/place/cityDetails'} /> */}
       </SignedIn>
       <SignedOut>
-        <Redirect href={"/onboarding"} />
+        <Redirect href={"/auth"} />
       </SignedOut>
     </View>
   );

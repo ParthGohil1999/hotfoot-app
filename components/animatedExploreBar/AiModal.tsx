@@ -16,7 +16,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { ChatMessage, Message } from "../ConvAI/ChatMessage";
 import { useEffect, useState, useRef } from "react";
-import { Send, Phone, ArrowLeft } from "lucide-react-native";
+import { Send, Phone, ArrowLeft, Menu } from "lucide-react-native";
 import {
     useFonts,
     Inter_400Regular,
@@ -34,47 +34,67 @@ import Animated, {
     interpolate,
     withTiming
 } from 'react-native-reanimated';
+import { Sidebar } from '../../components/sidebar/Sidebar';
+import { useChatHistory } from '../../hooks/useChatHistory';
 import { BlurView } from "expo-blur";
+import { useNavigation } from 'expo-router';
 import ConvAiComponent from "../ConvAI/ConvAI";
-// import { CactusLM, initLlama, LlamaContext, Tools } from 'cactus-react-native';
-import { testInitLlama, TestLlamaContext, Tools } from '@/utils/cactus/tools';
+import { CactusAgent, CactusLM, initLlama, LlamaContext, Tools } from 'cactus-react-native';
 import RNFS from 'react-native-fs';
-// import { useModelContext } from '@/contexts/modelContext';
+import { SafeAreaView } from "react-native-safe-area-context";
+import { add } from "date-fns";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export default function AiModal({ visible, onClose, micPermission }) {
     const [modalVisible, setModalVisible] = useState(visible);
-    const [lm, setLM] = useState<TestLlamaContext | null>(null);
+    const [lm, setLM] = useState<CactusAgent | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [sidebarVisible, setSidebarVisible] = useState(false);
+    const navigation = useNavigation()
+
+    // Chat history management
+    const {
+        chats,
+        currentChatId,
+        currentMessages,
+        createNewChat,
+        selectChat,
+        addMessage,
+        deleteChat,
+    } = useChatHistory();
 
     const tools = new Tools();
 
-    tools.add(
-        async function writeDraftEmail(subject: string) {
+    lm?.addTool(
+        async function writeDraftEmail(subject: string, body: string) {
             console.log("<=========Executing function===========>");
-            console.log("Writing draft email with subject:", subject);
-            return { subject: subject, emailWritten: true };
+            console.log("Writing and sending email with subject and body:", `Subject : ${subject}`, `Body : ${body}`);
+            return { content: `Email sent succefully with Subject: ${subject} and Email Body: ${body}` };
         },
-        "Suggests to write a draft email. Use this if you think you'll save the user time by writing a draft email. If in doubt, call!",
+        "Suggests to write, draft and send an email. Use this if you think you'll save the user time by writing an email and then sending it, make sure if the subject and body is not mentioned then ask them what content would they like to add, and generate the subject and email body accordingly. CAUTION!!! BEFORE YOU USE THIS TOOL PLEASE ACKNOWLEGE THE USER WHETHER TO SEND THE EMAIL YOU HAVE GENERATED TO HELP THEM SAVE TIME. If in doubt, ask!",
         {
             subject: {
                 type: "string",
                 description: "The subject of the email",
                 required: true
+            },
+            body: {
+                type: "string",
+                description: "The body content of the email",
+                required: true
             }
         },
     );
 
-    tools.add(
+    lm?.addTool(
         async function setReminder(date: string, message: string) {
-            //   setRecommendedActions([...recommendedActions, {id: uuid.v4(), title: 'Set a reminder', description: message, icon: Calendar, accepted: false}]);
             console.log("<=========Executing function===========>");
             console.log("Setting reminder with dat and message: ", date, message);
             return { date: date, message: message, reminderSet: true };
         },
-        "Suggests to set a reminder for a specific date and time. Use this if the user's input indicates that they would want to be reminded of something at a specific date and time. if the user have not mentioned the date and time if ask them, if they say set the reminder in 10 mins then use the current date and time and caculate what will after 1omins and set it, If in doubt, call!",
+        "Suggests to set a reminder for a specific date. Use this if the user's input indicates that they would want to be reminded of something at a specific date and time. If in doubt, call!",
         {
             date: {
                 type: "string",
@@ -89,15 +109,6 @@ export default function AiModal({ visible, onClose, micPermission }) {
         }
     );
 
-
-    // const {
-    //     selectedModel,
-    //     tokenGenerationLimit,
-    //     isReasoningEnabled,
-    //     cactusContext,
-    //     conversationId
-    // } = useModelContext();
-
     useEffect(() => {
         setModalVisible(visible);
     }, [visible]);
@@ -110,7 +121,7 @@ export default function AiModal({ visible, onClose, micPermission }) {
     }, []);
 
     const [micPermissionGranted, setMicPermissionGranted] = useState(micPermission);
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [messages, setMessages] = useState<Message[]>([...currentMessages]);
     const [isConnected, setIsConnected] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [textInput, setTextInput] = useState('');
@@ -128,19 +139,26 @@ export default function AiModal({ visible, onClose, micPermission }) {
 
     const initializeModel = async () => {
         try {
-            const modelUrl = 'https://huggingface.co/Cactus-Compute/Qwen3-1.7B-Instruct-GGUF/resolve/main/Qwen3-1.7B-Q4_K_M.gguf';
-            const filename = 'Qwen3-1.7B-Q4_K_M.gguf';
+            const modelUrl = 'https://huggingface.co/Qwen/Qwen3-1.7B-GGUF/resolve/main/Qwen3-1.7B-Q8_0.gguf';
+            const filename = 'Qwen3-1.7B-Q8_0.gguf';
             const modelPath = await downloadModel(modelUrl, filename);
+
+            if (!modelPath) {
+                console.log('Model download required, stopping initialization');
+                setIsLoading(false);
+                return;
+            }
+
             console.log('Initializing Model: =======>', modelPath, filename);
-            const context = await testInitLlama({
+            const { agent, error } = await CactusAgent.init({
                 model: modelPath,
                 use_mlock: true,
                 n_ctx: 2048,
                 n_threads: 4,
                 n_gpu_layers: 99,
             });
-            // if (error) throw error;
-            setLM(context);
+            if (error) throw error;
+            setLM(agent);
 
         } catch (error) {
             console.error('Failed to initialize model:', error);
@@ -149,22 +167,19 @@ export default function AiModal({ visible, onClose, micPermission }) {
         }
     };
 
-    const downloadModel = async (url: string, filename: string): Promise<string> => {
+    const downloadModel = async (url: string, filename: string): Promise<string | null> => {
         const path = `${RNFS.DocumentDirectoryPath}/${filename}`;
 
-        if (await RNFS.exists(path)) return path;
+        const fileExists = await RNFS.exists(path);
+        if (fileExists) {
+            console.log('Model file found at:', path);
+            return path;
+        }
 
-        console.log('Downloading model...');
-        await RNFS.downloadFile({
-            fromUrl: url,
-            toFile: path,
-            progress: (res) => {
-                const progress = res.bytesWritten / res.contentLength;
-                console.log(`Download progress: ${(progress * 100).toFixed(1)}%`);
-            },
-        }).promise;
+        console.log('Model file not found, navigating to download screen');
+        navigation.navigate('preferences/downloadModelsScreen', { screen: 'home' });
 
-        return path;
+        return null;
     };
 
     const requestMicrophonePermissionAgain = async () => {
@@ -197,13 +212,11 @@ export default function AiModal({ visible, onClose, micPermission }) {
     useEffect(() => {
         requestMicrophonePermissionAgain();
 
-        // Entrance animations
         headerOpacity.value = withDelay(200, withSpring(1, { damping: 15 }));
         chatOpacity.value = withDelay(400, withSpring(1, { damping: 15 }));
         inputOpacity.value = withDelay(600, withSpring(1, { damping: 15 }));
     }, []);
 
-    // Add this for debugging
     useEffect(() => {
         console.log('Connection state:', { isConnected, connectionStatus, micPermissionGranted });
     }, [isConnected, connectionStatus, micPermissionGranted]);
@@ -214,7 +227,20 @@ export default function AiModal({ visible, onClose, micPermission }) {
                 scrollViewRef.current?.scrollToEnd({ animated: true });
             }, 100);
         }
+
     }, [messages]);
+
+    useEffect(() => {
+        console.log('Current messages :', currentMessages);
+        setTimeout(() => {
+            setMessages(
+
+
+                [...currentMessages]
+            );
+
+        }, 100);
+    }, [currentMessages, currentChatId]);
 
     useEffect(() => {
         if (isConnected) {
@@ -244,10 +270,30 @@ export default function AiModal({ visible, onClose, micPermission }) {
         setIsListening(listening);
     };
 
+    const handleNewChat = () => {
+        const newChatId = createNewChat();
+        console.log('Created new chat:', newChatId);
+    };
+
+    const handleChatSelect = async (chatId: string) => {
+        await selectChat(chatId);
+        console.log('Selected chat:', chatId);
+    };
+
+    const handleDeleteChat = (chatId: string) => {
+        deleteChat(chatId);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        console.log('Deleted chat:', chatId);
+    };
+
+    const handleSettingsPress = () => {
+        navigation.navigate('(tabs)/settings');
+    };
+
     const handleMessage = (message: Message) => {
         console.log("Received message:", message);
+        addMessage(message);
         setMessages(prev => {
-            // Prevent duplicate messages
             const isDuplicate = prev.some(msg =>
                 msg.content === message.content &&
                 msg.role === message.role &&
@@ -263,12 +309,10 @@ export default function AiModal({ visible, onClose, micPermission }) {
     };
 
     const handleSendMessage = async () => {
-
         if (textInput.trim() && convAiRef.current && isConnected) {
             const messageText = textInput.trim();
             setTextInput('');
 
-            // Add user message to chat immediately
             const userMessage: Message = {
                 role: 'user',
                 content: messageText,
@@ -277,28 +321,26 @@ export default function AiModal({ visible, onClose, micPermission }) {
             };
             handleMessage(userMessage);
 
-            // Send to ElevenLabs
-            // try {
-            //     await convAiRef.current.sendTextMessage(messageText);
-            // } catch (error) {
-            //     console.error("Failed to send message:", error);
-            //     Alert.alert("Error", "Failed to send message");
-            // }
-
             if (Platform.OS !== 'web') {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             }
         } else {
-            // if (!lm || !textInput.trim() || isGenerating) return;
+            if (!lm || !textInput.trim() || isGenerating) return;
 
             const formattedTextInput = textInput.trim();
-
             const userMessage: Message = { role: 'user', content: formattedTextInput, timestamp: Date.now() };
             const newMessages = [...messages, userMessage];
-            setMessages([...newMessages, { role: 'assistant', content: '', timestamp: Date.now() }]);
+
+            const loadingMessage: Message = {
+                role: 'assistant',
+                content: "Preparing response...",
+                timestamp: Date.now()
+            };
+            setMessages([...newMessages, loadingMessage]);
             setTextInput('');
-            // handleMessage(userMessage);
             setIsGenerating(true);
+
+
 
             const stopWords = ['</s>', '<|end|>', '<|eot_id|>', '<|end_of_text|>',
                 '<|im_end|>', '<|EOT|>', '<|END_OF_TURN_TOKEN|>',
@@ -307,13 +349,39 @@ export default function AiModal({ visible, onClose, micPermission }) {
             const formattedMessages = [
                 {
                     role: 'system',
-                    content: `Your name is Dora, a very capable AI assistant running locally on a smartphone with with tool calling. Please do not output what you are thinking, you are allowed to think but only output the content nad not the whole token generation like role or any tags like <think>,</think>,<tool_call>,</tool_call>, etc. Output the summary of your response content only.}`
+                    content: `You are Dora, a capable AI assistant helping people to ease their life with answering their questions and performing tasks and running locally on a smartphone. You help users with legitimate tasks while maintaining high ethical standards.
+
+CORE CAPABILITIES:
+- Answer questions using your knowledge base
+- Help with writing, analysis, and problem-solving
+- Provide information on general topics
+- Assist with productivity tasks like scheduling, reminders, and organization
+- Offer technical guidance within your expertise
+
+SAFETY GUARDRAILS:
+- Do not generate harmful, illegal, or unethical content
+- Refuse requests for dangerous instructions (weapons, drugs, hacking)
+- Do not provide medical, legal, or financial advice requiring professional expertise
+- Do not impersonate real people or organizations
+- Avoid generating misleading or false information
+
+RESPONSE GUIDELINES:
+- Be helpful, accurate, and concise given mobile context
+- Acknowledge when you're uncertain or lack information
+- Suggest appropriate alternatives when you cannot fulfill a request
+- Maintain a friendly but professional tone
+- Consider mobile device limitations (shorter responses when appropriate)
+
+LOCAL OPERATION:
+- All processing occurs on-device for privacy
+- No external data transmission without explicit user consent
+- Respect device resources and battery life`
                 },
-                // ...newMessages.map(msg => ({ // Use messages instead of newMessages
-                //     role: msg.role,
-                //     content: msg.content
-                // })),
-                { role: 'user', content: `/no_think ${formattedTextInput}\n` } // Add current user message
+                ...newMessages.slice(-10).map(msg => ({
+                    role: msg.role,
+                    content: msg.content
+                })),
+                { role: 'user', content: `/no_think ${formattedTextInput}\n` }
             ];
 
             console.log("Formatted messages for generation:", formattedMessages);
@@ -321,57 +389,113 @@ export default function AiModal({ visible, onClose, micPermission }) {
             try {
                 let response = '';
                 let insideThinkTags = false;
-                const result = await lm?.completionWithAutoToolCall({
-                    messages: formattedMessages,
-                    temperature: 0.7,
-                    n_predict: 200,
-                    tools: tools,
+                let insideToolCallTags = false;
+                let currentLoadingMessage = "Preparing response...";
+
+                const result = await lm?.completionWithTools(formattedMessages, {
+                    temperature: 0.9,
+                    n_predict: 256,
                     jinja: true,
-                    tool_choice: 'auto',
-                    parallel_tool_calls: tools,
                     stop: stopWords,
                 }, (content) => {
                     console.log("Token received:", content);
                     response += content.token;
-                    let cleanedResponse = response
-                        .replace(/<think>.*?<\/think>/gs, '')
-                        .replace(/<tool_call>.*?<\/tool_call>/gs, '')
-                        .trim();
 
-                    setMessages(prev => [
-                        ...prev.slice(0, -1),
-                        { role: 'assistant', content: cleanedResponse }
-                    ]);
-                }
+                    if (content.token.includes('<think>')) {
+                        insideThinkTags = true;
+                        const newLoadingMessage = "Dora is thinking...";
+                        if (currentLoadingMessage !== newLoadingMessage) {
+                            currentLoadingMessage = newLoadingMessage;
+                            setMessages(prev => [
+                                ...prev.slice(0, -1),
+                                { role: 'assistant', content: currentLoadingMessage, timestamp: Date.now() }
+                            ]);
+                        }
+                    } else if (content.token.includes('</think>')) {
+                        insideThinkTags = false;
+                    }
 
-                );
+                    if (content.token.includes('<tool_call>')) {
+                        insideToolCallTags = true;
+                        const newLoadingMessage = "Calling tools...";
+                        if (currentLoadingMessage !== newLoadingMessage) {
+                            currentLoadingMessage = newLoadingMessage;
+                            setMessages(prev => [
+                                ...prev.slice(0, -1),
+                                { role: 'assistant', content: currentLoadingMessage, timestamp: Date.now() }
+                            ]);
+                        }
+                    } else if (content.token.includes('</tool_call>')) {
+                        insideToolCallTags = false;
+                        const newLoadingMessage = "Processing response...";
+                        if (currentLoadingMessage !== newLoadingMessage) {
+                            currentLoadingMessage = newLoadingMessage;
+                            setMessages(prev => [
+                                ...prev.slice(0, -1),
+                                { role: 'assistant', content: currentLoadingMessage, timestamp: Date.now() }
+                            ]);
+                        }
+                    }
 
-                // if (result.content) {
-                //     const finalContent = result.content.trim();
-                // } else{
-                //     const finalContent = JSON.stringify(result.content.tool_response.trim());
+                    if (insideThinkTags && currentLoadingMessage !== "Dora is thinking...") {
+                        currentLoadingMessage = "Dora is thinking...";
+                        setMessages(prev => [
+                            ...prev.slice(0, -1),
+                            { role: 'assistant', content: currentLoadingMessage, timestamp: Date.now() }
+                        ]);
+                    } else if (insideToolCallTags && currentLoadingMessage !== "Calling tools...") {
+                        currentLoadingMessage = "Calling tools...";
+                        setMessages(prev => [
+                            ...prev.slice(0, -1),
+                            { role: 'assistant', content: currentLoadingMessage, timestamp: Date.now() }
+                        ]);
+                    } else if (!insideThinkTags && !insideToolCallTags && response.includes('Your') && currentLoadingMessage !== "Generating response...") {
+                        currentLoadingMessage = "Generating response...";
+                        setMessages(prev => [
+                            ...prev.slice(0, -1),
+                            { role: 'assistant', content: currentLoadingMessage, timestamp: Date.now() }
+                        ]);
+                    }
+                });
+
+                let cleanedResponse = response
+                    .replace(/<think>.*?<\/think>/gs, '')
+                    .replace(/<tool_call>.*?<\/tool_call>/gs, '')
+                    .trim();
+
+                const finalMessage: Message = {
+                    role: 'assistant',
+                    content: cleanedResponse,
+                    timestamp: Date.now()
+                };
+
+                setMessages(prev => [
+                    ...prev.slice(0, -1),
+                    finalMessage
+                ]);
+
+                // Create new chat if this is the first message or no current chat
+                addMessage(userMessage)
+
+                addMessage(finalMessage);
+
+                // // Update chat history with the assistant's response
+                // if (currentChatId) {
+                //     saveChatMessages(currentChatId, cleanedResponse);
                 // }
-
-                // const finalContent = result.content.trim();
-                // setMessages(prev => [
-                //     ...prev.slice(0, -1),
-                //     { role: 'assistant', content: finalContent }
-                // ]);
 
                 console.log("Response from model:", result);
             } catch (error) {
                 console.error('Generation failed:', error);
                 setMessages(prev => [
                     ...prev.slice(0, -1),
-                    { role: 'assistant', content: 'Error generating response' }
+                    { role: 'assistant', content: 'Error generating response', timestamp: Date.now() }
                 ]);
             } finally {
                 setIsGenerating(false);
             }
         }
     };
-
-
 
     const getStatusText = () => {
         if (isListening) return 'Listening...';
@@ -420,29 +544,15 @@ export default function AiModal({ visible, onClose, micPermission }) {
 
     if (isLoading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" />
-                <Text style={{ marginTop: 16 }}>Loading model...</Text>
-            </View>
+            <LinearGradient colors={["#0A0A0A", "#1A1A1A", "#0A0A0A"]} style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#FFFFFF" />
+                <Text style={styles.loadingText}>Loading model...</Text>
+            </LinearGradient>
         );
     }
 
     return (
-        <Modal
-            visible={modalVisible}
-            animationType="slide"
-            transparent
-            onRequestClose={onClose}
-            statusBarTranslucent
-        >
-            <BlurView intensity={20} tint="light" style={StyleSheet.absoluteFill} />
-
-            <View style={styles.header}>
-
-            </View>
-            {/* Categories section with enhanced UI */}
-            {/* <Text style={styles.sectionTitle}>Explore by Category</Text> */}
-
+        <SafeAreaView style={styles.container}>
             <LinearGradient
                 colors={["#0A0A0A", "#1A1A1A", "#0A0A0A"]}
                 style={StyleSheet.absoluteFill}
@@ -452,18 +562,18 @@ export default function AiModal({ visible, onClose, micPermission }) {
             <Animated.View style={[styles.header, headerAnimatedStyle]}>
                 <View style={styles.headerContent}>
                     <View style={styles.titleContainer}>
-                        <View style={styles.iconWrapper}>
-                            <View >
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                        onClose();
-                                    }}
-                                >
-                                    <ArrowLeft size={24} color="white" />
-                                </TouchableOpacity>
-                            </View>
-                        </View>
+                        <TouchableOpacity
+                            style={styles.iconWrapper}
+                            onPress={() => {
+                                if (Platform.OS !== 'web') {
+                                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                }
+                                setSidebarVisible(true);
+                            }}
+                            activeOpacity={0.7}
+                        >
+                            <Menu size={18} color="white" strokeWidth={2} />
+                        </TouchableOpacity>
                         <Text style={styles.title}>AI Assistant</Text>
                     </View>
                     <Animated.View style={[styles.statusContainer, statusAnimatedStyle]}>
@@ -523,12 +633,10 @@ export default function AiModal({ visible, onClose, micPermission }) {
                                 onBlur={() => setIsTyping(false)}
                                 onSubmitEditing={handleSendMessage}
                                 returnKeyType="send"
-                            // editable={isConnected}
                             />
                             <TouchableOpacity
                                 style={[styles.sendButton, textInput.trim() && isConnected && styles.sendButtonActive]}
                                 onPress={handleSendMessage}
-                            // disabled={!textInput.trim() || !isConnected}
                             >
                                 <Send
                                     size={20}
@@ -558,45 +666,37 @@ export default function AiModal({ visible, onClose, micPermission }) {
                 </Animated.View>
             </KeyboardAvoidingView>
 
+            {/* Sidebar */}
+            <Sidebar
+                isVisible={sidebarVisible}
+                onClose={() => setSidebarVisible(false)}
+                onNewChat={handleNewChat}
+                onChatSelect={handleChatSelect}
+                onSettingsPress={handleSettingsPress}
+                onDeleteChat={handleDeleteChat}
+                chats={chats}
+                currentChatId={currentChatId}
+            />
+
             <StatusBar style="light" />
-
-
-        </Modal>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-
-    closeButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        // backgroundColor: '#f5f5f5',
-        justifyContent: "center",
-        alignItems: "center",
-        position: "absolute",
-        top: 40,
-        left: -10,
-        zIndex: 10,
-    },
-    scrollContent: {
-        flex: 1,
-    },
-    scrollContentContainer: {
-        paddingHorizontal: 20,
-        marginTop: 50,
-        // paddingBottom: 40,
-    },
     container: {
         flex: 1,
         backgroundColor: '#0A0A0A',
     },
+    loadingText: {
+        fontFamily: 'Inter-Regular',
+        fontSize: 16,
+        color: '#FFFFFF',
+        marginTop: 16,
+    },
     header: {
         paddingHorizontal: 24,
-        paddingVertical: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255, 255, 255, 0.06)',
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+        paddingVertical: 5,
     },
     headerContent: {
         flexDirection: 'row',
@@ -606,19 +706,19 @@ const styles = StyleSheet.create({
     titleContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        flex: 1,
     },
     iconWrapper: {
-        width: 36,
-        height: 36,
+        width: 26,
+        height: 26,
         borderRadius: 18,
-        backgroundColor: 'rgba(255, 255, 255, 0.08)',
         alignItems: 'center',
         justifyContent: 'center',
         marginRight: 12,
     },
     title: {
         fontFamily: "Inter-Bold",
-        fontSize: 20,
+        fontSize: 15,
         color: "#FFFFFF",
     },
     statusContainer: {
@@ -637,12 +737,10 @@ const styles = StyleSheet.create({
     },
     statusText: {
         fontFamily: "Inter-Medium",
-        fontSize: 12,
+        fontSize: 8,
     },
     chatContainer: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.1)',
-        margin: 16,
         borderRadius: 24,
         overflow: 'hidden',
     },
@@ -681,12 +779,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
     },
     inputContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
         paddingHorizontal: 16,
-        paddingVertical: 20,
-        paddingBottom: Platform.OS === 'ios' ? 34 : 20,
-        backgroundColor: 'rgba(0, 0, 0, 0.9)',
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(255, 255, 255, 0.06)',
+        paddingVertical: 5,
+        paddingBottom: Platform.OS === 'ios' ? 8 : 10,
     },
     inputRow: {
         flexDirection: 'row',
@@ -701,9 +798,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.08)',
         paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingVertical: 10,
         marginRight: 16,
-        alignItems: 'flex-end',
+        alignItems: 'center',
     },
     textInput: {
         flex: 1,
@@ -711,8 +808,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "#FFFFFF",
         maxHeight: 120,
-        minHeight: 24,
-        textAlignVertical: 'top',
         paddingTop: 0,
     },
     sendButton: {

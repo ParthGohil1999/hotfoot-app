@@ -11,49 +11,40 @@ import ExploreHeader from "../../components/flatLists";
 import AnimatedExploreBar from "../../components/animatedExploreBar";
 import ExploreCategory from "../../components/animatedExploreBar/exploreCategory";
 import NearbyFlatLists from "@/components/nearbyFlatlists/nearbyFlatlists";
+import AiModal from "@/components/animatedExploreBar/AiModal";
 
-const HomeScreen = () => {
-  const renderHeader = () => (
-    <View className="flex container pl-5 ">
-      <View className="mb-5">
-        <AnimatedExploreBar />
-      </View>
+export default function HomeScreen() {
+  const [micPermission, setMicPermission] = useState(false);
 
-      <ExploreCategory />
-
-      {/* --- Popular Destinations Section --- */}
-      <View className="mb-5 mx-1 flex-row justify-between">
-        <Text className="subpixel-antialiased text-lg font-bold">
-          Popular Destinations
-        </Text>
-      </View>
-      <CityList />
-
-      {/* --- Top Picks Section --- */}
-      <View className="my-5 mx-1 flex-row justify-between">
-        <Text className="subpixel-antialiased text-lg font-bold">
-          Top picks for you
-        </Text>
-      </View>
-      <TopPicksCityList />
-
-      {/* You can add more sections like NearbyFlatLists, etc., here */}
-       {/* <NearbyFlatLists /> */}
-    </View>
-  );
+  const requestMicrophonePermission = async () => {
+    try {
+      console.log("Requesting microphone permission from index");
+      const status = await AudioModule.getRecordingPermissionsAsync();
+      console.log("Microphone permission status from index:", status);
+      if (!status.granted) {
+        const newStatus = await AudioModule.requestRecordingPermissionsAsync();
+        console.log("Microphone permission request status from index:", newStatus);
+        setMicPermission(newStatus.granted);
+        return newStatus.granted;
+      }
+      setMicPermission(true);
+      return true;
+    } catch (error) {
+      console.error("Microphone permission error from index:", error);
+      setMicPermission(false);
+      return false;
+    }
+  };
 
   return (
-    <SafeAreaView style={{ backgroundColor: "white",  }}>
-      <TopBar logo text="Hotfoot" />
-      <FlatList
-        data={[]} // We don’t need actual data
-        renderItem={null}
-        keyExtractor={() => "scroll-container"}
-        ListHeaderComponent={renderHeader}
-        showsVerticalScrollIndicator={false}
+    <View style={{ flex: 1}}>
+      {/* <TopBar logo text="Hotfoot" /> */}
+      <AiModal
+        // visible={modalVisible}
+        // onClose={() => setModalVisible(false)}
+        requestMicrophonePermission={requestMicrophonePermission}
+        micPermission={micPermission}
       />
-    </SafeAreaView>
+    </View>
   );
 };
-
-export default HomeScreen;
