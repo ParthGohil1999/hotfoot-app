@@ -75,6 +75,7 @@
     "react-native-webview": "13.13.5",
     "sonner": "^2.0.3",
     "tailwindcss": "^3.4.17",
+    "uuid": "^11.1.0",
     "zustand": "^5.0.5"
   },
   "devDependencies": {

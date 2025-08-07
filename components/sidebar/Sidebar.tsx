@@ -9,7 +9,7 @@ import {
     Dimensions,
     Platform,
 } from 'react-native';
-import { MessageSquarePlus, CreditCard as Edit3, User, Settings, MessageSquare, Trash2 } from 'lucide-react-native';
+import { MessageSquarePlus, CreditCard as Edit3, User, Settings, MessageSquare, Trash2, Bot, Wrench } from 'lucide-react-native';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
@@ -21,6 +21,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { useUser } from '@clerk/clerk-expo';
+import { useRouter } from 'expo-router';
 
 const { width: screenWidth } = Dimensions.get('window');
 const SIDEBAR_WIDTH = screenWidth * 0.82;
@@ -57,6 +58,7 @@ export function Sidebar({
     const translateX = useSharedValue(-SIDEBAR_WIDTH);
     const overlayOpacity = useSharedValue(0);
     const { user } = useUser();
+    const router = useRouter();
 
     useEffect(() => {
         if (isVisible) {
@@ -97,6 +99,22 @@ export function Sidebar({
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }
         onSettingsPress();
+        onClose();
+    };
+
+    const handleAgentsPress = () => {
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
+        router.push('/agents');
+        onClose();
+    };
+
+    const handleToolsPress = () => {
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
+        router.push('/tools');
         onClose();
     };
 
@@ -149,6 +167,27 @@ export function Sidebar({
                         <Text style={styles.newChatText}>New Chat</Text>
                         <Edit3 size={16} color="#FFFFFF" strokeWidth={2} />
                     </TouchableOpacity>
+
+                    {/* Agents and Tools Buttons */}
+                    <View style={styles.actionButtonsContainer}>
+                        <TouchableOpacity
+                            style={styles.actionButton}
+                            onPress={handleAgentsPress}
+                            activeOpacity={0.7}
+                        >
+                            <Bot size={18} color="#FFFFFF" strokeWidth={2} />
+                            <Text style={styles.actionButtonText}>Agents</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={styles.actionButton}
+                            onPress={handleToolsPress}
+                            activeOpacity={0.7}
+                        >
+                            <Wrench size={18} color="#FFFFFF" strokeWidth={2} />
+                            <Text style={styles.actionButtonText}>Tools</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
                 {/* Chat List */}
@@ -196,9 +235,6 @@ export function Sidebar({
                                     <Text style={styles.chatPreview} numberOfLines={1}>
                                         {chat.lastMessage}
                                     </Text>
-                                    <Text style={styles.chatPreview} numberOfLines={1}>
-                                        {chat.id}
-                                    </Text>
                                 </View>
 
                                 <TouchableOpacity style={styles.chatActions} activeOpacity={0.7} onPress={() => onDeleteChat(chat.id)}>
@@ -218,7 +254,6 @@ export function Sidebar({
                     >
                         <View style={styles.profileInfo}>
                             <View style={styles.profilePicContainer}>
-                                {/* <User size={20} color="#FFFFFF" strokeWidth={2} /> */}
                                 {user?.imageUrl ? <Image
                                     height={35}
                                     width={35}
@@ -301,6 +336,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.12)',
+        marginBottom: 16,
     },
     newChatText: {
         fontFamily: 'Inter-SemiBold',
@@ -308,6 +344,29 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         flex: 1,
         marginLeft: 8,
+    },
+    actionButtonsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 12,
+    },
+    actionButton: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.06)',
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.08)',
+    },
+    actionButtonText: {
+        fontFamily: 'Inter-Medium',
+        fontSize: 12,
+        color: '#FFFFFF',
+        marginLeft: 6,
     },
     chatList: {
         flex: 1,
@@ -408,11 +467,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         marginBottom: 22,
-        // paddingVertical: 12,
         paddingHorizontal: 10,
         borderRadius: 12,
-        // backgroundColor: 'rgba(255, 255, 255, 0.04)',
-        // borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.08)',
     },
     profileInfo: {

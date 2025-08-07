@@ -38,6 +38,12 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)/home" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)/settings" options={{ headerShown: false }} />
+        <Stack.Screen name="tools/index" options={{ headerShown: false }} />
+        <Stack.Screen name="tools/create" options={{ headerShown: false }} />
+        <Stack.Screen name="tools/details" options={{ headerShown: false }} />
+        <Stack.Screen name="agents/index" options={{ headerShown: false }} />
+        <Stack.Screen name="agents/create" options={{ headerShown: false }} />
+        <Stack.Screen name="agents/details" options={{ headerShown: false }} />
         <Stack.Screen
           name="onboarding/index"
           options={{ headerShown: false }}

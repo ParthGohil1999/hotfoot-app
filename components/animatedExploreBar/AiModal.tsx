@@ -14,9 +14,9 @@ import {
     ActivityIndicator
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { ChatMessage, Message } from "../ConvAI/ChatMessage";
+import { ChatMessage, Message } from "../../components/ConvAI/ChatMessage";
 import { useEffect, useState, useRef } from "react";
-import { Send, Phone, ArrowLeft, Menu } from "lucide-react-native";
+import { Send, Phone, ArrowLeft, Menu, ChevronDown } from "lucide-react-native";
 import {
     useFonts,
     Inter_400Regular,
@@ -38,20 +38,24 @@ import { Sidebar } from '../../components/sidebar/Sidebar';
 import { useChatHistory } from '../../hooks/useChatHistory';
 import { BlurView } from "expo-blur";
 import { useNavigation } from 'expo-router';
-import ConvAiComponent from "../ConvAI/ConvAI";
+import ConvAiComponent from "../../components/ConvAI/ConvAI";
 import { CactusAgent, CactusLM, initLlama, LlamaContext, Tools } from 'cactus-react-native';
 import RNFS from 'react-native-fs';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { add } from "date-fns";
+import { AgentSelectionDrawer } from '../../components/agentSelectionDrawer/agentSelectionDrawer';
+import { Agent, Tool } from '../../types/agents';
+import { LocalStorageService } from '../../services/localStorage';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-export default function AiModal({ visible, onClose, micPermission }) {
+export default function AiModal({ visible, micPermission }) {
     const [modalVisible, setModalVisible] = useState(visible);
     const [lm, setLM] = useState<CactusAgent | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isGenerating, setIsGenerating] = useState(false);
     const [sidebarVisible, setSidebarVisible] = useState(false);
+    const [agentDrawerVisible, setAgentDrawerVisible] = useState(false);
+    const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
     const navigation = useNavigation()
 
     // Chat history management
@@ -67,47 +71,55 @@ export default function AiModal({ visible, onClose, micPermission }) {
 
     const tools = new Tools();
 
-    lm?.addTool(
-        async function writeDraftEmail(subject: string, body: string) {
-            console.log("<=========Executing function===========>");
-            console.log("Writing and sending email with subject and body:", `Subject : ${subject}`, `Body : ${body}`);
-            return { content: `Email sent succefully with Subject: ${subject} and Email Body: ${body}` };
-        },
-        "Suggests to write, draft and send an email. Use this if you think you'll save the user time by writing an email and then sending it, make sure if the subject and body is not mentioned then ask them what content would they like to add, and generate the subject and email body accordingly. CAUTION!!! BEFORE YOU USE THIS TOOL PLEASE ACKNOWLEGE THE USER WHETHER TO SEND THE EMAIL YOU HAVE GENERATED TO HELP THEM SAVE TIME. If in doubt, ask!",
-        {
-            subject: {
-                type: "string",
-                description: "The subject of the email",
-                required: true
-            },
-            body: {
-                type: "string",
-                description: "The body content of the email",
-                required: true
-            }
-        },
-    );
+    useEffect(() => {
+        loadSelectedAgent();
+    }, []);
 
-    lm?.addTool(
-        async function setReminder(date: string, message: string) {
-            console.log("<=========Executing function===========>");
-            console.log("Setting reminder with dat and message: ", date, message);
-            return { date: date, message: message, reminderSet: true };
-        },
-        "Suggests to set a reminder for a specific date. Use this if the user's input indicates that they would want to be reminded of something at a specific date and time. If in doubt, call!",
-        {
-            date: {
-                type: "string",
-                description: "The date and time to set the reminder for",
-                required: true
-            },
-            message: {
-                type: "string",
-                description: "The message to set the reminder for",
-                required: true
+    const loadSelectedAgent = async () => {
+        try {
+            const agent = await LocalStorageService.getSelectedAgent();
+            if (agent) {
+                setSelectedAgent(agent);
+                await setupAgentTools(agent);
             }
+        } catch (error) {
+            console.error('Error loading selected agent:', error);
         }
-    );
+    };
+
+    const setupAgentTools = async (agent: Agent) => {
+        if (!lm) return;
+
+        try {
+            // Load tools associated with the agent
+            const installedTools = await LocalStorageService.getInstalledTools();
+            const agentTools = installedTools.filter(tool => agent.toolIds.includes(tool.id));
+
+            // Clear existing tools and add agent's tools
+            for (const tool of agentTools) {
+                // Convert tool parameters to the expected format
+                const toolParams: any = {};
+                tool.parameters.forEach(param => {
+                    toolParams[param.name] = {
+                        type: param.type,
+                        description: param.description,
+                        required: param.required
+                    }
+                });
+
+                // Create the tool function from the stored code
+                const toolFunction = new Function('return ' + tool.function)();
+
+                lm.addTool(
+                    toolFunction,
+                    tool.description,
+                    toolParams
+                );
+            }
+        } catch (error) {
+            console.error('Error setting up agent tools:', error);
+        }
+    };
 
     useEffect(() => {
         setModalVisible(visible);
@@ -233,12 +245,7 @@ export default function AiModal({ visible, onClose, micPermission }) {
     useEffect(() => {
         console.log('Current messages :', currentMessages);
         setTimeout(() => {
-            setMessages(
-
-
-                [...currentMessages]
-            );
-
+            setMessages([...currentMessages]);
         }, 100);
     }, [currentMessages, currentChatId]);
 
@@ -249,6 +256,12 @@ export default function AiModal({ visible, onClose, micPermission }) {
             statusPulse.value = withTiming(0, { duration: 300 });
         }
     }, [isConnected]);
+
+    useEffect(() => {
+        if (selectedAgent && lm) {
+            setupAgentTools(selectedAgent);
+        }
+    }, [selectedAgent, lm]);
 
     const handleConnectionChange = (connected: boolean) => {
         console.log("Connection changed:", connected);
@@ -290,9 +303,19 @@ export default function AiModal({ visible, onClose, micPermission }) {
         navigation.navigate('(tabs)/settings');
     };
 
+    const handleAgentSelect = async (agent: Agent) => {
+        setSelectedAgent(agent);
+        await LocalStorageService.setSelectedAgent(agent);
+
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        }
+
+        console.log('Selected agent:', agent.name);
+    };
+
     const handleMessage = (message: Message) => {
         console.log("Received message:", message);
-        addMessage(message);
         setMessages(prev => {
             const isDuplicate = prev.some(msg =>
                 msg.content === message.content &&
@@ -306,6 +329,7 @@ export default function AiModal({ visible, onClose, micPermission }) {
 
             return [...prev, message];
         });
+        // addMessage(message);
     };
 
     const handleSendMessage = async () => {
@@ -340,16 +364,13 @@ export default function AiModal({ visible, onClose, micPermission }) {
             setTextInput('');
             setIsGenerating(true);
 
-
-
             const stopWords = ['</s>', '<|end|>', '<|eot_id|>', '<|end_of_text|>',
                 '<|im_end|>', '<|EOT|>', '<|END_OF_TURN_TOKEN|>',
                 '<|end_of_turn|>', '<|endoftext|>', '<end_of_turn>', '<|end_of_sentence|>'];
 
-            const formattedMessages = [
-                {
-                    role: 'system',
-                    content: `You are Dora, a capable AI assistant helping people to ease their life with answering their questions and performing tasks and running locally on a smartphone. You help users with legitimate tasks while maintaining high ethical standards.
+            const systemPrompt = selectedAgent
+                ? selectedAgent.description
+                : `You are Dora, a capable AI assistant helping people to ease their life with answering their questions and performing tasks and running locally on a smartphone. You help users with legitimate tasks while maintaining high ethical standards.
 
 CORE CAPABILITIES:
 - Answer questions using your knowledge base
@@ -375,7 +396,12 @@ RESPONSE GUIDELINES:
 LOCAL OPERATION:
 - All processing occurs on-device for privacy
 - No external data transmission without explicit user consent
-- Respect device resources and battery life`
+- Respect device resources and battery life`;
+
+            const formattedMessages = [
+                {
+                    role: 'system',
+                    content: systemPrompt
                 },
                 ...newMessages.slice(-10).map(msg => ({
                     role: msg.role,
@@ -403,7 +429,7 @@ LOCAL OPERATION:
 
                     if (content.token.includes('<think>')) {
                         insideThinkTags = true;
-                        const newLoadingMessage = "Dora is thinking...";
+                        const newLoadingMessage = `${selectedAgent?.name || 'Dora'} is thinking...`;
                         if (currentLoadingMessage !== newLoadingMessage) {
                             currentLoadingMessage = newLoadingMessage;
                             setMessages(prev => [
@@ -437,8 +463,8 @@ LOCAL OPERATION:
                         }
                     }
 
-                    if (insideThinkTags && currentLoadingMessage !== "Dora is thinking...") {
-                        currentLoadingMessage = "Dora is thinking...";
+                    if (insideThinkTags && currentLoadingMessage !== `${selectedAgent?.name || 'Dora'} is thinking...`) {
+                        currentLoadingMessage = `${selectedAgent?.name || 'Dora'} is thinking...`;
                         setMessages(prev => [
                             ...prev.slice(0, -1),
                             { role: 'assistant', content: currentLoadingMessage, timestamp: Date.now() }
@@ -474,15 +500,8 @@ LOCAL OPERATION:
                     finalMessage
                 ]);
 
-                // Create new chat if this is the first message or no current chat
-                addMessage(userMessage)
-
+                addMessage(userMessage);
                 addMessage(finalMessage);
-
-                // // Update chat history with the assistant's response
-                // if (currentChatId) {
-                //     saveChatMessages(currentChatId, cleanedResponse);
-                // }
 
                 console.log("Response from model:", result);
             } catch (error) {
@@ -574,7 +593,17 @@ LOCAL OPERATION:
                         >
                             <Menu size={18} color="white" strokeWidth={2} />
                         </TouchableOpacity>
-                        <Text style={styles.title}>AI Assistant</Text>
+
+                        <TouchableOpacity
+                            style={styles.agentSelector}
+                            onPress={() => setAgentDrawerVisible(true)}
+                            activeOpacity={0.7}
+                        >
+                            <Text style={styles.title}>
+                                {selectedAgent ? selectedAgent.name : 'AI Assistant'}
+                            </Text>
+                            <ChevronDown size={14} color="white" strokeWidth={2} />
+                        </TouchableOpacity>
                     </View>
                     <Animated.View style={[styles.statusContainer, statusAnimatedStyle]}>
                         <View style={[styles.statusDot, { backgroundColor: getStatusColor() }]} />
@@ -602,6 +631,14 @@ LOCAL OPERATION:
                             <Text style={styles.emptyStateSubtext}>
                                 Start a voice conversation or type a message below
                             </Text>
+                            {selectedAgent && (
+                                <View style={styles.agentInfo}>
+                                    <Text style={styles.agentInfoTitle}>Active Agent: {selectedAgent.name}</Text>
+                                    <Text style={styles.agentInfoDescription} numberOfLines={3}>
+                                        {selectedAgent.description}
+                                    </Text>
+                                </View>
+                            )}
                         </View>
                     ) : (
                         messages.map((message, index) => (
@@ -635,12 +672,12 @@ LOCAL OPERATION:
                                 returnKeyType="send"
                             />
                             <TouchableOpacity
-                                style={[styles.sendButton, textInput.trim() && isConnected && styles.sendButtonActive]}
+                                style={[styles.sendButton, textInput.trim() && styles.sendButtonActive]}
                                 onPress={handleSendMessage}
                             >
                                 <Send
                                     size={20}
-                                    color={textInput.trim() && isConnected ? "#FFFFFF" : "#666666"}
+                                    color={textInput.trim() ? "#FFFFFF" : "#666666"}
                                     strokeWidth={2}
                                 />
                             </TouchableOpacity>
@@ -676,6 +713,14 @@ LOCAL OPERATION:
                 onDeleteChat={handleDeleteChat}
                 chats={chats}
                 currentChatId={currentChatId}
+            />
+
+            {/* Agent Selection Drawer */}
+            <AgentSelectionDrawer
+                isVisible={agentDrawerVisible}
+                onClose={() => setAgentDrawerVisible(false)}
+                onSelectAgent={handleAgentSelect}
+                selectedAgentId={selectedAgent?.id}
             />
 
             <StatusBar style="light" />
@@ -716,10 +761,21 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginRight: 12,
     },
+    agentSelector: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(255, 255, 255, 0.06)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 12,
+        gap: 6,
+        maxWidth: 200,
+    },
     title: {
         fontFamily: "Inter-Bold",
         fontSize: 15,
         color: "#FFFFFF",
+        flex: 1,
     },
     statusContainer: {
         flexDirection: 'row',
@@ -774,6 +830,27 @@ const styles = StyleSheet.create({
         color: "#666666",
         textAlign: 'center',
         lineHeight: 24,
+        marginBottom: 24,
+    },
+    agentInfo: {
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        borderRadius: 12,
+        padding: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(59, 130, 246, 0.2)',
+        maxWidth: '90%',
+    },
+    agentInfoTitle: {
+        fontFamily: "Inter-SemiBold",
+        fontSize: 14,
+        color: "#3B82F6",
+        marginBottom: 8,
+    },
+    agentInfoDescription: {
+        fontFamily: "Inter-Regular",
+        fontSize: 12,
+        color: "#CCCCCC",
+        lineHeight: 16,
     },
     keyboardAvoid: {
         backgroundColor: 'transparent',
