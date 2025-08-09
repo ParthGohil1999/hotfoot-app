@@ -414,12 +414,12 @@ export default function ToolDetailsScreen() {
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Parameters</Text>
                         <View style={styles.paramCountBadge}>
-                            <Text style={styles.paramCountText}>{tool.parameters.length}</Text>
+                            <Text style={styles.paramCountText}>{tool?.parameters?.length}</Text>
                         </View>
                     </View>
 
-                    {tool.parameters.length > 0 ? (
-                        tool.parameters.map((param) => (
+                    {tool?.parameters?.length > 0 ? (
+                        tool?.parameters?.map((param) => (
                             <View key={param.id} style={styles.paramItem}>
                                 <View style={styles.paramHeader}>
                                     <Text style={styles.paramName}>{param.name}</Text>

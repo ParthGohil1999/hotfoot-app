@@ -36,7 +36,7 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
   const [isListening, setIsListening] = useState(false);
-  
+
 
   useEffect(() => {
     // Reset animations on mount
@@ -193,7 +193,7 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
       // }
 
       console.log("Cannot send message - not connected. Status:", conversation.status);
-        throw new Error("Not connected to voice service");
+      throw new Error("Not connected to voice service");
     }
 
     try {
@@ -228,7 +228,7 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
   // }), [sendTextMessage, conversation.status !== "connected"]);
 
   const startConversation = useCallback(async (textOnly = false) => {
-    
+
     try {
       console.log("Starting ElevenLabs conversation");
       onConnectionStatusChange?.('connecting');

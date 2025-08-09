@@ -13,6 +13,10 @@ export interface Tool {
   downloads?: number; // Added for published tools
   rating?: number; // Added for published tools
   publishedAt?: Date; // Added for published tools
+  isArchived?: boolean; // Added for archived tools
+  archivedAt?: Date; // Added for archived tools
+  firestoreId?: string; // Added for Firestore document ID tracking
+  dataId?: string; // Added for original data ID tracking
 }
 
 export interface ToolParameter {
@@ -37,6 +41,10 @@ export interface Agent {
   downloads?: number; // Added for published agents
   rating?: number; // Added for published agents
   publishedAt?: Date; // Added for published agents
+  isArchived?: boolean; // Added for archived agents
+  archivedAt?: Date; // Added for archived agents
+  firestoreId?: string; // Added for Firestore document ID tracking
+  dataId?: string; // Added for original data ID tracking
 }
 
 export interface PublishedItem {
@@ -51,7 +59,15 @@ export interface PublishedItem {
   publishedAt: any;
   updatedAt: any;
   isPublished?: boolean;
+  isArchived?: boolean;
+  archivedAt?: any;
+  firestoreId?: string; // Added for Firestore document ID tracking
+  dataId?: string; // Added for original data ID tracking
+  toolIds?: string[]; // For agents
+  parameters?: ToolParameter[]; // For tools
+  function?: string; // For tools
 }
 
 // Union type for when we need to handle both
 export type ToolOrPublished = Tool | PublishedItem;
+export type AgentOrPublished = Agent | PublishedItem;

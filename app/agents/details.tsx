@@ -12,22 +12,28 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
-import { ArrowLeft, Download, CreditCard as Edit3, Trash2, Bot, Wrench, Calendar, User } from 'lucide-react-native';
+import { ArrowLeft, Download, CreditCard as Edit3, Trash2, Bot, Wrench, Calendar, User, Globe, X } from 'lucide-react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useUser } from '@clerk/clerk-expo';
 import * as Haptics from 'expo-haptics';
-import { Agent, Tool } from '../../types/agents';
+import { Agent, Tool, AgentOrPublished } from '../../types/agents';
 import { LocalStorageService } from '../../services/localStorage';
 import { FirebaseService } from '../../services/firebaseService';
 
 export default function AgentDetailsScreen() {
     const router = useRouter();
-    const { agentId, isInstalled } = useLocalSearchParams();
-    
-    const [agent, setAgent] = useState<Agent | null>(null);
+    const { user } = useUser();
+    const { agentId, isInstalled, isMyPublished } = useLocalSearchParams();
+
+    const [agent, setAgent] = useState<AgentOrPublished | null>(null);
     const [agentTools, setAgentTools] = useState<Tool[]>([]);
     const [loading, setLoading] = useState(true);
     const [installing, setInstalling] = useState(false);
+    const [uninstalling, setUninstalling] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [isAgentCurrentlyInstalled, setIsAgentCurrentlyInstalled] = useState(false);
     const isInstalledAgent = isInstalled === 'true';
+    const isMyPublishedAgent = isMyPublished === 'true';
 
     useEffect(() => {
         loadAgentDetails();
@@ -35,23 +41,53 @@ export default function AgentDetailsScreen() {
 
     const loadAgentDetails = async () => {
         try {
-            let agentData: Agent | null = null;
-            
+            let agentData: AgentOrPublished | null = null;
+
             if (isInstalledAgent) {
+                // Load from installed agents
                 const installedAgents = await LocalStorageService.getInstalledAgents();
                 agentData = installedAgents.find(a => a.id === agentId) || null;
             } else {
-                agentData = await FirebaseService.getAgentDetails(agentId as string);
+                // For published agents, we need to search in the appropriate collection
+                if (isMyPublishedAgent) {
+                    // Load from user's published agents (including archived)
+                    if (user?.primaryEmailAddress?.emailAddress) {
+                        const [myPublishedAgents, archivedAgents] = await Promise.all([
+                            FirebaseService.getMyPublishedAgents(user.primaryEmailAddress.emailAddress),
+                            FirebaseService.getArchivedAgents(user.primaryEmailAddress.emailAddress)
+                        ]);
+                        agentData = [...myPublishedAgents, ...archivedAgents].find(a => a.id === agentId) || null;
+                    }
+                } else {
+                    // Load from all published agents
+                    const publishedAgents = await FirebaseService.getPublishedAgents();
+                    agentData = publishedAgents.find(a => a.id === agentId) || null;
+                }
+
+                // If still not found, try the getAgentDetails method as fallback
+                if (!agentData) {
+                    agentData = await FirebaseService.getAgentDetails(agentId as string);
+                }
+
+                // Check if this published agent is installed locally
+                if (agentData) {
+                    const installedAgents = await LocalStorageService.getInstalledAgents();
+                    setIsAgentCurrentlyInstalled(installedAgents.some(a => a.id === agentId));
+                }
             }
 
             if (agentData) {
                 setAgent(agentData);
                 // Load tools associated with the agent
-                const installedTools = await LocalStorageService.getInstalledTools();
-                const associatedTools = installedTools.filter(tool => 
-                    agentData!.toolIds.includes(tool.id)
-                );
-                setAgentTools(associatedTools);
+                if ('toolIds' in agentData && agentData.toolIds) {
+                    const installedTools = await LocalStorageService.getInstalledTools();
+                    const associatedTools = installedTools.filter(tool => 
+                        agentData.toolIds!.includes(tool.id)
+                    );
+                    setAgentTools(associatedTools);
+                }
+            } else {
+                console.log('Agent not found with ID:', agentId);
             }
         } catch (error) {
             console.error('Error loading agent details:', error);
@@ -62,23 +98,22 @@ export default function AgentDetailsScreen() {
 
     const handleInstall = async () => {
         if (!agent) return;
-        
+
         setInstalling(true);
         try {
             await LocalStorageService.saveAgent(agent);
-            
+
             // Increment download count if it's a published agent
             if (!isInstalledAgent) {
                 await FirebaseService.incrementDownloadCount('publishedAgents', agent.id);
             }
-            
+
             if (Platform.OS !== 'web') {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
-            
-            Alert.alert('Success', 'Agent installed successfully!', [
-                { text: 'OK', onPress: () => router.back() }
-            ]);
+
+            setIsAgentCurrentlyInstalled(true);
+            Alert.alert('Success', 'Agent installed successfully!');
         } catch (error) {
             console.error('Error installing agent:', error);
             Alert.alert('Error', 'Failed to install agent');
@@ -87,13 +122,47 @@ export default function AgentDetailsScreen() {
         }
     };
 
+    const handleUninstall = async () => {
+        if (!agent) return;
+
+        Alert.alert(
+            'Uninstall Agent',
+            'Are you sure you want to uninstall this agent? You can reinstall it anytime.',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Uninstall',
+                    style: 'destructive',
+                    onPress: async () => {
+                        setUninstalling(true);
+                        try {
+                            await LocalStorageService.deleteAgent(agent.id);
+
+                            if (Platform.OS !== 'web') {
+                                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                            }
+
+                            setIsAgentCurrentlyInstalled(false);
+                            Alert.alert('Success', 'Agent uninstalled successfully!');
+                        } catch (error) {
+                            console.error('Error uninstalling agent:', error);
+                            Alert.alert('Error', 'Failed to uninstall agent');
+                        } finally {
+                            setUninstalling(false);
+                        }
+                    }
+                }
+            ]
+        );
+    };
+
     const handleEdit = () => {
         if (!agent) return;
-        
+
         if (Platform.OS !== 'web') {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }
-        
+
         router.push({
             pathname: '/agents/create',
             params: { editAgentId: agent.id }
@@ -102,27 +171,45 @@ export default function AgentDetailsScreen() {
 
     const handleDelete = () => {
         if (!agent) return;
-        
+
+        const deleteTitle = isInstalledAgent ? 'Delete Agent' : 'Delete Published Agent';
+        const deleteMessage = isInstalledAgent
+            ? 'Are you sure you want to delete this agent? This action cannot be undone.'
+            : 'Are you sure you want to delete this published agent? This will remove it for all users and cannot be undone.';
+
         Alert.alert(
-            'Delete Agent',
-            'Are you sure you want to delete this agent? This action cannot be undone.',
+            deleteTitle,
+            deleteMessage,
             [
                 { text: 'Cancel', style: 'cancel' },
                 {
                     text: 'Delete',
                     style: 'destructive',
                     onPress: async () => {
+                        setDeleting(true);
                         try {
-                            await LocalStorageService.deleteAgent(agent.id);
-                            
+                            if (isInstalledAgent) {
+                                await LocalStorageService.deleteAgent(agent.id);
+                            } else if (isMyPublishedAgent && user?.primaryEmailAddress?.emailAddress) {
+                                await FirebaseService.deletePublishedAgent(agent.id, user.primaryEmailAddress.emailAddress);
+                                // Also remove from local storage if installed
+                                try {
+                                    await LocalStorageService.deleteAgent(agent.id);
+                                } catch (error) {
+                                    // Agent might not be installed locally, that's ok
+                                }
+                            }
+
                             if (Platform.OS !== 'web') {
                                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                             }
-                            
+
                             router.back();
                         } catch (error) {
                             console.error('Error deleting agent:', error);
                             Alert.alert('Error', 'Failed to delete agent');
+                        } finally {
+                            setDeleting(false);
                         }
                     }
                 }
@@ -174,6 +261,10 @@ export default function AgentDetailsScreen() {
         );
     }
 
+    // Determine what button to show in top right
+    const showInstallButton = !isInstalledAgent && !isAgentCurrentlyInstalled;
+    const showUninstallButton = !isInstalledAgent && isAgentCurrentlyInstalled;
+
     return (
         <SafeAreaView style={styles.container}>
             <LinearGradient
@@ -190,7 +281,7 @@ export default function AgentDetailsScreen() {
                 >
                     <ArrowLeft size={20} color="#FFFFFF" strokeWidth={2} />
                 </TouchableOpacity>
-                
+
                 <Text style={styles.headerTitle}>Agent Details</Text>
 
                 <View style={styles.headerActions}>
@@ -204,14 +295,32 @@ export default function AgentDetailsScreen() {
                                 <Edit3 size={18} color="#FFFFFF" strokeWidth={2} />
                             </TouchableOpacity>
                             <TouchableOpacity
-                                style={[styles.headerAction, styles.deleteAction]}
+                                style={[styles.headerAction, styles.deleteAction, deleting && styles.disabledAction]}
                                 onPress={handleDelete}
+                                disabled={deleting}
                                 activeOpacity={0.7}
                             >
-                                <Trash2 size={18} color="#FF6B6B" strokeWidth={2} />
+                                {deleting ? (
+                                    <ActivityIndicator size="small" color="#FF6B6B" />
+                                ) : (
+                                    <Trash2 size={18} color="#FF6B6B" strokeWidth={2} />
+                                )}
                             </TouchableOpacity>
                         </>
-                    ) : (
+                    ) : isMyPublishedAgent ? (
+                        <TouchableOpacity
+                            style={[styles.headerAction, styles.deleteAction, deleting && styles.disabledAction]}
+                            onPress={handleDelete}
+                            disabled={deleting}
+                            activeOpacity={0.7}
+                        >
+                            {deleting ? (
+                                <ActivityIndicator size="small" color="#FF6B6B" />
+                            ) : (
+                                <Trash2 size={18} color="#FF6B6B" strokeWidth={2} />
+                            )}
+                        </TouchableOpacity>
+                    ) : showInstallButton ? (
                         <TouchableOpacity
                             style={[styles.installButton, installing && styles.installingButton]}
                             onPress={handleInstall}
@@ -227,7 +336,23 @@ export default function AgentDetailsScreen() {
                                 </>
                             )}
                         </TouchableOpacity>
-                    )}
+                    ) : showUninstallButton ? (
+                        <TouchableOpacity
+                            style={[styles.uninstallButton, uninstalling && styles.uninstallingButton]}
+                            onPress={handleUninstall}
+                            disabled={uninstalling}
+                            activeOpacity={0.7}
+                        >
+                            {uninstalling ? (
+                                <ActivityIndicator size="small" color="#FFFFFF" />
+                            ) : (
+                                <>
+                                    <X size={16} color="#FFFFFF" strokeWidth={2} />
+                                    <Text style={styles.uninstallButtonText}>Uninstall</Text>
+                                </>
+                            )}
+                        </TouchableOpacity>
+                    ) : null}
                 </View>
             </View>
 
@@ -238,7 +363,22 @@ export default function AgentDetailsScreen() {
                         <Bot size={32} color="#FFFFFF" strokeWidth={2} />
                     </View>
                     <Text style={styles.agentName}>{agent.name}</Text>
-                    
+
+                    {/* Status Badges */}
+                    <View style={styles.badgeContainer}>
+                        {isMyPublishedAgent && (
+                            <View style={styles.statusBadge}>
+                                <Globe size={12} color="#34D399" strokeWidth={2} />
+                                <Text style={styles.statusText}>Published</Text>
+                            </View>
+                        )}
+                        {isAgentCurrentlyInstalled && (
+                            <View style={styles.installedBadge}>
+                                <Text style={styles.installedBadgeText}>Installed</Text>
+                            </View>
+                        )}
+                    </View>
+
                     <View style={styles.agentMetaContainer}>
                         {agent.authorName && (
                             <View style={styles.metaItem}>
@@ -252,6 +392,12 @@ export default function AgentDetailsScreen() {
                                 {isInstalledAgent ? `Updated ${formatDate(agent.updatedAt)}` : `Created ${formatDate(agent.createdAt)}`}
                             </Text>
                         </View>
+                        {!isInstalledAgent && agent.downloads !== undefined && (
+                            <View style={styles.metaItem}>
+                                <Download size={14} color="#666666" strokeWidth={2} />
+                                <Text style={styles.metaText}>{agent.downloads} downloads</Text>
+                            </View>
+                        )}
                     </View>
                 </View>
 
@@ -266,10 +412,12 @@ export default function AgentDetailsScreen() {
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Associated Tools</Text>
                         <View style={styles.toolCountBadge}>
-                            <Text style={styles.toolCountText}>{agent.toolIds.length}</Text>
+                            <Text style={styles.toolCountText}>
+                                {'toolIds' in agent ? agent.toolIds?.length || 0 : 0}
+                            </Text>
                         </View>
                     </View>
-                    
+
                     {agentTools.length > 0 ? (
                         agentTools.map((tool) => (
                             <View key={tool.id} style={styles.toolItem}>
@@ -287,7 +435,7 @@ export default function AgentDetailsScreen() {
                     ) : (
                         <View style={styles.noToolsContainer}>
                             <Text style={styles.noToolsText}>
-                                {agent.toolIds.length > 0 
+                                {'toolIds' in agent && agent.toolIds && agent.toolIds.length > 0
                                     ? 'Some tools are not installed locally'
                                     : 'No tools associated with this agent'
                                 }
@@ -380,6 +528,9 @@ const styles = StyleSheet.create({
     deleteAction: {
         backgroundColor: 'rgba(255, 107, 107, 0.2)',
     },
+    disabledAction: {
+        opacity: 0.6,
+    },
     installButton: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -395,6 +546,25 @@ const styles = StyleSheet.create({
         opacity: 0.6,
     },
     installButtonText: {
+        fontFamily: 'Inter-Medium',
+        fontSize: 12,
+        color: '#FFFFFF',
+    },
+    uninstallButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+        borderWidth: 1,
+        borderColor: 'rgba(239, 68, 68, 0.3)',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 12,
+        gap: 6,
+    },
+    uninstallingButton: {
+        opacity: 0.6,
+    },
+    uninstallButtonText: {
         fontFamily: 'Inter-Medium',
         fontSize: 12,
         color: '#FFFFFF',
@@ -427,7 +597,37 @@ const styles = StyleSheet.create({
         fontSize: 24,
         color: '#FFFFFF',
         textAlign: 'center',
+        marginBottom: 8,
+    },
+    badgeContainer: {
+        flexDirection: 'row',
+        gap: 8,
         marginBottom: 16,
+    },
+    statusBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(52, 211, 153, 0.2)',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        gap: 4,
+    },
+    statusText: {
+        fontFamily: 'Inter-Medium',
+        fontSize: 12,
+        color: '#34D399',
+    },
+    installedBadge: {
+        backgroundColor: 'rgba(34, 197, 94, 0.2)',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    installedBadgeText: {
+        fontFamily: 'Inter-Medium',
+        fontSize: 12,
+        color: '#22C55E',
     },
     agentMetaContainer: {
         alignItems: 'center',

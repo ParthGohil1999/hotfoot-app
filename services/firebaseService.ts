@@ -3,20 +3,64 @@ import { db } from '../config/firebaseConfig';
 import { Agent, Tool, PublishedItem } from '../types/agents';
 
 export class FirebaseService {
-    // Agents
+    // Fixed method 4: Update publishAgent to handle updates like publishTool does
     static async publishAgent(agent: Agent, authorName: string, authorEmail: string): Promise<void> {
         try {
+            console.log(`🚀 Starting publishAgent for ${authorEmail}`);
+
+            // Fetch user's agents to build ID mapping
+            const [publishedAgents, archivedAgents] = await Promise.all([
+                this.getMyPublishedAgents(authorEmail),
+                this.getArchivedAgents(authorEmail)
+            ]);
+
+            const allAgents = [...publishedAgents, ...archivedAgents];
+
+            const idMapping = new Map<string, string>(); // key: agent.id or dataId, value: Firestore doc ID
+            allAgents.forEach(existingAgent => {
+                idMapping.set(existingAgent.id, existingAgent.firestoreId || existingAgent.id);
+                if (existingAgent.dataId && existingAgent.dataId !== existingAgent.id) {
+                    idMapping.set(existingAgent.dataId, existingAgent.firestoreId || existingAgent.id);
+                }
+            });
+
+            const matchingFirestoreId = idMapping.get(agent.id) || idMapping.get(agent.dataId);
             const agentData = {
                 ...agent,
                 authorName,
                 authorEmail,
                 isPublished: true,
+                isArchived: false,
                 downloads: 0,
                 rating: 0,
-                publishedAt: new Date()
+                publishedAt: new Date(),
+                updatedAt: new Date()
             };
 
-            await addDoc(collection(db, 'publishedAgents'), agentData);
+            if (matchingFirestoreId) {
+                const docRef = doc(db, 'publishedAgents', matchingFirestoreId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const existingAgent = docSnap.data();
+                    if (existingAgent.authorEmail === authorEmail) {
+                        // 🔄 Update existing agent
+                        await updateDoc(docRef, agentData);
+                        console.log(`🔄 Updated agent: ${agent.name}`);
+                        return;
+                    }
+                }
+            }
+
+            // ✅ New agent (or trying to publish another user's agent)
+            // ➕ Generate a unique ID to avoid duplication
+            const uniqueAgentData = {
+                ...agentData,
+                id: `${agent.id}-${Date.now()}`
+            };
+
+            await addDoc(collection(db, 'publishedAgents'), uniqueAgentData);
+            console.log(`✅ Created new agent: ${agent.name}`);
         } catch (error) {
             console.error('Error publishing agent:', error);
             throw error;
@@ -49,8 +93,11 @@ export class FirebaseService {
         }
     }
 
+    // Fixed method 3: Update getMyPublishedAgents to include proper ID mapping like tools
     static async getMyPublishedAgents(authorEmail: string): Promise<PublishedItem[]> {
         try {
+            console.log('🔍 DEBUG: Getting agents for email:', authorEmail);
+
             // Simple query with just authorEmail filter
             const q = query(
                 collection(db, 'publishedAgents'),
@@ -59,16 +106,35 @@ export class FirebaseService {
             );
 
             const querySnapshot = await getDocs(q);
+            console.log('🔍 DEBUG: Query returned', querySnapshot.docs.length, 'documents');
+
             const agents = querySnapshot.docs.map(doc => {
                 const data = doc.data();
+                console.log('🔍 DEBUG: Processing doc:', {
+                    firestoreId: doc.id,
+                    dataId: data.id,
+                    name: data.name,
+                    isArchived: data.isArchived,
+                    authorEmail: data.authorEmail
+                });
+
                 return {
-                    id: doc.id,
+                    id: doc.id, // Use Firestore document ID, not data.id
+                    firestoreId: doc.id, // Keep track of both
+                    dataId: data.id, // The original ID from the data
                     ...data,
                     createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(data.createdAt) || new Date(),
                     publishedAt: data.publishedAt?.toDate ? data.publishedAt.toDate() : new Date(data.publishedAt) || new Date(),
                     updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date(data.updatedAt) || new Date()
                 };
             }).filter(item => !item.isArchived) as PublishedItem[]; // Client-side filtering
+
+            console.log('🔍 DEBUG: Final agents array:', agents.map(a => ({
+                id: a.id,
+                firestoreId: a.firestoreId,
+                dataId: a.dataId,
+                name: a.name
+            })));
 
             // Sort on client side
             return agents.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -78,6 +144,56 @@ export class FirebaseService {
         }
     }
 
+    static async getArchivedAgents(authorEmail: string): Promise<PublishedItem[]> {
+        try {
+            console.log('🔍 DEBUG: Getting archived agents for email:', authorEmail);
+
+            // Simple query with just authorEmail filter
+            const q = query(
+                collection(db, 'publishedAgents'),
+                where('authorEmail', '==', authorEmail),
+                limit(50)
+            );
+
+            const querySnapshot = await getDocs(q);
+            console.log('🔍 DEBUG: Query returned', querySnapshot.docs.length, 'documents');
+
+            const agents = querySnapshot.docs.map(doc => {
+                const data = doc.data();
+                console.log('🔍 DEBUG: Processing archived doc:', {
+                    firestoreId: doc.id,
+                    dataId: data.id,
+                    name: data.name,
+                    isArchived: data.isArchived,
+                    authorEmail: data.authorEmail
+                });
+
+                return {
+                    id: doc.id, // Use Firestore document ID, not data.id
+                    firestoreId: doc.id, // Keep track of both
+                    dataId: data.id, // The original ID from the data
+                    ...data,
+                    createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(data.createdAt) || new Date(),
+                    publishedAt: data.publishedAt?.toDate ? data.publishedAt.toDate() : new Date(data.publishedAt) || new Date(),
+                    updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date(data.updatedAt) || new Date(),
+                    archivedAt: data.archivedAt?.toDate ? data.archivedAt.toDate() : new Date(data.archivedAt) || new Date()
+                };
+            }).filter(item => item.isArchived) as PublishedItem[]; // Client-side filtering
+
+            console.log('🔍 DEBUG: Final archived agents array:', agents.map(a => ({
+                id: a.id,
+                firestoreId: a.firestoreId,
+                dataId: a.dataId,
+                name: a.name,
+                isArchived: a.isArchived
+            })));
+
+            return agents.sort((a, b) => (b.archivedAt?.getTime() || 0) - (a.archivedAt?.getTime() || 0));
+        } catch (error) {
+            console.error('Error getting archived agents:', error);
+            return [];
+        }
+    }
     static async getAgentDetails(agentId: string): Promise<Agent | null> {
         try {
             const docRef = doc(db, 'publishedAgents', agentId);
@@ -99,6 +215,75 @@ export class FirebaseService {
         }
     }
 
+    // Archive agents - FIXED VERSION with proper ID handling
+    static async archiveAgents(agentIds: string[], authorEmail: string): Promise<void> {
+        try {
+            console.log('🔍 Starting archive operation:', { agentIds, authorEmail });
+
+            // First, let's get all user agents and create an ID mapping
+            console.log('📋 Getting user agents to create ID mapping...');
+            const userAgents = await this.getMyPublishedAgents(authorEmail);
+
+            // Create mapping from both possible IDs to Firestore document ID
+            const idMapping = new Map();
+            userAgents.forEach(agent => {
+                idMapping.set(agent.id, agent.firestoreId || agent.id); // Map display ID to Firestore ID
+                if (agent.dataId && agent.dataId !== agent.id) {
+                    idMapping.set(agent.dataId, agent.firestoreId || agent.id); // Map data ID to Firestore ID
+                }
+            });
+
+            console.log('📋 ID Mapping created:', Object.fromEntries(idMapping));
+
+            const promises = agentIds.map(async (agentId, index) => {
+                console.log(`🔍 Processing agent ${index + 1}/${agentIds.length}: ${agentId}`);
+
+                // Get the actual Firestore document ID
+                const firestoreId = idMapping.get(agentId) || agentId;
+                console.log('🔍 Using Firestore ID:', firestoreId, 'for input ID:', agentId);
+
+                const docRef = doc(db, 'publishedAgents', firestoreId);
+
+                try {
+                    const docSnap = await getDoc(docRef);
+                    console.log('📄 Document fetch result:', { exists: docSnap.exists(), firestoreId });
+
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        console.log('📄 Document data:', {
+                            firestoreId,
+                            authorEmail: data.authorEmail,
+                            expectedEmail: authorEmail,
+                            isArchived: data.isArchived,
+                            name: data.name
+                        });
+
+                        if (data.authorEmail === authorEmail) {
+                            console.log('✅ Authorization check passed, updating document...');
+                            await updateDoc(docRef, {
+                                isArchived: true,
+                                archivedAt: new Date()
+                            });
+                            console.log('✅ Document updated successfully');
+                        } else {
+                            throw new Error(`Unauthorized to archive agent ${agentId}. Document author: ${data.authorEmail}, Current user: ${authorEmail}`);
+                        }
+                    } else {
+                        throw new Error(`Agent ${agentId} (Firestore ID: ${firestoreId}) not found in publishedAgents collection`);
+                    }
+                } catch (docError) {
+                    console.error(`❌ Error processing document ${agentId}:`, docError);
+                    throw docError;
+                }
+            });
+
+            await Promise.all(promises);
+            console.log('✅ All agents archived successfully');
+        } catch (error) {
+            console.error('❌ Error archiving agents:', error);
+            throw error;
+        }
+    }
     // Tools
     static async publishTool(
         toolsInput: Tool | Tool[],
@@ -496,6 +681,64 @@ export class FirebaseService {
         }
     }
 
+    static async unarchiveAgent(agentId: string, authorEmail: string): Promise<void> {
+        try {
+            console.log('🔍 Starting unarchive operation:', { agentId, authorEmail });
+
+            // First, get all archived agents to create ID mapping
+            console.log('📋 Getting archived agents to create ID mapping...');
+            const archivedAgents = await this.getArchivedAgents(authorEmail);
+
+            // Create mapping from both possible IDs to Firestore document ID
+            const idMapping = new Map();
+            archivedAgents.forEach(agent => {
+                idMapping.set(agent.id, agent.firestoreId || agent.id); // Map display ID to Firestore ID
+                if (agent.dataId && agent.dataId !== agent.id) {
+                    idMapping.set(agent.dataId, agent.firestoreId || agent.id); // Map data ID to Firestore ID
+                }
+            });
+
+            console.log('📋 ID Mapping for archived agents:', Object.fromEntries(idMapping));
+
+            // Get the actual Firestore document ID
+            const firestoreId = idMapping.get(agentId) || agentId;
+            console.log('🔍 Using Firestore ID:', firestoreId, 'for input ID:', agentId);
+
+            const docRef = doc(db, 'publishedAgents', firestoreId);
+            const docSnap = await getDoc(docRef);
+
+            console.log('📄 Document fetch result:', { exists: docSnap.exists(), firestoreId });
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                console.log('📄 Document data:', {
+                    firestoreId,
+                    authorEmail: data.authorEmail,
+                    expectedEmail: authorEmail,
+                    isArchived: data.isArchived,
+                    name: data.name
+                });
+
+                if (data.authorEmail === authorEmail) {
+                    console.log('✅ Authorization check passed, updating document...');
+                    await updateDoc(docRef, {
+                        isArchived: false,
+                        archivedAt: null
+                    });
+                    console.log('✅ Document unarchived successfully');
+                } else {
+                    throw new Error(`Unauthorized to unarchive agent ${agentId}. Document author: ${data.authorEmail}, Current user: ${authorEmail}`);
+                }
+            } else {
+                console.log('❌ Document does not exist:', { agentId, firestoreId });
+                throw new Error(`Agent ${agentId} (Firestore ID: ${firestoreId}) not found`);
+            }
+        } catch (error) {
+            console.error('Error unarchiving agent:', error);
+            throw error;
+        }
+    }
+
     // Delete published items (for user's own published content)
     static async deletePublishedAgent(agentId: string, authorEmail: string): Promise<void> {
         try {
@@ -590,6 +833,48 @@ export class FirebaseService {
             console.log('✅ All specified tools deleted successfully');
         } catch (error) {
             console.error('Error deleting multiple published tools:', error);
+            throw error;
+        }
+    }
+
+    static async deleteMultiplePublishedAgents(agentIds: string[], authorEmail: string): Promise<void> {
+        try {
+            console.log('🔍 Starting delete operation for multiple agents:', { agentIds, authorEmail });
+
+            // Get all user agents (both published and archived) to create ID mapping
+            const [publishedAgents, archivedAgents] = await Promise.all([
+                this.getMyPublishedAgents(authorEmail),
+                this.getArchivedAgents(authorEmail)
+            ]);
+
+            const allAgents = [...publishedAgents, ...archivedAgents];
+
+            // Create mapping from both possible IDs to Firestore document ID
+            const idMapping = new Map();
+            allAgents.forEach(agent => {
+                idMapping.set(agent.id, agent.firestoreId || agent.id);
+                if (agent.dataId && agent.dataId !== agent.id) {
+                    idMapping.set(agent.dataId, agent.firestoreId || agent.id);
+                }
+            });
+
+            const promises = agentIds.map(async (agentId) => {
+                const firestoreId = idMapping.get(agentId) || agentId;
+                const docRef = doc(db, 'publishedAgents', firestoreId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists() && docSnap.data().authorEmail === authorEmail) {
+                    await deleteDoc(docRef);
+                    console.log(`✅ Agent deleted: ${firestoreId}`);
+                } else {
+                    throw new Error(`Unauthorized to delete agent ${agentId}`);
+                }
+            });
+
+            await Promise.all(promises);
+            console.log('✅ All specified agents deleted successfully');
+        } catch (error) {
+            console.error('Error deleting multiple published agents:', error);
             throw error;
         }
     }

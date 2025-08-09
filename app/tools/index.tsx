@@ -87,18 +87,18 @@ export default function ToolsScreen() {
     );
 
     const filteredPublishedTools = publishedTools.filter(tool =>
-        tool?.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        tool?.description.toLowerCase().includes(searchText.toLowerCase())
+        tool?.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+        tool?.description?.toLowerCase().includes(searchText.toLowerCase())
     );
 
     const filteredMyPublishedTools = myPublishedTools.filter(tool =>
-        tool.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        tool.description.toLowerCase().includes(searchText.toLowerCase())
+        tool?.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+        tool?.description?.toLowerCase().includes(searchText.toLowerCase())
     );
 
     const filteredArchivedTools = archivedTools.filter(tool =>
-        tool.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        tool.description.toLowerCase().includes(searchText.toLowerCase())
+        tool?.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+        tool?.description?.toLowerCase().includes(searchText.toLowerCase())
     );
 
     // Check if a tool is already published by comparing tool IDs
@@ -451,7 +451,7 @@ export default function ToolsScreen() {
                     <View style={styles.toolMeta}>
                         {'parameters' in tool ? (
                             <Text style={styles.metaText}>
-                                {tool.parameters.length} params • {formatDate(tool.updatedAt)}
+                                {tool?.parameters?.length} params • {formatDate(tool.updatedAt)}
                             </Text>
                         ) : (
                             <Text style={styles.metaText}>
@@ -1157,7 +1157,6 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         backgroundColor: 'rgba(0, 0, 0, 0.9)',
-        backdropFilter: 'blur(10px)',
         borderTopWidth: 1,
         borderTopColor: 'rgba(255, 255, 255, 0.1)',
         paddingHorizontal: 20,
