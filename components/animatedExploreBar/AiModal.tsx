@@ -74,6 +74,9 @@ export default function AiModal({ visible, micPermission }) {
     useEffect(() => {
         loadSelectedAgent();
     }, []);
+    useEffect(() => {
+        loadSelectedAgent();
+    }, [LocalStorageService]);
 
     const loadSelectedAgent = async () => {
         try {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import {
     View,
     Text,
@@ -45,7 +45,7 @@ export default function AgentDetailsScreen() {
 
             if (isInstalledAgent) {
                 // Load from installed agents
-                const installedAgents = await LocalStorageService.getInstalledAgents();
+                const installedAgents = await LocalStorageService.getInstalledAgents(user?.primaryEmailAddress?.emailAddress);
                 agentData = installedAgents.find(a => a.id === agentId) || null;
             } else {
                 // For published agents, we need to search in the appropriate collection
@@ -71,7 +71,7 @@ export default function AgentDetailsScreen() {
 
                 // Check if this published agent is installed locally
                 if (agentData) {
-                    const installedAgents = await LocalStorageService.getInstalledAgents();
+                    const installedAgents = await LocalStorageService.getInstalledAgents(user?.primaryEmailAddress?.emailAddress);
                     setIsAgentCurrentlyInstalled(installedAgents.some(a => a.id === agentId));
                 }
             }
@@ -80,7 +80,7 @@ export default function AgentDetailsScreen() {
                 setAgent(agentData);
                 // Load tools associated with the agent
                 if ('toolIds' in agentData && agentData.toolIds) {
-                    const installedTools = await LocalStorageService.getInstalledTools();
+                    const installedTools = await LocalStorageService.getInstalledTools(user?.primaryEmailAddress?.emailAddress);
                     const associatedTools = installedTools.filter(tool => 
                         agentData.toolIds!.includes(tool.id)
                     );
@@ -101,7 +101,7 @@ export default function AgentDetailsScreen() {
 
         setInstalling(true);
         try {
-            await LocalStorageService.saveAgent(agent);
+            await LocalStorageService.saveAgent(agent, user?.primaryEmailAddress?.emailAddress);
 
             // Increment download count if it's a published agent
             if (!isInstalledAgent) {
@@ -136,7 +136,7 @@ export default function AgentDetailsScreen() {
                     onPress: async () => {
                         setUninstalling(true);
                         try {
-                            await LocalStorageService.deleteAgent(agent.id);
+                            await LocalStorageService.deleteAgent(agent.id, user?.primaryEmailAddress?.emailAddress);
 
                             if (Platform.OS !== 'web') {
                                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -189,12 +189,13 @@ export default function AgentDetailsScreen() {
                         setDeleting(true);
                         try {
                             if (isInstalledAgent) {
-                                await LocalStorageService.deleteAgent(agent.id);
+                                await LocalStorageService.deleteAgent(agent.id, user?.primaryEmailAddress?.emailAddress);
                             } else if (isMyPublishedAgent && user?.primaryEmailAddress?.emailAddress) {
+                                console.log('Deleting published agent:', agent.id);
                                 await FirebaseService.deletePublishedAgent(agent.id, user.primaryEmailAddress.emailAddress);
                                 // Also remove from local storage if installed
                                 try {
-                                    await LocalStorageService.deleteAgent(agent.id);
+                                    await LocalStorageService.deleteAgent(agent.id, user.primaryEmailAddress.emailAddress);
                                 } catch (error) {
                                     // Agent might not be installed locally, that's ok
                                 }

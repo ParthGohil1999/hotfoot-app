@@ -742,13 +742,36 @@ export class FirebaseService {
     // Delete published items (for user's own published content)
     static async deletePublishedAgent(agentId: string, authorEmail: string): Promise<void> {
         try {
-            const docRef = doc(db, 'publishedAgents', agentId);
+            console.log('🔍 Starting delete operation:', { agentId, authorEmail });
+
+            // Get all user agents (both published and archived) to create ID mapping
+            const [publishedAgents, archivedAgents] = await Promise.all([
+                this.getMyPublishedAgents(authorEmail), // Assuming you have this method
+                this.getArchivedAgents(authorEmail)     // Assuming you have this method
+            ]);
+
+            const allAgents = [...publishedAgents, ...archivedAgents];
+
+            // Create mapping from both possible IDs to Firestore document ID
+            const idMapping = new Map();
+            allAgents.forEach(agent => {
+                idMapping.set(agent.id, agent.firestoreId || agent.id);
+                if (agent.dataId && agent.dataId !== agent.id) {
+                    idMapping.set(agent.dataId, agent.firestoreId || agent.id);
+                }
+            });
+
+            const firestoreId = idMapping.get(agentId) || agentId;
+            console.log('🔍 Using Firestore ID:', firestoreId, 'for input ID:', agentId);
+
+            const docRef = doc(db, 'publishedAgents', firestoreId);
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists() && docSnap.data().authorEmail === authorEmail) {
                 await deleteDoc(docRef);
+                console.log('✅ Agent deleted successfully');
             } else {
-                throw new Error('Unauthorized to delete this agent');
+                throw new Error(`Unauthorized to delete agent ${agentId} or agent not found`);
             }
         } catch (error) {
             console.error('Error deleting published agent:', error);

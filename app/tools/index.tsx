@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import {
     View,
     Text,
@@ -49,7 +49,7 @@ export default function ToolsScreen() {
         setLoading(true);
         try {
             const [installed, published, myPublished, archived] = await Promise.all([
-                LocalStorageService.getInstalledTools(),
+                LocalStorageService.getInstalledTools(user?.primaryEmailAddress?.emailAddress),
                 FirebaseService.getPublishedTools(),
                 user?.primaryEmailAddress?.emailAddress
                     ? FirebaseService.getMyPublishedTools(user.primaryEmailAddress.emailAddress)
@@ -342,7 +342,7 @@ export default function ToolsScreen() {
                             // Also remove from local storage if installed
                             const promises = Array.from(selectedToolsForAction).map(async (toolId) => {
                                 try {
-                                    await LocalStorageService.deleteTool(toolId);
+                                    await LocalStorageService.deleteTool(toolId, user.primaryEmailAddress?.emailAddress);
                                 } catch (error) {
                                     // Tool might not be installed locally, that's ok
                                     console.log('Tool not found in local storage:', toolId);

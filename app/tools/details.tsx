@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import {
     View,
     Text,
@@ -44,7 +44,7 @@ export default function ToolDetailsScreen() {
 
             if (isInstalledTool) {
                 // Load from installed tools
-                const installedTools = await LocalStorageService.getInstalledTools();
+                const installedTools = await LocalStorageService.getInstalledTools(user?.primaryEmailAddress?.emailAddress);
                 toolData = installedTools.find(t => t.id === toolId) || null;
             } else {
                 // For published tools, we need to search in the appropriate collection
@@ -70,7 +70,7 @@ export default function ToolDetailsScreen() {
 
                 // Check if this published tool is installed locally
                 if (toolData) {
-                    const installedTools = await LocalStorageService.getInstalledTools();
+                    const installedTools = await LocalStorageService.getInstalledTools(user?.primaryEmailAddress?.emailAddress);
                     setIsToolCurrentlyInstalled(installedTools.some(t => t.id === toolId));
                 }
             }
@@ -92,7 +92,7 @@ export default function ToolDetailsScreen() {
 
         setInstalling(true);
         try {
-            await LocalStorageService.saveTool(tool);
+            await LocalStorageService.saveTool(tool, user?.primaryEmailAddress?.emailAddress);
 
             // Increment download count if it's a published tool
             if (!isInstalledTool) {
@@ -127,7 +127,7 @@ export default function ToolDetailsScreen() {
                     onPress: async () => {
                         setUninstalling(true);
                         try {
-                            await LocalStorageService.deleteTool(tool.id);
+                            await LocalStorageService.deleteTool(tool.id, user?.primaryEmailAddress?.emailAddress);
 
                             if (Platform.OS !== 'web') {
                                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -180,12 +180,12 @@ export default function ToolDetailsScreen() {
                         setDeleting(true);
                         try {
                             if (isInstalledTool) {
-                                await LocalStorageService.deleteTool(tool.id);
+                                await LocalStorageService.deleteTool(tool.id, user?.primaryEmailAddress?.emailAddress);
                             } else if (isMyPublishedTool && user?.primaryEmailAddress?.emailAddress) {
                                 await FirebaseService.deletePublishedTool(tool.id, user.primaryEmailAddress.emailAddress);
                                 // Also remove from local storage if installed
                                 try {
-                                    await LocalStorageService.deleteTool(tool.id);
+                                    await LocalStorageService.deleteTool(tool.id, user.primaryEmailAddress.emailAddress);
                                 } catch (error) {
                                     // Tool might not be installed locally, that's ok
                                 }

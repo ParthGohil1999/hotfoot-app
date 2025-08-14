@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import {
     View,
     Text,
@@ -19,9 +19,11 @@ import * as Haptics from 'expo-haptics';
 import { Agent, Tool } from '../../types/agents';
 import { LocalStorageService } from '../../services/localStorage';
 import { v4 as uuidv4 } from 'uuid';
+import { useUser } from '@clerk/clerk-expo';
 
 export default function CreateEditAgentScreen() {
     const router = useRouter();
+    const user = useUser();
     const { editAgentId } = useLocalSearchParams();
     const isEditing = !!editAgentId;
 
@@ -38,11 +40,11 @@ export default function CreateEditAgentScreen() {
 
     const loadData = async () => {
         try {
-            const tools = await LocalStorageService.getInstalledTools();
+            const tools = await LocalStorageService.getInstalledTools(user?.primaryEmailAddress?.emailAddress);
             setAvailableTools(tools);
 
             if (isEditing) {
-                const agents = await LocalStorageService.getInstalledAgents();
+                const agents = await LocalStorageService.getInstalledAgents(user?.primaryEmailAddress?.emailAddress);
                 const agent = agents.find(a => a.id === editAgentId);
                 if (agent) {
                     setName(agent.name);
@@ -83,7 +85,7 @@ export default function CreateEditAgentScreen() {
                 isPublished: false
             };
 
-            await LocalStorageService.saveAgent(agent);
+            await LocalStorageService.saveAgent(agent, user?.primaryEmailAddress?.emailAddress);
 
             if (Platform.OS !== 'web') {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

@@ -234,12 +234,12 @@ const ConvAiComponent = forwardRef<ConvAiComponentRef, ConvAiComponentProps>(({
       onConnectionStatusChange?.('connecting');
 
       // Request microphone permission first
-      // const hasPermission = await requestMicrophonePermission();
-      // if (!hasPermission) {
-      //   console.error("Microphone permission denied");
-      //   onConnectionStatusChange?.('disconnected');
-      //   return;
-      // }
+      const hasPermission = await requestMicrophonePermission();
+      if (!hasPermission) {
+        console.error("Microphone permission denied");
+        onConnectionStatusChange?.('disconnected');
+        return;
+      }
 
       if (Platform.OS !== 'web') {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

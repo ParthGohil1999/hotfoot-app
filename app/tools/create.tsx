@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import {
     View,
     Text,
@@ -20,11 +20,13 @@ import * as Haptics from 'expo-haptics';
 import { Tool, ToolParameter } from '../../types/agents';
 import { LocalStorageService } from '../../services/localStorage';
 import { v4 as uuidv4 } from 'uuid';
+import { useUser } from '@clerk/clerk-expo';
 
 const PARAMETER_TYPES = ['string', 'number', 'boolean', 'object', 'array'] as const;
 
 export default function CreateEditToolScreen() {
     const router = useRouter();
+    const user = useUser();
     const { editToolId } = useLocalSearchParams();
     const isEditing = !!editToolId;
 
@@ -51,7 +53,7 @@ export default function CreateEditToolScreen() {
 
     const loadTool = async () => {
         try {
-            const tools = await LocalStorageService.getInstalledTools();
+            const tools = await LocalStorageService.getInstalledTools(user?.primaryEmailAddress?.emailAddress);
             const tool = tools.find(t => t.id === editToolId);
             if (tool) {
                 setName(tool.name);
@@ -145,7 +147,7 @@ export default function CreateEditToolScreen() {
                 isPublished: false
             };
 
-            await LocalStorageService.saveTool(tool);
+            await LocalStorageService.saveTool(tool, user?.primaryEmailAddress?.emailAddress);
 
             if (Platform.OS !== 'web') {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

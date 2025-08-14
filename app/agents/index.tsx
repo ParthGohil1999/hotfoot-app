@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import {
     View,
     Text,
@@ -49,7 +49,7 @@ export default function AgentsScreen() {
         setLoading(true);
         try {
             const [installed, published, myPublished, archived] = await Promise.all([
-                LocalStorageService.getInstalledAgents(),
+                LocalStorageService.getInstalledAgents(user?.primaryEmailAddress?.emailAddress),
                 FirebaseService.getPublishedAgents(),
                 user?.primaryEmailAddress?.emailAddress
                     ? FirebaseService.getMyPublishedAgents(user.primaryEmailAddress.emailAddress)
@@ -342,7 +342,7 @@ export default function AgentsScreen() {
                             // Also remove from local storage if installed
                             const promises = Array.from(selectedAgentsForAction).map(async (agentId) => {
                                 try {
-                                    await LocalStorageService.deleteAgent(agentId);
+                                    await LocalStorageService.deleteAgent(agentId, user?.primaryEmailAddress?.emailAddress);
                                 } catch (error) {
                                     // Agent might not be installed locally, that's ok
                                     console.log('Agent not found in local storage:', agentId);
