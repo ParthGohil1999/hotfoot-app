@@ -38,7 +38,7 @@ import { Sidebar } from '../../components/sidebar/Sidebar';
 import { useChatHistory } from '../../hooks/useChatHistory';
 import { BlurView } from "expo-blur";
 import { useNavigation } from 'expo-router';
-import ConvAiComponent from "../../components/ConvAI/ConvAI";
+import ConvAiComponent from "@/components/ConvAI/ConvAI";
 import { CactusAgent, CactusLM, initLlama, LlamaContext, Tools } from 'cactus-react-native';
 import RNFS from 'react-native-fs';
 import { SafeAreaView } from "react-native-safe-area-context";
